@@ -38,6 +38,41 @@ header h1{font-size:1.2rem;font-weight:800;}
 .rest-cfg input{width:46px;background:var(--sur);border:1px solid var(--bdr);border-radius:6px;color:var(--txt);padding:4px 6px;font-size:0.75rem;text-align:center;outline:none;}
 .btn-pair-cfg{background:var(--pur);color:#fff;border:none;border-radius:7px;padding:5px 11px;font-size:0.73rem;font-weight:700;cursor:pointer;}
 .btn-pair-cfg:hover{filter:brightness(1.1);}
+.btn-billing{background:#78350f;color:#fef3c7;border:1px solid #d97706;border-radius:7px;padding:5px 11px;font-size:0.73rem;font-weight:700;cursor:pointer;}
+.btn-billing:hover{filter:brightness(1.15);}
+.pay-tag{font-size:0.53rem;padding:1px 5px;border-radius:999px;font-weight:700;flex-shrink:0;line-height:1.4;}
+.pay-tag.zero{background:#78350f;color:#fcd34d;}
+.pay-tag.card3{background:#064e3b;color:#6ee7b7;}
+.pay-tag.pkg1{background:#431407;color:#fdba74;}
+.pay-tag.pkg2{background:#450a0a;color:#fca5a5;}
+.pay-tag.pkg3{background:#1e1b4b;color:#a5b4fc;}
+.pay-tag.season{background:#1e3a5f;color:#93c5fd;}
+.pay-tag.vip{background:#3b0764;color:#d8b4fe;}
+.pay-tag.pfree{background:#1e293b;color:#64748b;}
+.bill-tabs{display:flex;gap:0;margin-bottom:12px;border-bottom:1px solid var(--bdr);}
+.bill-tab{flex:1;text-align:center;padding:7px 0;font-size:0.78rem;font-weight:700;cursor:pointer;color:var(--mut);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all 0.2s;}
+.bill-tab.active{color:var(--txt);border-bottom-color:#f59e0b;}
+.pkg-counter{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.pkg-btn{background:var(--sur);border:1px solid var(--bdr);color:var(--txt);border-radius:5px;width:24px;height:24px;font-size:0.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;}
+.pkg-left{font-size:0.82rem;font-weight:800;min-width:18px;text-align:center;}
+.string-form{display:flex;flex-direction:column;gap:8px;}
+.string-select{width:100%;background:var(--sur);border:1px solid var(--bdr);border-radius:7px;color:var(--txt);padding:7px 10px;font-size:0.82rem;outline:none;}
+.string-select:focus{border-color:#f59e0b;}
+.string-addon{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--sur2);border-radius:7px;cursor:pointer;}
+.string-addon label{flex:1;font-size:0.82rem;cursor:pointer;}
+.string-addon input{cursor:pointer;accent-color:#f59e0b;}
+.string-total{background:#1c1200;border:1px solid #d97706;border-radius:10px;padding:14px;text-align:center;margin-top:4px;}
+.string-price-note{font-size:0.62rem;color:var(--mut);text-align:center;margin-top:6px;line-height:1.5;}
+.bill-rate-box{background:var(--sur2);border:1px solid var(--bdr);border-radius:10px;padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;}
+.bill-section{margin-bottom:10px;}
+.bill-sec-hdr{font-size:0.68rem;font-weight:700;color:var(--mut);letter-spacing:.06em;text-transform:uppercase;padding:0 0 6px;}
+.bill-prow{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;background:var(--sur2);margin-bottom:4px;}
+.bill-pname{flex:1;font-size:0.85rem;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.bill-amt{font-size:0.85rem;font-weight:900;color:#fcd34d;min-width:46px;text-align:right;flex-shrink:0;}
+.btn-mpaid{font-size:0.68rem;padding:3px 8px;border-radius:6px;border:1px solid var(--bdr);background:var(--sur);color:var(--txt2);cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.btn-mpaid.paid{background:#15803d;border-color:#16a34a;color:#fff;}
+.bill-summary{background:#0f1f0f;border:1px solid #16a34a;border-radius:10px;padding:12px 14px;margin-top:12px;}
+.bill-srow{display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:5px;}
 .btn-get-link{background:#0f766e;color:#fff;border:none;border-radius:7px;padding:5px 11px;font-size:0.73rem;font-weight:700;cursor:pointer;transition:background 0.3s;}
 .btn-get-link.copied{background:#16a34a;}
 .btn-get-link:hover{filter:brightness(1.1);}
@@ -433,6 +468,7 @@ header h1{font-size:1.2rem;font-weight:800;}
   }
   .hdr-right::-webkit-scrollbar{display:none;}
   .btn-pair-cfg{font-size:0.92rem;padding:7px 13px;white-space:nowrap;flex-shrink:0;}
+  .btn-billing{font-size:0.92rem;padding:7px 13px;white-space:nowrap;flex-shrink:0;}
   .btn-get-link{font-size:0.92rem;padding:7px 13px;white-space:nowrap;flex-shrink:0;}
   .btn-update{font-size:0.92rem;padding:7px 13px;white-space:nowrap;flex-shrink:0;}
   .btn-roster-toggle{font-size:0.92rem;padding:7px 13px;white-space:nowrap;flex-shrink:0;}
@@ -463,6 +499,7 @@ header h1{font-size:1.2rem;font-weight:800;}
     <button id="btn-pair" class="btn-pair-cfg" onclick="isPro()?openPairModal():showUpgradeHint('固定搭檔為 Pro 功能')">固定搭檔</button>
     <button class="btn-pair-cfg" style="background:#7c3aed" onclick="callAllCourts()">全場叫號</button>
     <button id="btn-stats" class="btn-pair-cfg" style="background:#0e7490" onclick="isPro()?openStatsModal():showUpgradeHint('戰績紀錄為 Pro 功能')">戰績紀錄</button>
+    <button class="btn-billing" onclick="openBillingModal()">💰 計費</button>
     <button class="btn-pair-cfg" style="background:var(--cyn)" onclick="openSetupModal()">初始設定</button>
     <button class="btn-pair-cfg" style="background:#7f1d1d" onclick="resetSession()">清除</button>
     <button class="btn-update" id="btn-update" onclick="manualCheckUpdate()">更新</button>
@@ -517,6 +554,38 @@ header h1{font-size:1.2rem;font-weight:800;}
         <option value="" disabled selected>請選擇</option><option value="1">新</option><option value="2">初</option><option value="3">中</option><option value="4">高</option>
       </select>
     </div>
+    <div class="row">
+      <select id="inp-pay" style="flex:1" onchange="onPayTypeChange(this.value)">
+        <option value="零打">💛 零打（按次計費）</option>
+        <optgroup label="── 三小卡・平日 ──">
+          <option value="三小卡-平日-09">🟢 三小卡 平日 09:00–12:00</option>
+          <option value="三小卡-平日-12">🟢 三小卡 平日 12:00–15:00</option>
+          <option value="三小卡-平日-15">🟢 三小卡 平日 15:00–18:00</option>
+        </optgroup>
+        <optgroup label="── 三小卡・假日 ──">
+          <option value="三小卡-假日-07">🟢 三小卡 假日 07:00–10:00</option>
+          <option value="三小卡-假日-10">🟢 三小卡 假日 10:00–13:00</option>
+          <option value="三小卡-假日-19">🟢 三小卡 假日 19:00–22:00</option>
+        </optgroup>
+        <optgroup label="── 月方案 ──">
+          <option value="月方案-1088">🟠 月方案 $1088（5場/月）</option>
+          <option value="月方案-1588">🔴 月方案 $1588（8場/月）</option>
+          <option value="月方案-3888">💎 月方案 $3888（無限場）</option>
+        </optgroup>
+        <option value="季繳">🔵 季繳（已有票）</option>
+        <option value="VIP">👑 VIP 會員</option>
+        <option value="免費">⚫ 免費</option>
+      </select>
+    </div>
+    <div id="inp-pay-pkg-row" style="display:none;margin-bottom:6px">
+      <div style="font-size:0.72rem;color:var(--mut);padding:4px 2px">剩餘場次（此月）：</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button type="button" style="background:var(--sur);border:1px solid var(--bdr);color:var(--txt);border-radius:6px;width:28px;height:28px;font-size:1rem;cursor:pointer" onclick="adjPkgInput(-1)">−</button>
+        <input id="inp-pkg-left" type="number" min="0" max="30" value="5" style="width:50px;text-align:center;background:var(--sur);border:1px solid var(--bdr);border-radius:6px;color:var(--txt);padding:4px;font-size:0.85rem">
+        <button type="button" style="background:var(--sur);border:1px solid var(--bdr);color:var(--txt);border-radius:6px;width:28px;height:28px;font-size:1rem;cursor:pointer" onclick="adjPkgInput(1)">+</button>
+        <span id="inp-pkg-hint" style="font-size:0.65rem;color:var(--mut)"></span>
+      </div>
+    </div>
     <div class="m-acts">
       <button class="mbtn mcancel" onclick="closeAddModal()">取消</button>
       <button class="mbtn mok" onclick="addPlayer()">➕ 加入</button>
@@ -561,6 +630,74 @@ header h1{font-size:1.2rem;font-weight:800;}
     <div class="m-acts">
       <button class="mbtn mcancel" onclick="closeCourtsModal()">取消</button>
       <button class="mbtn mok" onclick="confirmCourtsModal()">確認</button>
+    </div>
+  </div>
+</div>
+
+<!-- Billing Modal -->
+<div class="overlay" id="modal-billing" onclick="closeBillingModal(event)">
+  <div class="modal" style="width:400px;max-height:84vh;display:flex;flex-direction:column;">
+    <h3>💰 計費系統</h3>
+    <div class="bill-tabs">
+      <div class="bill-tab active" id="bill-tab-player" onclick="switchBillTab('player')">球員計費</div>
+      <div class="bill-tab" id="bill-tab-string" onclick="switchBillTab('string')">穿線計算</div>
+    </div>
+    <!-- Player billing -->
+    <div id="bill-pane-player" style="overflow-y:auto;flex:1">
+      <div class="bill-rate-box" id="bill-rate-info"></div>
+      <div id="bill-body"></div>
+      <div class="bill-summary" id="bill-summary"></div>
+    </div>
+    <!-- Stringing calculator -->
+    <div id="bill-pane-string" style="display:none;overflow-y:auto;flex:1">
+      <div class="string-form">
+        <select class="string-select" id="str-sel" onchange="calcString()">
+          <option value="">── 選擇球線 ──</option>
+          <optgroup label="YONEX">
+            <option value="350">BG65 — NT$350</option>
+            <option value="380">BG65TI — NT$380</option>
+            <option value="420">BG66UM — NT$420</option>
+            <option value="450">BG80 — NT$450</option>
+            <option value="450b">BG80P — NT$450</option>
+            <option value="420b">EXBOLT65 — NT$420</option>
+            <option value="450c">EXBOLT63 — NT$450</option>
+          </optgroup>
+          <optgroup label="KIZUNA">
+            <option value="480">Z61 — NT$480</option>
+            <option value="450d">Z63X — NT$450</option>
+            <option value="480b">Z66 — NT$480</option>
+          </optgroup>
+          <optgroup label="LI-NING">
+            <option value="400">李寧 NO.1 — NT$400</option>
+          </optgroup>
+          <optgroup label="VICTOR">
+            <option value="280">VS-100 — NT$280</option>
+            <option value="380b">VBS66N — NT$380</option>
+          </optgroup>
+        </select>
+        <div class="string-addon">
+          <input type="checkbox" id="str-rush" onchange="calcString()">
+          <label for="str-rush">急件（24小時內）<span style="color:#f59e0b;font-weight:700">+NT$150</span></label>
+        </div>
+        <div class="string-addon">
+          <input type="checkbox" id="str-grommet" onchange="calcString()">
+          <label for="str-grommet">全拍換孔釘<span style="color:#f59e0b;font-weight:700">+NT$300</span></label>
+        </div>
+        <div class="string-total" id="str-total">
+          <div style="font-size:0.72rem;color:var(--mut);margin-bottom:4px">請選擇球線</div>
+          <div style="font-size:2rem;font-weight:900;color:#fcd34d">—</div>
+        </div>
+        <div style="background:var(--sur2);border-radius:8px;padding:10px 12px;font-size:0.72rem;color:var(--txt2);line-height:1.8">
+          底費 NT$250 已含於各球線報價中<br>
+          🕐 一般穿線約 2–3 天<br>
+          💡 建議磅數：新手 22–23、初階 23–25、中階 24–26、高階 27+
+        </div>
+        <div class="string-price-note" id="str-price-note"></div>
+      </div>
+    </div>
+    <div class="m-acts" style="margin-top:12px;flex-shrink:0">
+      <button class="mbtn mcancel" onclick="closeBillingModal()">關閉</button>
+      <button class="mbtn mok" id="bill-main-btn" onclick="markAllPaid()">✅ 全部標記已付</button>
     </div>
   </div>
 </div>
@@ -1395,7 +1532,7 @@ function approveJoin(docId, name, level, timeRange){
     rejectJoin(docId); return;
   }
   if(!isPro() && players.length >= 16){ showUpgradeHint('免費版最多 16 位球員'); return; }
-  players.push({id:nid++, name, level, status:'waiting', offTime:null, playCount:0, partnerHistory:[], availableTime:timeRange});
+  players.push({id:nid++, name, level, status:'waiting', offTime:null, playCount:0, partnerHistory:[], availableTime:timeRange, payType:'零打', sessionPaid:false});
   db.collection('joinRequests').doc(docId).update({status:'approved'}).catch(()=>{});
   const card = document.getElementById('jreq-'+docId);
   if(card) card.remove();
@@ -1483,18 +1620,8 @@ let feeStartTime = null;   // 開始時間 (Date)
 let fixedPairs = []; // [{id1, id2}]
 
 // Roster state — 固定球員（不可刪除）
-let roster = [
-  {id:1, name:'CC',   level:'4', fixed:true},
-  {id:2, name:'Ken',  level:'6', fixed:true},
-  {id:3, name:'慧珍', level:'4', fixed:true},
-  {id:4, name:'灰狼', level:'7', fixed:true},
-  {id:5, name:'小齊', level:'4', fixed:true},
-  {id:6, name:'阿嘎', level:'7', fixed:true},
-  {id:7, name:'冠冠', level:'7', fixed:true},
-  {id:8, name:'等等', level:'4', fixed:true},
-  {id:9, name:'派派', level:'4', fixed:true},
-];
-let rid = 10;
+let roster = [];
+let rid = 1;
 
 let nid = 1;
 
@@ -1507,7 +1634,7 @@ let namingStyle = 'number';
 // ══════════════════════════════
 // SETUP MODAL
 // ══════════════════════════════
-let setupCourtCount = 3;
+let setupCourtCount = 2;
 let setupNamingType = 'number';
 
 function adjustSetupCourts(delta){
@@ -1912,7 +2039,7 @@ function addFromRoster(rosterid){
   if(!re) return;
   if(players.find(p=>p.name===re.name)) return;
   if(!isPro() && players.length >= 16){ showUpgradeHint('免費版最多 16 位球員'); return; }
-  players.push({id:nid++, name:re.name, level:re.level, status:'waiting', offTime:null, playCount:0, partnerHistory:[]});
+  players.push({id:nid++, name:re.name, level:re.level, status:'waiting', offTime:null, playCount:0, partnerHistory:[], payType:'零打', sessionPaid:false});
   render();
   renderLeft();
 }
@@ -2020,6 +2147,235 @@ function renderLeft(){
 }
 
 // ══════════════════════════════
+// BILLING CONFIG (可調漲)
+// ══════════════════════════════
+var billingConfig = {
+  feeWeekday: 250,   // 平日白天 (A-E)
+  feeNight:   280,   // 平日夜間 (F-H)
+  feeWeekend: 280,   // 假日全時段
+  pkg1088: { price:1088, sessions:5  },
+  pkg1588: { price:1588, sessions:8  },
+  pkg3888: { price:3888, sessions:null, renewDiscount:600 },
+  card3Price: 1188,  // 三小卡單張價格（可調）
+  card3Slots: {
+    '三小卡-平日-09': '平日 09:00–12:00',
+    '三小卡-平日-12': '平日 12:00–15:00',
+    '三小卡-平日-15': '平日 15:00–18:00',
+    '三小卡-假日-07': '假日 07:00–10:00',
+    '三小卡-假日-10': '假日 10:00–13:00',
+    '三小卡-假日-19': '假日 19:00–22:00',
+  },
+  stringBase: 250,
+  stringRush: 150,
+  stringGrommet: 300,
+};
+
+// ══════════════════════════════
+// BILLING
+// ══════════════════════════════
+var _billTab = 'player';
+
+function calcFeeRate(){
+  var now=new Date(), day=now.getDay(), h=now.getHours()+now.getMinutes()/60;
+  var cfg=billingConfig;
+  if(day===0||day===6) return {rate:cfg.feeWeekend, label:'假日', desc:'全時段 NT$'+cfg.feeWeekend+'/人'};
+  if(h<18) return {rate:cfg.feeWeekday, label:'平日白天 (A–E)', desc:'08:00–18:00 NT$'+cfg.feeWeekday+'/人'};
+  return {rate:cfg.feeNight, label:'平日夜間 (F–H)', desc:'18:30 後 NT$'+cfg.feeNight+'/人'};
+}
+
+function switchBillTab(tab){
+  _billTab=tab;
+  document.getElementById('bill-tab-player').className='bill-tab'+(tab==='player'?' active':'');
+  document.getElementById('bill-tab-string').className='bill-tab'+(tab==='string'?' active':'');
+  document.getElementById('bill-pane-player').style.display=(tab==='player')?'block':'none';
+  document.getElementById('bill-pane-string').style.display=(tab==='string')?'block':'none';
+  document.getElementById('bill-main-btn').style.display=(tab==='player')?'':'none';
+}
+
+function openBillingModal(){
+  switchBillTab('player');
+  renderBillingModal();
+  document.getElementById('modal-billing').classList.add('open');
+}
+function closeBillingModal(e){
+  if(e&&e.target&&e.target.id!=='modal-billing') return;
+  document.getElementById('modal-billing').classList.remove('open');
+}
+
+function _pkgInfo(payType){
+  if(payType==='月方案-1088') return billingConfig.pkg1088;
+  if(payType==='月方案-1588') return billingConfig.pkg1588;
+  if(payType==='月方案-3888') return billingConfig.pkg3888;
+  return null;
+}
+function _cardSlot(payType){
+  return billingConfig.card3Slots[payType]||null;
+}
+
+function renderBillingModal(){
+  var fr=calcFeeRate();
+  document.getElementById('bill-rate-info').innerHTML=
+    '<div><div style="font-size:0.72rem;color:var(--mut);margin-bottom:2px">目前時段</div>'
+    +'<div style="font-size:0.95rem;font-weight:800">'+fr.label+'</div>'
+    +'<div style="font-size:0.68rem;color:var(--txt2)">'+fr.desc+'</div></div>'
+    +'<div style="text-align:right"><div style="font-size:0.68rem;color:var(--mut)">零打費率</div>'
+    +'<div style="font-size:1.5rem;font-weight:900;color:#fcd34d">NT$'+fr.rate+'</div>'
+    +'<div style="font-size:0.62rem;color:var(--mut)">/人/場</div></div>';
+
+  var zeroDa  =players.filter(function(p){return !p.payType||p.payType==='零打';});
+  var cards   =players.filter(function(p){return p.payType&&p.payType in billingConfig.card3Slots;});
+  var pkgs    =players.filter(function(p){return p.payType&&p.payType.startsWith('月方案');});
+  var season  =players.filter(function(p){return p.payType==='季繳';});
+  var vip     =players.filter(function(p){return p.payType==='VIP';});
+  var free    =players.filter(function(p){return p.payType==='免費';});
+
+  var html='';
+  var mn=function(p){return '<div class="mn '+LCLS(p.level)+'" style="width:22px;height:22px;font-size:0.6rem;flex-shrink:0">'+tierName(p.level)+'</div>';};
+
+  // 零打
+  if(zeroDa.length>0){
+    html+='<div class="bill-section"><div class="bill-sec-hdr">💛 零打（需收費）</div>';
+    zeroDa.forEach(function(p){
+      var paid=p.sessionPaid;
+      html+='<div class="bill-prow">'+mn(p)
+        +'<div class="bill-pname">'+p.name+'</div>'
+        +'<div class="bill-amt">'+(paid?'<span style="color:#4ade80">✓ 已付</span>':'NT$'+fr.rate)+'</div>'
+        +'<button class="btn-mpaid'+(paid?' paid':'')+'" onclick="togglePaid('+p.id+')">'+(paid?'已付款':'標記已付')+'</button>'
+        +'</div>';
+    });
+    html+='</div>';
+  }
+
+  // 三小卡
+  if(cards.length>0){
+    html+='<div class="bill-section"><div class="bill-sec-hdr">🟢 三小卡（NT$'+billingConfig.card3Price+'/張，已預付）</div>';
+    cards.forEach(function(p){
+      var slot=_cardSlot(p.payType)||p.payType;
+      html+='<div class="bill-prow" style="opacity:0.8">'+mn(p)
+        +'<div class="bill-pname">'+p.name+'</div>'
+        +'<div style="font-size:0.68rem;color:#6ee7b7;flex-shrink:0;text-align:right">'+slot+'</div>'
+        +'</div>';
+    });
+    html+='</div>';
+  }
+
+  // 月方案
+  if(pkgs.length>0){
+    html+='<div class="bill-section"><div class="bill-sec-hdr">🟠 月方案球員</div>';
+    pkgs.forEach(function(p){
+      var pkg=_pkgInfo(p.payType);
+      var left=typeof p.pkgLeft==='number'?p.pkgLeft:(pkg&&pkg.sessions?pkg.sessions:99);
+      var limitStr=pkg&&pkg.sessions?('/ '+pkg.sessions):' ∞';
+      var warn=pkg&&pkg.sessions&&left<=0;
+      var warn1=pkg&&pkg.sessions&&left===1;
+      html+='<div class="bill-prow">'+mn(p)
+        +'<div class="bill-pname">'+p.name+'<span style="font-size:0.62rem;color:var(--mut);margin-left:5px">'+(p.payType.replace('月方案-','$'))+'</span></div>'
+        +'<div class="pkg-counter">'
+        +(warn?'<span style="font-size:0.65rem;color:#f87171">額度用盡</span>'
+          :warn1?'<span style="font-size:0.65rem;color:#fbbf24">剩1場</span>':'')
+        +'<button class="pkg-btn" onclick="adjPkgLeft('+p.id+',-1)">−</button>'
+        +'<span class="pkg-left" style="color:'+(warn?'#f87171':warn1?'#fbbf24':'#4ade80')+'">'+left+limitStr+'</span>'
+        +'<button class="pkg-btn" onclick="adjPkgLeft('+p.id+',1)">+</button>'
+        +'</div></div>';
+    });
+    html+='</div>';
+  }
+
+  // 季繳
+  if(season.length>0){
+    html+='<div class="bill-section"><div class="bill-sec-hdr">🔵 季繳（無需收費）</div>';
+    season.forEach(function(p){
+      html+='<div class="bill-prow" style="opacity:0.65">'+mn(p)+'<div class="bill-pname">'+p.name+'</div><div style="font-size:0.75rem;color:#60a5fa;flex-shrink:0">季繳</div></div>';
+    });
+    html+='</div>';
+  }
+  // VIP
+  if(vip.length>0){
+    html+='<div class="bill-section"><div class="bill-sec-hdr">👑 VIP（無需收費）</div>';
+    vip.forEach(function(p){
+      html+='<div class="bill-prow" style="opacity:0.65">'+mn(p)+'<div class="bill-pname">'+p.name+'</div><div style="font-size:0.75rem;color:#d8b4fe;flex-shrink:0">VIP</div></div>';
+    });
+    html+='</div>';
+  }
+  // 免費
+  if(free.length>0){
+    html+='<div class="bill-section"><div class="bill-sec-hdr">⚫ 免費</div>';
+    free.forEach(function(p){
+      html+='<div class="bill-prow" style="opacity:0.55">'+mn(p)+'<div class="bill-pname">'+p.name+'</div><div style="font-size:0.75rem;color:var(--mut);flex-shrink:0">免費</div></div>';
+    });
+    html+='</div>';
+  }
+  if(!players.length) html='<div style="color:var(--mut);text-align:center;padding:20px">尚無球員</div>';
+  document.getElementById('bill-body').innerHTML=html;
+
+  var paidCnt=zeroDa.filter(function(p){return p.sessionPaid;}).length;
+  var unpaidCnt=zeroDa.length-paidCnt;
+  var collected=paidCnt*fr.rate, pending=unpaidCnt*fr.rate, total=zeroDa.length*fr.rate;
+  document.getElementById('bill-summary').innerHTML=
+    '<div class="bill-srow"><span>零打人數</span><span>'+zeroDa.length+' 人</span></div>'
+    +'<div class="bill-srow"><span>應收總計</span><span style="color:#fcd34d;font-weight:800">NT$ '+total+'</span></div>'
+    +'<div class="bill-srow"><span>✅ 已收</span><span style="color:#4ade80;font-weight:800">NT$ '+collected+'</span></div>'
+    +'<div class="bill-srow" style="border-top:1px solid var(--bdr);padding-top:8px;margin-top:4px">'
+    +'<span style="font-weight:700">⏳ 待收</span>'
+    +'<span style="font-size:1.1rem;font-weight:900;color:#fcd34d">NT$ '+pending+'</span></div>';
+}
+
+function togglePaid(id){
+  var p=players.find(function(x){return x.id===id;}); if(!p) return;
+  p.sessionPaid=!p.sessionPaid; renderBillingModal(); saveData();
+}
+function markAllPaid(){
+  players.filter(function(p){return !p.payType||p.payType==='零打';})
+    .forEach(function(p){p.sessionPaid=true;});
+  renderBillingModal(); saveData();
+}
+function adjPkgLeft(id, delta){
+  var p=players.find(function(x){return x.id===id;}); if(!p) return;
+  var pkg=_pkgInfo(p.payType);
+  var cur=typeof p.pkgLeft==='number'?p.pkgLeft:(pkg&&pkg.sessions?pkg.sessions:99);
+  var max=pkg&&pkg.sessions?pkg.sessions:999;
+  p.pkgLeft=Math.max(0,Math.min(max,cur+delta));
+  renderBillingModal(); saveData();
+}
+
+// ── Add player modal helper ──
+function onPayTypeChange(val){
+  var row=document.getElementById('inp-pay-pkg-row');
+  var leftEl=document.getElementById('inp-pkg-left');
+  var hint=document.getElementById('inp-pkg-hint');
+  if(val==='月方案-1088'){ row.style.display='block'; leftEl.value=5; hint.textContent='(最多5場)'; }
+  else if(val==='月方案-1588'){ row.style.display='block'; leftEl.value=8; hint.textContent='(最多8場)'; }
+  else if(val==='月方案-3888'){ row.style.display='block'; leftEl.value=0; hint.textContent='(∞ 無限場)'; leftEl.disabled=true; }
+  else { row.style.display='none'; if(leftEl) leftEl.disabled=false; }
+}
+function adjPkgInput(delta){
+  var el=document.getElementById('inp-pkg-left'); if(!el||el.disabled) return;
+  el.value=Math.max(0,Math.min(30,parseInt(el.value||'0')+delta));
+}
+
+// ── Stringing calculator ──
+function calcString(){
+  var sel=document.getElementById('str-sel');
+  var rush=document.getElementById('str-rush').checked;
+  var grommet=document.getElementById('str-grommet').checked;
+  var raw=sel.value;
+  if(!raw){
+    document.getElementById('str-total').innerHTML='<div style="font-size:0.72rem;color:var(--mut);margin-bottom:4px">請選擇球線</div><div style="font-size:2rem;font-weight:900;color:#fcd34d">—</div>';
+    return;
+  }
+  var base=parseInt(raw); // all values are base prices (already include stringing fee)
+  var extra=0, notes=[];
+  if(rush){ extra+=billingConfig.stringRush||150; notes.push('急件 +NT$150'); }
+  if(grommet){ extra+=billingConfig.stringGrommet||300; notes.push('換孔釘 +NT$300'); }
+  var total=base+extra;
+  var text=sel.options[sel.selectedIndex].text.split('—')[0].trim();
+  document.getElementById('str-total').innerHTML=
+    '<div style="font-size:0.72rem;color:var(--mut);margin-bottom:2px">'+text+(notes.length?' + '+notes.join(' + '):'')+'</div>'
+    +'<div style="font-size:2.2rem;font-weight:900;color:#fcd34d">NT$ '+total+'</div>'
+    +'<div style="font-size:0.65rem;color:var(--mut)">（底費 NT$250 已含於球線報價中）</div>';
+}
+
+// ══════════════════════════════
 // ADD PLAYER MODAL
 // ══════════════════════════════
 function openAddModal(){
@@ -2116,7 +2472,15 @@ function addPlayer(){
   if(!lvlEl.value){alert('請選擇等級');lvlEl.focus();return;}
   if(players.find(p=>p.name===name)){alert(`「${name}」已在名單中`);return;}
   if(!isPro() && players.length >= 16){ showUpgradeHint('免費版最多 16 位球員'); return; }
-  players.push({id:nid++,name,level:lvlEl.value,status:'waiting',offTime:null,playCount:0,partnerHistory:[]});
+  const payEl=document.getElementById('inp-pay');
+  const payType=payEl?payEl.value:'零打';
+  const pkgLeftEl=document.getElementById('inp-pkg-left');
+  const isPkg=payType&&payType.startsWith('月方案');
+  const pkgLeft=isPkg&&pkgLeftEl&&!pkgLeftEl.disabled?parseInt(pkgLeftEl.value||'0'):undefined;
+  const pkgInfo=_pkgInfo(payType);
+  players.push({id:nid++,name,level:lvlEl.value,status:'waiting',offTime:null,playCount:0,partnerHistory:[],
+    payType:payType,sessionPaid:false,
+    pkgLeft:isPkg?(pkgLeft!==undefined?pkgLeft:(pkgInfo&&pkgInfo.sessions?pkgInfo.sessions:null)):undefined});
   nameEl.value='';
   document.getElementById('modal-add').classList.remove('open');
   render();
@@ -2776,6 +3140,21 @@ function renderPlayers(){
         else statusHtml='';
       }
 
+      const payBadge=(()=>{
+        const pt=p.payType||'零打';
+        if(pt==='零打') return '<span class="pay-tag zero">零打</span>';
+        if(pt in billingConfig.card3Slots){
+          const slot=billingConfig.card3Slots[pt].replace('平日 ','').replace('假日 ','假日 ');
+          return '<span class="pay-tag card3">3小卡</span>';
+        }
+        if(pt==='月方案-1088') return '<span class="pay-tag pkg1">$1088</span>';
+        if(pt==='月方案-1588') return '<span class="pay-tag pkg2">$1588</span>';
+        if(pt==='月方案-3888') return '<span class="pay-tag pkg3">$3888</span>';
+        if(pt==='季繳') return '<span class="pay-tag season">季繳</span>';
+        if(pt==='VIP') return '<span class="pay-tag vip">VIP</span>';
+        return '<span class="pay-tag pfree">免費</span>';
+      })();
+
       const div=document.createElement('div');
       div.className='p-item'+(isPlay?' playing':'')+(isSelected?' selected':'');
       div.onclick=(e)=>{ if(e.target.closest('button')) return; if(!isPlay) selectPlayer(p.id); };
@@ -2783,6 +3162,7 @@ function renderPlayers(){
         <div class="p-item-top">
           <div class="mn ${LCLS(p.level)}">${tierName(p.level)}</div>
           <span style="font-size:0.84rem;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.name}</span>
+          ${payBadge}
           <span style="font-size:0.7rem;font-weight:800;color:#60a5fa;flex-shrink:0">${cnt}場</span>
         </div>
         <div class="p-item-bot">
