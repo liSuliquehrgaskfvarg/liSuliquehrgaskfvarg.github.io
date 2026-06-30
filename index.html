@@ -64,6 +64,39 @@ header h1{font-size:1.2rem;font-weight:800;}
 .string-addon input{cursor:pointer;accent-color:#f59e0b;}
 .string-total{background:#1c1200;border:1px solid #d97706;border-radius:10px;padding:14px;text-align:center;margin-top:4px;}
 .string-price-note{font-size:0.62rem;color:var(--mut);text-align:center;margin-top:6px;line-height:1.5;}
+/* ── Member Card Page ── */
+.mc-page-grid{display:grid;grid-template-columns:1fr 400px;gap:16px;padding:16px;flex:1;overflow:hidden;min-height:0;}
+.mc-col-left{display:flex;flex-direction:column;overflow:hidden;background:var(--sur);border-radius:12px;padding:14px;gap:0;}
+.mc-col-right{display:flex;flex-direction:column;gap:10px;overflow-y:auto;}
+.mc-col-right::-webkit-scrollbar{width:3px;}
+.mc-col-right::-webkit-scrollbar-thumb{background:var(--bdr);}
+.mc-card{background:var(--sur);border-radius:12px;overflow:hidden;flex-shrink:0;}
+.mc-card-hdr{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;font-size:0.88rem;font-weight:700;cursor:pointer;}
+.mc-card-hdr:hover{background:var(--sur2);}
+.mc-card>div:last-child{padding:0 14px 14px;}
+.mc-row{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;background:var(--sur2);margin-bottom:4px;}
+.mc-name{flex:1;font-size:0.85rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.mc-status{font-size:0.65rem;font-weight:700;padding:2px 7px;border-radius:999px;flex-shrink:0;}
+.mc-status.active{background:#14532d;color:#4ade80;}
+.mc-status.warn{background:#451a03;color:#fbbf24;}
+.mc-status.expired{background:#450a0a;color:#f87171;}
+.mc-status.none{background:var(--bdr);color:var(--mut);}
+.mc-expiry{font-size:0.65rem;color:var(--mut);flex-shrink:0;}
+.mc-form-row{display:flex;flex-direction:column;gap:3px;margin-bottom:8px;}
+.mc-form-row label{font-size:0.72rem;color:var(--txt2);}
+.mc-form-row input,.mc-form-row select,.mc-form-row textarea{background:var(--sur2);border:1px solid var(--bdr);border-radius:7px;color:var(--txt);padding:7px 9px;font-size:0.82rem;outline:none;width:100%;box-sizing:border-box;}
+.mc-form-row input:focus,.mc-form-row select:focus{border-color:var(--blu);}
+.mc-hist-row{display:flex;flex-direction:column;gap:3px;padding:9px 10px;background:var(--sur2);border-radius:8px;margin-bottom:5px;}
+.mc-hist-name{font-size:0.8rem;font-weight:700;}
+.mc-hist-meta{font-size:0.65rem;color:var(--txt2);display:flex;flex-wrap:wrap;gap:6px;}
+.mc-hist-meta span{background:var(--sur);border-radius:4px;padding:1px 5px;}
+.btn-mc-del{background:none;border:1px solid var(--bdr);color:var(--mut);border-radius:5px;padding:2px 7px;font-size:0.68rem;cursor:pointer;flex-shrink:0;margin-top:4px;align-self:flex-end;}
+.btn-mc-del:hover{background:var(--red);border-color:var(--red);color:#fff;}
+@media(max-width:768px){
+  .mc-page-grid{grid-template-columns:1fr;padding:8px;gap:10px;overflow-y:auto;height:auto;}
+  .mc-col-left{min-height:40vh;}
+  .mc-col-right{overflow-y:visible;}
+}
 /* Billing page full-screen layout */
 .bill-page-grid{display:grid;grid-template-columns:1fr 380px;gap:16px;padding:16px;flex:1;overflow:hidden;min-height:0;}
 .bill-col-left{display:flex;flex-direction:column;overflow:hidden;background:var(--sur);border-radius:12px;padding:14px;}
@@ -516,6 +549,7 @@ header h1{font-size:1.2rem;font-weight:800;}
     <button class="btn-pair-cfg" style="background:#7c3aed" onclick="callAllCourts()">全場叫號</button>
     <button id="btn-stats" class="btn-pair-cfg" style="background:#0e7490" onclick="isPro()?openStatsModal():showUpgradeHint('戰績紀錄為 Pro 功能')">戰績紀錄</button>
     <button class="btn-billing" id="btn-billing-toggle" onclick="toggleBillingPage()">💰 計費</button>
+    <button class="btn-billing" id="btn-mc-toggle" onclick="toggleMemberCardPage()">🪪 月卡</button>
     <button class="btn-pair-cfg" style="background:var(--cyn)" onclick="openSetupModal()">初始設定</button>
     <button class="btn-pair-cfg" style="background:#7f1d1d" onclick="resetSession()">清除</button>
     <button class="btn-update" id="btn-update" onclick="manualCheckUpdate()">更新</button>
@@ -737,6 +771,102 @@ header h1{font-size:1.2rem;font-weight:800;}
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Member Card Management Page -->
+<div id="mc-page" style="display:none;flex:1;overflow:hidden;flex-direction:column">
+  <div class="mc-page-grid">
+    <!-- LEFT: 球員月卡狀態 -->
+    <div class="mc-col-left">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-shrink:0">
+        <div style="font-size:1rem;font-weight:800;flex:1">🪪 球員月卡狀態</div>
+        <span style="font-size:0.7rem;color:var(--mut)">僅顯示球員庫成員</span>
+      </div>
+      <div id="mc-status-list" style="flex:1;overflow-y:auto"></div>
+    </div>
+    <!-- RIGHT: 操作 -->
+    <div class="mc-col-right">
+      <!-- 登記新月卡 -->
+      <div class="mc-card">
+        <div class="mc-card-hdr" onclick="toggleToolCard('tc-mc-form')">
+          <span>📝 登記新月卡</span><span id="tc-mc-form-arrow">▼</span>
+        </div>
+        <div id="tc-mc-form" style="padding:10px 14px 14px">
+          <div class="mc-form-row">
+            <label>球員姓名</label>
+            <input id="mc-inp-player" list="mc-player-list" placeholder="輸入或選擇球員" autocomplete="off">
+            <datalist id="mc-player-list"></datalist>
+          </div>
+          <div class="mc-form-row">
+            <label>方案類型</label>
+            <select id="mc-inp-type" onchange="onMcTypeChange()">
+              <option value="">── 選擇方案 ──</option>
+              <optgroup label="月方案">
+                <option value="月方案-1088">🟠 月方案 $1088（5場/月）</option>
+                <option value="月方案-1588">🔴 月方案 $1588（8場/月）</option>
+                <option value="月方案-3888">💎 月方案 $3888（無限場）</option>
+              </optgroup>
+              <optgroup label="三小卡">
+                <option value="三小卡-平日-09">🟢 三小卡 平日 09–12</option>
+                <option value="三小卡-平日-12">🟢 三小卡 平日 12–15</option>
+                <option value="三小卡-平日-15">🟢 三小卡 平日 15–18</option>
+                <option value="三小卡-假日-07">🟢 三小卡 假日 07–10</option>
+                <option value="三小卡-假日-10">🟢 三小卡 假日 10–13</option>
+                <option value="三小卡-假日-19">🟢 三小卡 假日 19–22</option>
+              </optgroup>
+              <optgroup label="季繳">
+                <option value="季繳-平日">🔵 季繳 平日（3個月）</option>
+                <option value="季繳-夜間">🔵 季繳 夜間（3個月）</option>
+                <option value="季繳-假日">🔵 季繳 假日（3個月）</option>
+              </optgroup>
+              <optgroup label="全時段票">
+                <option value="全時段-季全">🟣 全時段 季全（3個月）</option>
+                <option value="全時段-半年">🟣 全時段 半年（6個月）</option>
+                <option value="全時段-年全">🟣 全時段 年全（12個月）</option>
+              </optgroup>
+              <optgroup label="VIP">
+                <option value="VIP-月全">👑 VIP 月全（1個月）</option>
+                <option value="VIP-半年">👑 VIP 半年（6個月）</option>
+                <option value="VIP-年全">👑 VIP 年全（12個月）</option>
+              </optgroup>
+            </select>
+          </div>
+          <div style="display:flex;gap:8px">
+            <div class="mc-form-row" style="flex:1">
+              <label>購買日期</label>
+              <input id="mc-inp-buydate" type="date">
+            </div>
+            <div class="mc-form-row" style="flex:1">
+              <label>到期日</label>
+              <input id="mc-inp-expiry" type="date">
+            </div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <div class="mc-form-row" style="flex:1">
+              <label>實際付款（NT$）</label>
+              <input id="mc-inp-amount" type="number" min="0" step="50" placeholder="0">
+            </div>
+            <div class="mc-form-row" id="mc-sess-row" style="flex:1;display:none">
+              <label>剩餘場次</label>
+              <input id="mc-inp-sessions" type="number" min="0" max="30" value="5">
+            </div>
+          </div>
+          <div class="mc-form-row">
+            <label>備注</label>
+            <input id="mc-inp-note" type="text" placeholder="選填，例如：續卡折600">
+          </div>
+          <button onclick="registerCard()" style="width:100%;background:#d97706;color:#fff;border:none;border-radius:8px;padding:9px;font-size:0.85rem;font-weight:700;cursor:pointer;margin-top:4px">📝 登記月卡</button>
+        </div>
+      </div>
+      <!-- 購買歷史 -->
+      <div class="mc-card">
+        <div class="mc-card-hdr" onclick="toggleToolCard('tc-mc-hist')">
+          <span>📋 購買歷史</span><span id="tc-mc-hist-arrow">▼</span>
+        </div>
+        <div id="tc-mc-hist" style="max-height:400px;overflow-y:auto;padding:0 14px 14px"></div>
       </div>
     </div>
   </div>
@@ -1467,6 +1597,7 @@ async function loadUserRoster(){
   try {
     var doc = await db.collection('users').doc(currentUser.uid).get();
     if(doc.exists){ _userPro = !!doc.data().isPro; updateProUI(); }
+    if(doc.exists && doc.data().cardRecords){ loadCardRecords(doc.data()); }
     if(doc.exists && doc.data().roster && doc.data().roster.length > 0){
       roster = doc.data().roster;
       rid = roster.reduce(function(m,r){return Math.max(m,r.id);}, 0) + 1;
@@ -2239,6 +2370,193 @@ var billingConfig = {
 // ══════════════════════════════
 var _billPageOpen = false;
 
+// ══════════════════════════════
+// MEMBER CARD RECORDS
+// ══════════════════════════════
+var cardRecords = [];
+var _mcPageOpen = false;
+var MC_KEY = 'badminton_cardRecords_v1';
+
+function saveCardRecords(){
+  try{ localStorage.setItem(MC_KEY, JSON.stringify(cardRecords)); }catch(e){}
+  if(typeof currentUser!=='undefined'&&currentUser){
+    db.collection('users').doc(currentUser.uid).set({cardRecords:cardRecords},{merge:true})
+      .catch(function(e){console.warn('saveCardRecords error:',e);});
+  }
+}
+function loadCardRecords(fromDoc){
+  if(fromDoc&&fromDoc.cardRecords){ cardRecords=fromDoc.cardRecords; try{localStorage.setItem(MC_KEY,JSON.stringify(cardRecords));}catch(e){} return; }
+  try{ var r=localStorage.getItem(MC_KEY); if(r) cardRecords=JSON.parse(r); }catch(e){}
+}
+
+function _mcExpiry(cardType, buyDate){
+  var d=new Date(buyDate);
+  if(cardType.startsWith('月方案')||cardType==='VIP-月全'||cardType.startsWith('三小卡')){
+    return new Date(d.getFullYear(),d.getMonth()+1,0).toISOString().slice(0,10);
+  }
+  var months=0;
+  if(cardType.startsWith('季繳')||cardType==='全時段-季全') months=3;
+  else if(cardType==='全時段-半年'||cardType==='VIP-半年') months=6;
+  else if(cardType==='全時段-年全'||cardType==='VIP-年全') months=12;
+  else months=1;
+  return new Date(d.getFullYear(),d.getMonth()+months,d.getDate()).toISOString().slice(0,10);
+}
+function _mcDefaultPrice(cardType){
+  var cfg=billingConfig;
+  if(cardType==='月方案-1088') return cfg.pkg1088.price;
+  if(cardType==='月方案-1588') return cfg.pkg1588.price;
+  if(cardType==='月方案-3888') return cfg.pkg3888.price;
+  if(cardType.startsWith('三小卡')) return cfg.card3Price;
+  if(cardType==='季繳-平日') return cfg.seasonWeekday;
+  if(cardType==='季繳-夜間') return cfg.seasonNight;
+  if(cardType==='季繳-假日') return cfg.seasonWeekend;
+  if(cardType==='全時段-季全') return cfg.fullSeason;
+  if(cardType==='全時段-半年') return cfg.fullHalfYear;
+  if(cardType==='全時段-年全') return cfg.fullYear;
+  if(cardType==='VIP-月全') return cfg.vipMonthly;
+  if(cardType==='VIP-半年') return cfg.vipHalfYear;
+  if(cardType==='VIP-年全') return cfg.vipYearly;
+  return 0;
+}
+function _mcDefaultSessions(cardType){
+  if(cardType==='月方案-1088') return 5;
+  if(cardType==='月方案-1588') return 8;
+  return 0;
+}
+function onMcTypeChange(){
+  var type=document.getElementById('mc-inp-type').value;
+  var buyDate=document.getElementById('mc-inp-buydate').value||new Date().toISOString().slice(0,10);
+  if(type){
+    document.getElementById('mc-inp-expiry').value=_mcExpiry(type,buyDate);
+    document.getElementById('mc-inp-amount').value=_mcDefaultPrice(type);
+    var sess=_mcDefaultSessions(type);
+    var row=document.getElementById('mc-sess-row');
+    if(sess>0){ row.style.display='block'; document.getElementById('mc-inp-sessions').value=sess; }
+    else { row.style.display='none'; }
+  }
+}
+function registerCard(){
+  var player=document.getElementById('mc-inp-player').value.trim();
+  var type=document.getElementById('mc-inp-type').value;
+  var buyDate=document.getElementById('mc-inp-buydate').value;
+  var expiry=document.getElementById('mc-inp-expiry').value;
+  var amount=parseInt(document.getElementById('mc-inp-amount').value)||0;
+  var sessEl=document.getElementById('mc-inp-sessions');
+  var sessions=_mcDefaultSessions(type);
+  if(document.getElementById('mc-sess-row').style.display!=='none') sessions=parseInt(sessEl.value)||sessions;
+  var note=document.getElementById('mc-inp-note').value.trim();
+  if(!player||!type||!buyDate||!expiry){ alert('請填寫球員、方案、購買日期和到期日'); return; }
+  cardRecords.unshift({
+    id: Date.now()+'_'+Math.random().toString(36).slice(2,6),
+    playerName: player, cardType: type,
+    purchaseDate: buyDate, expiryDate: expiry,
+    amountPaid: amount, sessionsTotal: sessions, sessionsLeft: sessions,
+    note: note
+  });
+  saveCardRecords();
+  // Also update the player's payType in session if they're in the queue
+  var sp=players.find(function(p){return p.name===player;});
+  if(sp){ sp.payType=type; if(sessions>0) sp.pkgLeft=sessions; saveData(); }
+  document.getElementById('mc-inp-player').value='';
+  document.getElementById('mc-inp-type').value='';
+  document.getElementById('mc-inp-amount').value='';
+  document.getElementById('mc-inp-note').value='';
+  document.getElementById('mc-sess-row').style.display='none';
+  renderMemberCards();
+}
+function deleteCardRecord(id){
+  if(!confirm('確定刪除這筆記錄？')) return;
+  cardRecords=cardRecords.filter(function(r){return r.id!==id;});
+  saveCardRecords(); renderMemberCards();
+}
+function renderMemberCards(){
+  // Populate player datalist
+  var dl=document.getElementById('mc-player-list');
+  if(dl){ dl.innerHTML=roster.map(function(r){return '<option value="'+r.name+'">';}).join(''); }
+  // Set default buy date to today
+  var bd=document.getElementById('mc-inp-buydate');
+  if(bd&&!bd.value) bd.value=new Date().toISOString().slice(0,10);
+
+  var today=new Date(); today.setHours(0,0,0,0);
+  // Status list — all roster players
+  var statusHtml='';
+  var allNames=roster.map(function(r){return r.name;});
+  // Also include names from cardRecords not in roster
+  cardRecords.forEach(function(cr){ if(allNames.indexOf(cr.playerName)<0) allNames.push(cr.playerName); });
+  allNames.forEach(function(name){
+    // Find latest non-expired record
+    var recs=cardRecords.filter(function(r){return r.playerName===name;});
+    var active=recs.filter(function(r){return new Date(r.expiryDate)>=today;})
+      .sort(function(a,b){return new Date(b.purchaseDate)-new Date(a.purchaseDate);});
+    var rec=active[0]||null;
+    var mn='';
+    var rp=roster.find(function(r){return r.name===name;});
+    if(rp) mn='<div class="mn '+LCLS(rp.level)+'" style="width:20px;height:20px;font-size:0.58rem;flex-shrink:0">'+tierName(rp.level)+'</div>';
+    if(rec){
+      var exp=new Date(rec.expiryDate); exp.setHours(0,0,0,0);
+      var days=Math.round((exp-today)/(86400000));
+      var stClass=days<=3?'expired':days<=7?'warn':'active';
+      var stLabel=days<=0?'已到期':days<=7?'剩'+days+'天':'有效';
+      var sessInfo=rec.sessionsTotal>0?('<span style="color:#4ade80;font-size:0.65rem">剩'+rec.sessionsLeft+'/'+rec.sessionsTotal+'場</span>'):'';
+      statusHtml+='<div class="mc-row">'+mn
+        +'<div class="mc-name">'+name+'</div>'
+        +'<span class="mc-status '+stClass+'">'+stLabel+'</span>'
+        +sessInfo
+        +'<span class="mc-expiry">'+rec.expiryDate+'</span>'
+        +'<span style="font-size:0.65rem;color:var(--mut);flex-shrink:0;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+rec.cardType.replace('月方案-','$').replace('三小卡-','卡')+'</span>'
+        +'</div>';
+    } else {
+      statusHtml+='<div class="mc-row" style="opacity:0.5">'+mn
+        +'<div class="mc-name">'+name+'</div>'
+        +'<span class="mc-status none">無月卡</span>'
+        +'</div>';
+    }
+  });
+  if(!allNames.length) statusHtml='<div style="color:var(--mut);text-align:center;padding:20px">球員庫尚無成員</div>';
+  document.getElementById('mc-status-list').innerHTML=statusHtml;
+
+  // History
+  var histHtml='';
+  if(!cardRecords.length) histHtml='<div style="color:var(--mut);text-align:center;padding:20px;font-size:0.8rem">尚無紀錄</div>';
+  cardRecords.forEach(function(r){
+    var exp=new Date(r.expiryDate); exp.setHours(0,0,0,0);
+    var isExpired=exp<today;
+    histHtml+='<div class="mc-hist-row">'
+      +'<div style="display:flex;align-items:center;justify-content:space-between">'
+      +'<span class="mc-hist-name">'+r.playerName+'</span>'
+      +(isExpired?'<span style="font-size:0.62rem;color:#f87171">已過期</span>':'<span style="font-size:0.62rem;color:#4ade80">有效</span>')
+      +'</div>'
+      +'<div class="mc-hist-meta">'
+      +'<span>'+r.cardType.replace('月方案-','月方案 $').replace('三小卡-','三小卡 ')+'</span>'
+      +(r.amountPaid?'<span>NT$'+r.amountPaid+'</span>':'')
+      +(r.sessionsTotal>0?'<span>剩'+r.sessionsLeft+'/'+r.sessionsTotal+'場</span>':'')
+      +'<span>購入 '+r.purchaseDate+'</span>'
+      +'<span>到期 '+r.expiryDate+'</span>'
+      +(r.note?'<span>📝 '+r.note+'</span>':'')
+      +'</div>'
+      +'<button class="btn-mc-del" onclick="deleteCardRecord(\''+r.id+'\')">🗑 刪除</button>'
+      +'</div>';
+  });
+  document.getElementById('tc-mc-hist').innerHTML=histHtml;
+}
+function toggleMemberCardPage(){
+  _mcPageOpen=!_mcPageOpen;
+  var page=document.getElementById('mc-page');
+  var layout=document.getElementById('main-layout');
+  var btn=document.getElementById('btn-mc-toggle');
+  // Close billing if open
+  if(_billPageOpen){ _billPageOpen=false; document.getElementById('billing-page').style.display='none'; document.getElementById('btn-billing-toggle').textContent='💰 計費'; document.getElementById('btn-billing-toggle').style.background=''; }
+  if(_mcPageOpen){
+    layout.style.display='none';
+    page.style.display='flex'; page.style.flexDirection='column';
+    btn.textContent='← 返回排版'; btn.style.background='#1e3a5f';
+    renderMemberCards();
+  } else {
+    layout.style.display=''; page.style.display='none';
+    btn.textContent='🪪 月卡'; btn.style.background='';
+  }
+}
+
 function calcFeeRate(){
   var now=new Date(), day=now.getDay(), h=now.getHours()+now.getMinutes()/60;
   var cfg=billingConfig;
@@ -2252,6 +2570,8 @@ function toggleBillingPage(){
   var page=document.getElementById('billing-page');
   var layout=document.getElementById('main-layout');
   var btn=document.getElementById('btn-billing-toggle');
+  // Close mc page if open
+  if(_mcPageOpen){ _mcPageOpen=false; document.getElementById('mc-page').style.display='none'; document.getElementById('btn-mc-toggle').textContent='🪪 月卡'; document.getElementById('btn-mc-toggle').style.background=''; }
   if(_billPageOpen){
     layout.style.display='none';
     page.style.display='flex'; page.style.flexDirection='column';
