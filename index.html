@@ -47,6 +47,7 @@ header h1{font-size:1.2rem;font-weight:800;}
 .pay-tag.pkg2{background:#450a0a;color:#fca5a5;}
 .pay-tag.pkg3{background:#1e1b4b;color:#a5b4fc;}
 .pay-tag.season{background:#1e3a5f;color:#93c5fd;}
+.pay-tag.fullpass{background:#1e1b4b;color:#c4b5fd;}
 .pay-tag.vip{background:#3b0764;color:#d8b4fe;}
 .pay-tag.pfree{background:#1e293b;color:#64748b;}
 .bill-tabs{display:flex;gap:0;margin-bottom:12px;border-bottom:1px solid var(--bdr);}
@@ -63,7 +64,22 @@ header h1{font-size:1.2rem;font-weight:800;}
 .string-addon input{cursor:pointer;accent-color:#f59e0b;}
 .string-total{background:#1c1200;border:1px solid #d97706;border-radius:10px;padding:14px;text-align:center;margin-top:4px;}
 .string-price-note{font-size:0.62rem;color:var(--mut);text-align:center;margin-top:6px;line-height:1.5;}
-.bill-rate-box{background:var(--sur2);border:1px solid var(--bdr);border-radius:10px;padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;}
+/* Billing page full-screen layout */
+.bill-page-grid{display:grid;grid-template-columns:1fr 380px;gap:16px;padding:16px;flex:1;overflow:hidden;min-height:0;}
+.bill-col-left{display:flex;flex-direction:column;overflow:hidden;background:var(--sur);border-radius:12px;padding:14px;}
+.bill-col-right{display:flex;flex-direction:column;gap:10px;overflow-y:auto;}
+.bill-col-right::-webkit-scrollbar{width:3px;}
+.bill-col-right::-webkit-scrollbar-thumb{background:var(--bdr);}
+.bill-tool-card{background:var(--sur);border-radius:12px;overflow:hidden;flex-shrink:0;}
+.bill-tool-hdr{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;font-size:0.88rem;font-weight:700;cursor:pointer;}
+.bill-tool-hdr:hover{background:var(--sur2);}
+.bill-tool-card>div:last-child{padding:0 14px 14px;}
+@media(max-width:768px){
+  .bill-page-grid{grid-template-columns:1fr;padding:8px;gap:10px;overflow-y:auto;height:auto;}
+  .bill-col-left{min-height:60vh;}
+  .bill-col-right{overflow-y:visible;}
+}
+.bill-rate-box{background:var(--sur2);border:1px solid var(--bdr);border-radius:10px;padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
 .bill-section{margin-bottom:10px;}
 .bill-sec-hdr{font-size:0.68rem;font-weight:700;color:var(--mut);letter-spacing:.06em;text-transform:uppercase;padding:0 0 6px;}
 .bill-prow{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;background:var(--sur2);margin-bottom:4px;}
@@ -499,7 +515,7 @@ header h1{font-size:1.2rem;font-weight:800;}
     <button id="btn-pair" class="btn-pair-cfg" onclick="isPro()?openPairModal():showUpgradeHint('固定搭檔為 Pro 功能')">固定搭檔</button>
     <button class="btn-pair-cfg" style="background:#7c3aed" onclick="callAllCourts()">全場叫號</button>
     <button id="btn-stats" class="btn-pair-cfg" style="background:#0e7490" onclick="isPro()?openStatsModal():showUpgradeHint('戰績紀錄為 Pro 功能')">戰績紀錄</button>
-    <button class="btn-billing" onclick="openBillingModal()">💰 計費</button>
+    <button class="btn-billing" id="btn-billing-toggle" onclick="toggleBillingPage()">💰 計費</button>
     <button class="btn-pair-cfg" style="background:var(--cyn)" onclick="openSetupModal()">初始設定</button>
     <button class="btn-pair-cfg" style="background:#7f1d1d" onclick="resetSession()">清除</button>
     <button class="btn-update" id="btn-update" onclick="manualCheckUpdate()">更新</button>
@@ -513,7 +529,7 @@ header h1{font-size:1.2rem;font-weight:800;}
 
 <div class="left-overlay-bg" id="roster-overlay" onclick="closeRosterDrawer()"></div>
 
-<div class="layout">
+<div id="main-layout" class="layout">
   <div class="main-area">
     <!-- LEFT PANEL: 球員庫 -->
     <div class="left-panel" id="left-panel">
@@ -572,8 +588,21 @@ header h1{font-size:1.2rem;font-weight:800;}
           <option value="月方案-1588">🔴 月方案 $1588（8場/月）</option>
           <option value="月方案-3888">💎 月方案 $3888（無限場）</option>
         </optgroup>
-        <option value="季繳">🔵 季繳（已有票）</option>
-        <option value="VIP">👑 VIP 會員</option>
+        <optgroup label="── 季繳（單時段）──">
+          <option value="季繳-平日">🔵 季繳 平日 ($2500/季)</option>
+          <option value="季繳-夜間">🔵 季繳 平日夜間 ($2800/季)</option>
+          <option value="季繳-假日">🔵 季繳 假日 ($2800/季)</option>
+        </optgroup>
+        <optgroup label="── 全時段票（平日A-E）──">
+          <option value="全時段-季全">🟣 全時段 季全 ($6280)</option>
+          <option value="全時段-半年">🟣 全時段 半年 ($10880)</option>
+          <option value="全時段-年全">🟣 全時段 年全 ($18880)</option>
+        </optgroup>
+        <optgroup label="── VIP ──">
+          <option value="VIP-月全">👑 VIP 月全 ($3888)</option>
+          <option value="VIP-半年">👑 VIP 半年 ($20888)</option>
+          <option value="VIP-年全">👑 VIP 年全 ($38888)</option>
+        </optgroup>
         <option value="免費">⚫ 免費</option>
       </select>
     </div>
@@ -634,70 +663,81 @@ header h1{font-size:1.2rem;font-weight:800;}
   </div>
 </div>
 
-<!-- Billing Modal -->
-<div class="overlay" id="modal-billing" onclick="closeBillingModal(event)">
-  <div class="modal" style="width:400px;max-height:84vh;display:flex;flex-direction:column;">
-    <h3>💰 計費系統</h3>
-    <div class="bill-tabs">
-      <div class="bill-tab active" id="bill-tab-player" onclick="switchBillTab('player')">球員計費</div>
-      <div class="bill-tab" id="bill-tab-string" onclick="switchBillTab('string')">穿線計算</div>
-    </div>
-    <!-- Player billing -->
-    <div id="bill-pane-player" style="overflow-y:auto;flex:1">
-      <div class="bill-rate-box" id="bill-rate-info"></div>
-      <div id="bill-body"></div>
-      <div class="bill-summary" id="bill-summary"></div>
-    </div>
-    <!-- Stringing calculator -->
-    <div id="bill-pane-string" style="display:none;overflow-y:auto;flex:1">
-      <div class="string-form">
-        <select class="string-select" id="str-sel" onchange="calcString()">
-          <option value="">── 選擇球線 ──</option>
-          <optgroup label="YONEX">
-            <option value="350">BG65 — NT$350</option>
-            <option value="380">BG65TI — NT$380</option>
-            <option value="420">BG66UM — NT$420</option>
-            <option value="450">BG80 — NT$450</option>
-            <option value="450b">BG80P — NT$450</option>
-            <option value="420b">EXBOLT65 — NT$420</option>
-            <option value="450c">EXBOLT63 — NT$450</option>
-          </optgroup>
-          <optgroup label="KIZUNA">
-            <option value="480">Z61 — NT$480</option>
-            <option value="450d">Z63X — NT$450</option>
-            <option value="480b">Z66 — NT$480</option>
-          </optgroup>
-          <optgroup label="LI-NING">
-            <option value="400">李寧 NO.1 — NT$400</option>
-          </optgroup>
-          <optgroup label="VICTOR">
-            <option value="280">VS-100 — NT$280</option>
-            <option value="380b">VBS66N — NT$380</option>
-          </optgroup>
-        </select>
-        <div class="string-addon">
-          <input type="checkbox" id="str-rush" onchange="calcString()">
-          <label for="str-rush">急件（24小時內）<span style="color:#f59e0b;font-weight:700">+NT$150</span></label>
-        </div>
-        <div class="string-addon">
-          <input type="checkbox" id="str-grommet" onchange="calcString()">
-          <label for="str-grommet">全拍換孔釘<span style="color:#f59e0b;font-weight:700">+NT$300</span></label>
-        </div>
-        <div class="string-total" id="str-total">
-          <div style="font-size:0.72rem;color:var(--mut);margin-bottom:4px">請選擇球線</div>
-          <div style="font-size:2rem;font-weight:900;color:#fcd34d">—</div>
-        </div>
-        <div style="background:var(--sur2);border-radius:8px;padding:10px 12px;font-size:0.72rem;color:var(--txt2);line-height:1.8">
-          底費 NT$250 已含於各球線報價中<br>
-          🕐 一般穿線約 2–3 天<br>
-          💡 建議磅數：新手 22–23、初階 23–25、中階 24–26、高階 27+
-        </div>
-        <div class="string-price-note" id="str-price-note"></div>
+<!-- Billing Page (full-screen, toggled by header button) -->
+<div id="billing-page" style="display:none;flex:1;overflow:hidden;flex-direction:column">
+  <div class="bill-page-grid">
+    <!-- LEFT: Player billing list -->
+    <div class="bill-col-left">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-shrink:0">
+        <div style="font-size:1rem;font-weight:800;flex:1">💰 球員計費</div>
+        <button onclick="markAllPaid()" style="background:#15803d;border:none;border-radius:7px;color:#fff;font-size:0.72rem;font-weight:700;padding:5px 10px;cursor:pointer">✅ 全部標記已付</button>
       </div>
+      <div class="bill-rate-box" id="bill-rate-info"></div>
+      <div id="bill-body" style="flex:1;overflow-y:auto"></div>
+      <div class="bill-summary" id="bill-summary" style="flex-shrink:0;margin-top:10px"></div>
     </div>
-    <div class="m-acts" style="margin-top:12px;flex-shrink:0">
-      <button class="mbtn mcancel" onclick="closeBillingModal()">關閉</button>
-      <button class="mbtn mok" id="bill-main-btn" onclick="markAllPaid()">✅ 全部標記已付</button>
+    <!-- RIGHT: Tools -->
+    <div class="bill-col-right">
+      <!-- Price settings card -->
+      <div class="bill-tool-card">
+        <div class="bill-tool-hdr" onclick="toggleToolCard('tc-prices')">
+          <span>⚙️ 調整價格</span><span id="tc-prices-arrow">▼</span>
+        </div>
+        <div id="tc-prices" style="display:none;padding:10px 0">
+          <div style="font-size:0.7rem;color:var(--mut);margin-bottom:8px">修改後按「儲存」即時生效。</div>
+          <div id="price-form"></div>
+          <button onclick="savePriceSettings()" style="width:100%;background:#d97706;color:#fff;border:none;border-radius:8px;padding:8px;font-size:0.82rem;font-weight:700;cursor:pointer;margin-top:8px">💾 儲存價格設定</button>
+        </div>
+      </div>
+      <!-- Stringing calculator card -->
+      <div class="bill-tool-card">
+        <div class="bill-tool-hdr" onclick="toggleToolCard('tc-string')">
+          <span>🔧 穿線計算</span><span id="tc-string-arrow">▼</span>
+        </div>
+        <div id="tc-string" style="padding:10px 0">
+          <div class="string-form">
+            <select class="string-select" id="str-sel" onchange="calcString()">
+              <option value="">── 選擇球線 ──</option>
+              <optgroup label="YONEX">
+                <option value="350">BG65 — NT$350</option>
+                <option value="380">BG65TI — NT$380</option>
+                <option value="420">BG66UM — NT$420</option>
+                <option value="450">BG80 — NT$450</option>
+                <option value="450b">BG80P — NT$450</option>
+                <option value="420b">EXBOLT65 — NT$420</option>
+                <option value="450c">EXBOLT63 — NT$450</option>
+              </optgroup>
+              <optgroup label="KIZUNA">
+                <option value="480">Z61 — NT$480</option>
+                <option value="450d">Z63X — NT$450</option>
+                <option value="480b">Z66 — NT$480</option>
+              </optgroup>
+              <optgroup label="LI-NING">
+                <option value="400">李寧 NO.1 — NT$400</option>
+              </optgroup>
+              <optgroup label="VICTOR">
+                <option value="280">VS-100 — NT$280</option>
+                <option value="380b">VBS66N — NT$380</option>
+              </optgroup>
+            </select>
+            <div class="string-addon">
+              <input type="checkbox" id="str-rush" onchange="calcString()">
+              <label for="str-rush">急件（24小時內）<span style="color:#f59e0b;font-weight:700">+NT$150</span></label>
+            </div>
+            <div class="string-addon">
+              <input type="checkbox" id="str-grommet" onchange="calcString()">
+              <label for="str-grommet">全拍換孔釘<span style="color:#f59e0b;font-weight:700">+NT$300</span></label>
+            </div>
+            <div class="string-total" id="str-total">
+              <div style="font-size:0.72rem;color:var(--mut);margin-bottom:4px">請選擇球線</div>
+              <div style="font-size:2rem;font-weight:900;color:#fcd34d">—</div>
+            </div>
+            <div style="background:var(--sur2);border-radius:8px;padding:10px 12px;font-size:0.72rem;color:var(--txt2);line-height:1.8">
+              底費 NT$250 已含於各球線報價中<br>🕐 一般穿線約 2–3 天<br>💡 磅數：新 22–23、初 23–25、中 24–26、高 27+
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -1064,10 +1104,14 @@ if(isViewerMode){
         c.playerSlots = (c.playerSlots||[null,null,null,null]).map(function(id){return validIds.has(id)?id:null;});
         c.nextSlots = (c.nextSlots||[null,null,null,null]).map(function(id){return validIds.has(id)?id:null;});
       });
-      // 若自己被刪，清除身份並通知
-      if(_myPlayerName && !players.some(function(p){return p.name===_myPlayerName;})){
+      // 若自己出現在場上，標記為已核准
+      if(_myPlayerName && players.some(function(p){return p.name===_myPlayerName;})){
+        _myPlayerApproved = true;
+      }
+      // 若自己被刪（且曾被核准過），才通知下課
+      if(_myPlayerName && _myPlayerApproved && !players.some(function(p){return p.name===_myPlayerName;})){
         showDismissedAlert(_myPlayerName);
-        _myPlayerName = null; _lastCourtNotified = null;
+        _myPlayerName = null; _myPlayerApproved = false; _lastCourtNotified = null;
         localStorage.removeItem('viewer-my-name');
         document.getElementById('viewer-my-bar').style.display='none';
         _viewerNameChosen = false;
@@ -1094,6 +1138,7 @@ if(isViewerMode){
 
 // ── Join Mode (球員加入) ──────────────────────────────────
 var _myPlayerName = null;
+var _myPlayerApproved = false; // 只有被主辦人核准、出現在 players 後才設 true
 var _myJoinDocId = null;
 
 if(isJoinMode){
@@ -1141,6 +1186,7 @@ async function submitJoinRequest(){
     });
     _myJoinDocId = ref.id;
     _myPlayerName = name;
+    _myPlayerApproved = false; // 重置，等主辦人核准後才設 true
     // 立即切換到觀看畫面，核准後名字才出現在場上
     switchJoinToViewer();
     // 監聽審核結果
@@ -1215,9 +1261,12 @@ function switchJoinToViewer(){
       c.nextSlots = (c.nextSlots||[null,null,null,null]).map(function(id){return validIds2.has(id)?id:null;});
     });
     // 若自己被刪，清除身份並通知
-    if(_myPlayerName && !players.some(function(p){return p.name===_myPlayerName;})){
+    if(_myPlayerName && players.some(function(p){return p.name===_myPlayerName;})){
+      _myPlayerApproved = true;
+    }
+    if(_myPlayerName && _myPlayerApproved && !players.some(function(p){return p.name===_myPlayerName;})){
       showDismissedAlert(_myPlayerName);
-      _myPlayerName = null; _lastCourtNotified = null;
+      _myPlayerName = null; _myPlayerApproved = false; _lastCourtNotified = null;
     }
     renderViewerUI(doc.data().session.updatedAt);
     checkMyCourtNotify();
@@ -2150,13 +2199,26 @@ function renderLeft(){
 // BILLING CONFIG (可調漲)
 // ══════════════════════════════
 var billingConfig = {
-  feeWeekday: 250,   // 平日白天 (A-E)
-  feeNight:   280,   // 平日夜間 (F-H)
-  feeWeekend: 280,   // 假日全時段
+  feeWeekday: 250,   // 平日白天零打 (A-E)
+  feeNight:   280,   // 平日夜間零打 (F-H)
+  feeWeekend: 280,   // 假日零打
+  // 月優惠方案
   pkg1088: { price:1088, sessions:5  },
   pkg1588: { price:1588, sessions:8  },
-  pkg3888: { price:3888, sessions:null, renewDiscount:600 },
-  card3Price: 1188,  // 三小卡單張價格（可調）
+  // 季繳（單時段）
+  seasonWeekday: 2500,  // 平日單時段季繳
+  seasonNight:   2800,  // 平日夜間季繳
+  seasonWeekend: 2800,  // 假日季繳
+  // 全時段票（平日A-E）
+  fullSeason:    6280,  // 季全
+  fullHalfYear: 10880,  // 半年全
+  fullYear:     18880,  // 年全
+  // VIP
+  vipMonthly:    3888,  // VIP 月全
+  vipHalfYear:  20888,  // VIP 半年
+  vipYearly:    38888,  // VIP 年全
+  // 三小卡
+  card3Price: 1188,
   card3Slots: {
     '三小卡-平日-09': '平日 09:00–12:00',
     '三小卡-平日-12': '平日 12:00–15:00',
@@ -2165,6 +2227,7 @@ var billingConfig = {
     '三小卡-假日-10': '假日 10:00–13:00',
     '三小卡-假日-19': '假日 19:00–22:00',
   },
+  // 穿線
   stringBase: 250,
   stringRush: 150,
   stringGrommet: 300,
@@ -2173,7 +2236,7 @@ var billingConfig = {
 // ══════════════════════════════
 // BILLING
 // ══════════════════════════════
-var _billTab = 'player';
+var _billPageOpen = false;
 
 function calcFeeRate(){
   var now=new Date(), day=now.getDay(), h=now.getHours()+now.getMinutes()/60;
@@ -2183,24 +2246,36 @@ function calcFeeRate(){
   return {rate:cfg.feeNight, label:'平日夜間 (F–H)', desc:'18:30 後 NT$'+cfg.feeNight+'/人'};
 }
 
-function switchBillTab(tab){
-  _billTab=tab;
-  document.getElementById('bill-tab-player').className='bill-tab'+(tab==='player'?' active':'');
-  document.getElementById('bill-tab-string').className='bill-tab'+(tab==='string'?' active':'');
-  document.getElementById('bill-pane-player').style.display=(tab==='player')?'block':'none';
-  document.getElementById('bill-pane-string').style.display=(tab==='string')?'block':'none';
-  document.getElementById('bill-main-btn').style.display=(tab==='player')?'':'none';
+function toggleBillingPage(){
+  _billPageOpen=!_billPageOpen;
+  var page=document.getElementById('billing-page');
+  var layout=document.getElementById('main-layout');
+  var btn=document.getElementById('btn-billing-toggle');
+  if(_billPageOpen){
+    layout.style.display='none';
+    page.style.display='flex'; page.style.flexDirection='column';
+    btn.textContent='← 返回排版';
+    btn.style.background='#1e3a5f';
+    renderBillingModal();
+    renderPriceForm();
+  } else {
+    layout.style.display='';
+    page.style.display='none';
+    btn.textContent='💰 計費';
+    btn.style.background='';
+  }
 }
-
-function openBillingModal(){
-  switchBillTab('player');
-  renderBillingModal();
-  document.getElementById('modal-billing').classList.add('open');
+function toggleToolCard(id){
+  var el=document.getElementById(id);
+  var arrow=document.getElementById(id+'-arrow');
+  if(!el) return;
+  var open=el.style.display==='none';
+  el.style.display=open?'block':'none';
+  if(arrow) arrow.textContent=open?'▲':'▼';
 }
-function closeBillingModal(e){
-  if(e&&e.target&&e.target.id!=='modal-billing') return;
-  document.getElementById('modal-billing').classList.remove('open');
-}
+// Keep for backward compat (called from elsewhere)
+function openBillingModal(){ if(!_billPageOpen) toggleBillingPage(); }
+function closeBillingModal(){ if(_billPageOpen) toggleBillingPage(); }
 
 function _pkgInfo(payType){
   if(payType==='月方案-1088') return billingConfig.pkg1088;
@@ -2225,8 +2300,9 @@ function renderBillingModal(){
   var zeroDa  =players.filter(function(p){return !p.payType||p.payType==='零打';});
   var cards   =players.filter(function(p){return p.payType&&p.payType in billingConfig.card3Slots;});
   var pkgs    =players.filter(function(p){return p.payType&&p.payType.startsWith('月方案');});
-  var season  =players.filter(function(p){return p.payType==='季繳';});
-  var vip     =players.filter(function(p){return p.payType==='VIP';});
+  var season  =players.filter(function(p){return p.payType&&p.payType.startsWith('季繳');});
+  var fullPass=players.filter(function(p){return p.payType&&p.payType.startsWith('全時段');});
+  var vip     =players.filter(function(p){return p.payType&&p.payType.startsWith('VIP');});
   var free    =players.filter(function(p){return p.payType==='免費';});
 
   var html='';
@@ -2285,7 +2361,18 @@ function renderBillingModal(){
   if(season.length>0){
     html+='<div class="bill-section"><div class="bill-sec-hdr">🔵 季繳（無需收費）</div>';
     season.forEach(function(p){
-      html+='<div class="bill-prow" style="opacity:0.65">'+mn(p)+'<div class="bill-pname">'+p.name+'</div><div style="font-size:0.75rem;color:#60a5fa;flex-shrink:0">季繳</div></div>';
+      var label=p.payType==='季繳-平日'?'季繳 平日':p.payType==='季繳-夜間'?'季繳 夜間':'季繳 假日';
+      html+='<div class="bill-prow" style="opacity:0.7">'+mn(p)+'<div class="bill-pname">'+p.name+'</div><div style="font-size:0.68rem;color:#60a5fa;flex-shrink:0">'+label+'</div></div>';
+    });
+    html+='</div>';
+  }
+  // 全時段
+  if(fullPass.length>0){
+    html+='<div class="bill-section"><div class="bill-sec-hdr">🟣 全時段票（無需收費）</div>';
+    fullPass.forEach(function(p){
+      var labelMap={'全時段-季全':'季全 NT$'+billingConfig.fullSeason,'全時段-半年':'半年 NT$'+billingConfig.fullHalfYear,'全時段-年全':'年全 NT$'+billingConfig.fullYear};
+      var label=labelMap[p.payType]||p.payType;
+      html+='<div class="bill-prow" style="opacity:0.7">'+mn(p)+'<div class="bill-pname">'+p.name+'</div><div style="font-size:0.68rem;color:#a78bfa;flex-shrink:0">'+label+'</div></div>';
     });
     html+='</div>';
   }
@@ -2293,7 +2380,9 @@ function renderBillingModal(){
   if(vip.length>0){
     html+='<div class="bill-section"><div class="bill-sec-hdr">👑 VIP（無需收費）</div>';
     vip.forEach(function(p){
-      html+='<div class="bill-prow" style="opacity:0.65">'+mn(p)+'<div class="bill-pname">'+p.name+'</div><div style="font-size:0.75rem;color:#d8b4fe;flex-shrink:0">VIP</div></div>';
+      var labelMap={'VIP-月全':'月全 NT$'+billingConfig.vipMonthly,'VIP-半年':'半年 NT$'+billingConfig.vipHalfYear,'VIP-年全':'年全 NT$'+billingConfig.vipYearly};
+      var label=labelMap[p.payType]||p.payType;
+      html+='<div class="bill-prow" style="opacity:0.7">'+mn(p)+'<div class="bill-pname">'+p.name+'</div><div style="font-size:0.68rem;color:#d8b4fe;flex-shrink:0">'+label+'</div></div>';
     });
     html+='</div>';
   }
@@ -2328,6 +2417,79 @@ function markAllPaid(){
   players.filter(function(p){return !p.payType||p.payType==='零打';})
     .forEach(function(p){p.sessionPaid=true;});
   renderBillingModal(); saveData();
+}
+
+function renderPriceForm(){
+  var cfg=billingConfig;
+  var rows=[
+    {key:'feeWeekday',  label:'零打・平日白天 (A-E)'},
+    {key:'feeNight',    label:'零打・平日夜間 (F-H)'},
+    {key:'feeWeekend',  label:'零打・假日'},
+    {key:'card3Price',  label:'三小卡（每張）'},
+    {key:'seasonWeekday',label:'季繳・平日單時段'},
+    {key:'seasonNight', label:'季繳・平日夜間'},
+    {key:'seasonWeekend',label:'季繳・假日'},
+    {key:'fullSeason',  label:'全時段票・季全'},
+    {key:'fullHalfYear',label:'全時段票・半年'},
+    {key:'fullYear',    label:'全時段票・年全'},
+    {key:'vipMonthly',  label:'VIP・月全'},
+    {key:'vipHalfYear', label:'VIP・半年'},
+    {key:'vipYearly',   label:'VIP・年全'},
+    {key:'pkg1088',     label:'月方案・5場 (原$1088)', isPkg:true},
+    {key:'pkg1588',     label:'月方案・8場 (原$1588)', isPkg:true},
+    {key:'stringRush',  label:'穿線・急件加費'},
+    {key:'stringGrommet',label:'穿線・換孔釘'},
+  ];
+  var html='';
+  rows.forEach(function(r){
+    var val=r.isPkg?cfg[r.key].price:cfg[r.key];
+    html+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px;">'
+      +'<label style="flex:1;font-size:0.75rem;color:var(--txt2)">'+r.label+'</label>'
+      +'<span style="font-size:0.7rem;color:var(--mut)">NT$</span>'
+      +'<input type="number" id="pf-'+r.key+'" value="'+val+'" min="0" step="10" '
+      +'style="width:80px;background:var(--sur);border:1px solid var(--bdr);border-radius:6px;color:var(--txt);padding:4px 6px;font-size:0.82rem;text-align:right;outline:none">'
+      +'</div>';
+  });
+  document.getElementById('price-form').innerHTML=html;
+}
+
+function savePriceSettings(){
+  var cfg=billingConfig;
+  var keys=['feeWeekday','feeNight','feeWeekend','card3Price',
+    'seasonWeekday','seasonNight','seasonWeekend',
+    'fullSeason','fullHalfYear','fullYear',
+    'vipMonthly','vipHalfYear','vipYearly',
+    'stringRush','stringGrommet'];
+  keys.forEach(function(k){
+    var el=document.getElementById('pf-'+k);
+    if(el) cfg[k]=parseInt(el.value)||cfg[k];
+  });
+  // packages
+  ['pkg1088','pkg1588'].forEach(function(k){
+    var el=document.getElementById('pf-'+k);
+    if(el) cfg[k].price=parseInt(el.value)||cfg[k].price;
+  });
+  try{ localStorage.setItem('billingConfig',JSON.stringify(cfg)); }catch(e){}
+  renderBillingModal();
+  var btn=document.querySelector('#bill-pane-prices button');
+  if(btn){ btn.textContent='✅ 已儲存！'; setTimeout(function(){btn.textContent='💾 儲存價格設定';},2000); }
+}
+
+function loadBillingConfig(){
+  try{
+    var raw=localStorage.getItem('billingConfig');
+    if(raw){
+      var saved=JSON.parse(raw);
+      Object.keys(saved).forEach(function(k){
+        if(k==='card3Slots') return; // 不覆蓋 slot 定義
+        if(typeof billingConfig[k]==='object'&&billingConfig[k]!==null&&!Array.isArray(billingConfig[k])){
+          Object.assign(billingConfig[k],saved[k]);
+        } else {
+          billingConfig[k]=saved[k];
+        }
+      });
+    }
+  }catch(e){}
 }
 function adjPkgLeft(id, delta){
   var p=players.find(function(x){return x.id===id;}); if(!p) return;
@@ -3029,6 +3191,7 @@ function ensureFixedRoster(){
 }
 
 function loadData(){
+  loadBillingConfig();
   try {
     var raw = localStorage.getItem(STORAGE_KEY);
     if(!raw){ return false; }
@@ -3143,15 +3306,12 @@ function renderPlayers(){
       const payBadge=(()=>{
         const pt=p.payType||'零打';
         if(pt==='零打') return '<span class="pay-tag zero">零打</span>';
-        if(pt in billingConfig.card3Slots){
-          const slot=billingConfig.card3Slots[pt].replace('平日 ','').replace('假日 ','假日 ');
-          return '<span class="pay-tag card3">3小卡</span>';
-        }
+        if(pt in billingConfig.card3Slots) return '<span class="pay-tag card3">3小卡</span>';
         if(pt==='月方案-1088') return '<span class="pay-tag pkg1">$1088</span>';
         if(pt==='月方案-1588') return '<span class="pay-tag pkg2">$1588</span>';
-        if(pt==='月方案-3888') return '<span class="pay-tag pkg3">$3888</span>';
-        if(pt==='季繳') return '<span class="pay-tag season">季繳</span>';
-        if(pt==='VIP') return '<span class="pay-tag vip">VIP</span>';
+        if(pt.startsWith('季繳')) return '<span class="pay-tag season">季繳</span>';
+        if(pt.startsWith('全時段')) return '<span class="pay-tag fullpass">全時段</span>';
+        if(pt.startsWith('VIP')) return '<span class="pay-tag vip">VIP</span>';
         return '<span class="pay-tag pfree">免費</span>';
       })();
 
