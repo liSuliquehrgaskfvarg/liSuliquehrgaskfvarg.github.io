@@ -1990,7 +1990,7 @@ function confirmCourtsModal(){
   }
   courts = newCourts;
   document.getElementById('modal-courts').classList.remove('open');
-  document.getElementById('hdr-sub').textContent = `${courts.length} 面場 · 等級配對 · 休息計時 · 避免重複搭檔`;
+  var _hdrSub = document.getElementById('hdr-sub'); if(_hdrSub) _hdrSub.textContent = `${courts.length} 面場 · 等級配對 · 休息計時 · 避免重複搭檔`;
   render();
 }
 
@@ -2205,6 +2205,7 @@ var billingConfig = {
   // 月優惠方案
   pkg1088: { price:1088, sessions:5  },
   pkg1588: { price:1588, sessions:8  },
+  pkg3888: { price:3888, sessions:0  }, // sessions:0 = 無限場
   // 季繳（單時段）
   seasonWeekday: 2500,  // 平日單時段季繳
   seasonNight:   2800,  // 平日夜間季繳
@@ -2340,18 +2341,21 @@ function renderBillingModal(){
     html+='<div class="bill-section"><div class="bill-sec-hdr">🟠 月方案球員</div>';
     pkgs.forEach(function(p){
       var pkg=_pkgInfo(p.payType);
-      var left=typeof p.pkgLeft==='number'?p.pkgLeft:(pkg&&pkg.sessions?pkg.sessions:99);
-      var limitStr=pkg&&pkg.sessions?('/ '+pkg.sessions):' ∞';
-      var warn=pkg&&pkg.sessions&&left<=0;
-      var warn1=pkg&&pkg.sessions&&left===1;
+      var isUnlimited=!pkg||!pkg.sessions;
+      var left=isUnlimited?'∞':(typeof p.pkgLeft==='number'?p.pkgLeft:pkg.sessions);
+      var limitStr=isUnlimited?'':('/ '+pkg.sessions);
+      var warn=!isUnlimited&&left<=0;
+      var warn1=!isUnlimited&&left===1;
       html+='<div class="bill-prow">'+mn(p)
         +'<div class="bill-pname">'+p.name+'<span style="font-size:0.62rem;color:var(--mut);margin-left:5px">'+(p.payType.replace('月方案-','$'))+'</span></div>'
         +'<div class="pkg-counter">'
         +(warn?'<span style="font-size:0.65rem;color:#f87171">額度用盡</span>'
           :warn1?'<span style="font-size:0.65rem;color:#fbbf24">剩1場</span>':'')
-        +'<button class="pkg-btn" onclick="adjPkgLeft('+p.id+',-1)">−</button>'
+        +(isUnlimited?''
+          :'<button class="pkg-btn" onclick="adjPkgLeft('+p.id+',-1)">−</button>')
         +'<span class="pkg-left" style="color:'+(warn?'#f87171':warn1?'#fbbf24':'#4ade80')+'">'+left+limitStr+'</span>'
-        +'<button class="pkg-btn" onclick="adjPkgLeft('+p.id+',1)">+</button>'
+        +(isUnlimited?''
+          :'<button class="pkg-btn" onclick="adjPkgLeft('+p.id+',1)">+</button>')
         +'</div></div>';
     });
     html+='</div>';
@@ -2437,6 +2441,7 @@ function renderPriceForm(){
     {key:'vipYearly',   label:'VIP・年全'},
     {key:'pkg1088',     label:'月方案・5場 (原$1088)', isPkg:true},
     {key:'pkg1588',     label:'月方案・8場 (原$1588)', isPkg:true},
+    {key:'pkg3888',     label:'月方案・無限場 (原$3888)', isPkg:true},
     {key:'stringRush',  label:'穿線・急件加費'},
     {key:'stringGrommet',label:'穿線・換孔釘'},
   ];
@@ -2465,13 +2470,13 @@ function savePriceSettings(){
     if(el) cfg[k]=parseInt(el.value)||cfg[k];
   });
   // packages
-  ['pkg1088','pkg1588'].forEach(function(k){
+  ['pkg1088','pkg1588','pkg3888'].forEach(function(k){
     var el=document.getElementById('pf-'+k);
     if(el) cfg[k].price=parseInt(el.value)||cfg[k].price;
   });
   try{ localStorage.setItem('billingConfig',JSON.stringify(cfg)); }catch(e){}
   renderBillingModal();
-  var btn=document.querySelector('#bill-pane-prices button');
+  var btn=document.querySelector('#tc-prices button');
   if(btn){ btn.textContent='✅ 已儲存！'; setTimeout(function(){btn.textContent='💾 儲存價格設定';},2000); }
 }
 
@@ -2494,9 +2499,9 @@ function loadBillingConfig(){
 function adjPkgLeft(id, delta){
   var p=players.find(function(x){return x.id===id;}); if(!p) return;
   var pkg=_pkgInfo(p.payType);
-  var cur=typeof p.pkgLeft==='number'?p.pkgLeft:(pkg&&pkg.sessions?pkg.sessions:99);
-  var max=pkg&&pkg.sessions?pkg.sessions:999;
-  p.pkgLeft=Math.max(0,Math.min(max,cur+delta));
+  if(!pkg||!pkg.sessions) return; // 無限場方案不計算次數
+  var cur=typeof p.pkgLeft==='number'?p.pkgLeft:pkg.sessions;
+  p.pkgLeft=Math.max(0,Math.min(pkg.sessions,cur+delta));
   renderBillingModal(); saveData();
 }
 
