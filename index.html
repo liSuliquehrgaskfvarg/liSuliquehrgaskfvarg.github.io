@@ -2316,6 +2316,7 @@ function renderBillingModal(){
       var paid=p.sessionPaid;
       html+='<div class="bill-prow">'+mn(p)
         +'<div class="bill-pname">'+p.name+'</div>'
+        +_payTypeSelectHtml(p.id,p.payType||'零打')
         +'<div class="bill-amt">'+(paid?'<span style="color:#4ade80">✓ 已付</span>':'NT$'+fr.rate)+'</div>'
         +'<button class="btn-mpaid'+(paid?' paid':'')+'" onclick="togglePaid('+p.id+')">'+(paid?'已付款':'標記已付')+'</button>'
         +'</div>';
@@ -2330,6 +2331,7 @@ function renderBillingModal(){
       var slot=_cardSlot(p.payType)||p.payType;
       html+='<div class="bill-prow" style="opacity:0.8">'+mn(p)
         +'<div class="bill-pname">'+p.name+'</div>'
+        +_payTypeSelectHtml(p.id,p.payType||'零打')
         +'<div style="font-size:0.68rem;color:#6ee7b7;flex-shrink:0;text-align:right">'+slot+'</div>'
         +'</div>';
     });
@@ -2347,7 +2349,8 @@ function renderBillingModal(){
       var warn=!isUnlimited&&left<=0;
       var warn1=!isUnlimited&&left===1;
       html+='<div class="bill-prow">'+mn(p)
-        +'<div class="bill-pname">'+p.name+'<span style="font-size:0.62rem;color:var(--mut);margin-left:5px">'+(p.payType.replace('月方案-','$'))+'</span></div>'
+        +'<div class="bill-pname">'+p.name+'</div>'
+        +_payTypeSelectHtml(p.id,p.payType||'零打')
         +'<div class="pkg-counter">'
         +(warn?'<span style="font-size:0.65rem;color:#f87171">額度用盡</span>'
           :warn1?'<span style="font-size:0.65rem;color:#fbbf24">剩1場</span>':'')
@@ -2366,7 +2369,7 @@ function renderBillingModal(){
     html+='<div class="bill-section"><div class="bill-sec-hdr">🔵 季繳（無需收費）</div>';
     season.forEach(function(p){
       var label=p.payType==='季繳-平日'?'季繳 平日':p.payType==='季繳-夜間'?'季繳 夜間':'季繳 假日';
-      html+='<div class="bill-prow" style="opacity:0.7">'+mn(p)+'<div class="bill-pname">'+p.name+'</div><div style="font-size:0.68rem;color:#60a5fa;flex-shrink:0">'+label+'</div></div>';
+      html+='<div class="bill-prow">'+mn(p)+'<div class="bill-pname">'+p.name+'</div>'+_payTypeSelectHtml(p.id,p.payType||'零打')+'</div>';
     });
     html+='</div>';
   }
@@ -2376,7 +2379,7 @@ function renderBillingModal(){
     fullPass.forEach(function(p){
       var labelMap={'全時段-季全':'季全 NT$'+billingConfig.fullSeason,'全時段-半年':'半年 NT$'+billingConfig.fullHalfYear,'全時段-年全':'年全 NT$'+billingConfig.fullYear};
       var label=labelMap[p.payType]||p.payType;
-      html+='<div class="bill-prow" style="opacity:0.7">'+mn(p)+'<div class="bill-pname">'+p.name+'</div><div style="font-size:0.68rem;color:#a78bfa;flex-shrink:0">'+label+'</div></div>';
+      html+='<div class="bill-prow">'+mn(p)+'<div class="bill-pname">'+p.name+'</div>'+_payTypeSelectHtml(p.id,p.payType||'零打')+'</div>';
     });
     html+='</div>';
   }
@@ -2386,7 +2389,7 @@ function renderBillingModal(){
     vip.forEach(function(p){
       var labelMap={'VIP-月全':'月全 NT$'+billingConfig.vipMonthly,'VIP-半年':'半年 NT$'+billingConfig.vipHalfYear,'VIP-年全':'年全 NT$'+billingConfig.vipYearly};
       var label=labelMap[p.payType]||p.payType;
-      html+='<div class="bill-prow" style="opacity:0.7">'+mn(p)+'<div class="bill-pname">'+p.name+'</div><div style="font-size:0.68rem;color:#d8b4fe;flex-shrink:0">'+label+'</div></div>';
+      html+='<div class="bill-prow">'+mn(p)+'<div class="bill-pname">'+p.name+'</div>'+_payTypeSelectHtml(p.id,p.payType||'零打')+'</div>';
     });
     html+='</div>';
   }
@@ -2394,7 +2397,7 @@ function renderBillingModal(){
   if(free.length>0){
     html+='<div class="bill-section"><div class="bill-sec-hdr">⚫ 免費</div>';
     free.forEach(function(p){
-      html+='<div class="bill-prow" style="opacity:0.55">'+mn(p)+'<div class="bill-pname">'+p.name+'</div><div style="font-size:0.75rem;color:var(--mut);flex-shrink:0">免費</div></div>';
+      html+='<div class="bill-prow">'+mn(p)+'<div class="bill-pname">'+p.name+'</div>'+_payTypeSelectHtml(p.id,p.payType||'零打')+'</div>';
     });
     html+='</div>';
   }
@@ -2416,6 +2419,42 @@ function renderBillingModal(){
 function togglePaid(id){
   var p=players.find(function(x){return x.id===id;}); if(!p) return;
   p.sessionPaid=!p.sessionPaid; renderBillingModal(); saveData();
+}
+function setPayType(id, val){
+  var p=players.find(function(x){return x.id===id;}); if(!p) return;
+  p.payType=val;
+  p.sessionPaid=false;
+  var pkg=_pkgInfo(val);
+  if(pkg&&pkg.sessions) p.pkgLeft=pkg.sessions;
+  else delete p.pkgLeft;
+  renderBillingModal(); saveData();
+}
+function _payTypeSelectHtml(pid, cur){
+  var opts=[
+    ['零打','💛 零打'],
+    ['三小卡-平日-09','🟢 三小卡 平日 09–12'],
+    ['三小卡-平日-12','🟢 三小卡 平日 12–15'],
+    ['三小卡-平日-15','🟢 三小卡 平日 15–18'],
+    ['三小卡-假日-07','🟢 三小卡 假日 07–10'],
+    ['三小卡-假日-10','🟢 三小卡 假日 10–13'],
+    ['三小卡-假日-19','🟢 三小卡 假日 19–22'],
+    ['月方案-1088','🟠 月方案 $1088 (5場)'],
+    ['月方案-1588','🔴 月方案 $1588 (8場)'],
+    ['月方案-3888','💎 月方案 $3888 (∞)'],
+    ['季繳-平日','🔵 季繳 平日'],
+    ['季繳-夜間','🔵 季繳 夜間'],
+    ['季繳-假日','🔵 季繳 假日'],
+    ['全時段-季全','🟣 全時段 季全'],
+    ['全時段-半年','🟣 全時段 半年'],
+    ['全時段-年全','🟣 全時段 年全'],
+    ['VIP-月全','👑 VIP 月全'],
+    ['VIP-半年','👑 VIP 半年'],
+    ['VIP-年全','👑 VIP 年全'],
+    ['免費','⚫ 免費'],
+  ];
+  return '<select onchange="setPayType('+pid+',this.value)" onclick="event.stopPropagation()" style="background:var(--sur2);border:1px solid var(--bdr);border-radius:6px;color:var(--txt);font-size:0.68rem;padding:2px 4px;cursor:pointer;max-width:140px">'
+    +opts.map(function(o){return '<option value="'+o[0]+'"'+(o[0]===cur?' selected':'')+'>'+o[1]+'</option>';}).join('')
+    +'</select>';
 }
 function markAllPaid(){
   players.filter(function(p){return !p.payType||p.payType==='零打';})
