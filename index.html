@@ -3327,12 +3327,12 @@ function renderPlayers(){
         <div class="p-item-top">
           <div class="mn ${LCLS(p.level)}">${tierName(p.level)}</div>
           <span style="font-size:0.84rem;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.name}</span>
-          ${payBadge}
           <span style="font-size:0.7rem;font-weight:800;color:#60a5fa;flex-shrink:0">${cnt}場</span>
         </div>
         <div class="p-item-bot">
           <div style="display:flex;flex-direction:column;gap:2px;flex:1;min-width:0">
             <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
+              ${payBadge}
               ${statusHtml}
               ${partnerName?`<span style="font-size:0.6rem;color:var(--pur)">綁${partnerName}</span>`:''}
             </div>
