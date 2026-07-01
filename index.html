@@ -2958,7 +2958,7 @@ function saveCard3Slots(){
     slots[key].label=(slots[key].isWeekday?'平日':'假日')+' '+sv+'–'+ev;
   });
   if(bad){ alert('結束時間必須晚於開始時間'); return; }
-  try{ localStorage.setItem('billingConfig',JSON.stringify(billingConfig)); }catch(e){}
+  try{ localStorage.setItem(BILLING_KEY,JSON.stringify(billingConfig)); }catch(e){}
   renderBillingModal(); renderCard3SlotForm();
   var btn=document.querySelector('#tc-card3-slots button');
   if(btn){ btn.textContent='✅ 已儲存'; setTimeout(function(){btn.textContent='💾 儲存時段設定';},2000); }
@@ -3014,7 +3014,7 @@ function savePriceSettings(){
     var el=document.getElementById('pf-'+k);
     if(el) cfg[k].price=parseInt(el.value)||cfg[k].price;
   });
-  try{ localStorage.setItem('billingConfig',JSON.stringify(cfg)); }catch(e){}
+  try{ localStorage.setItem(BILLING_KEY,JSON.stringify(cfg)); }catch(e){}
   renderBillingModal();
   var btn=document.querySelector('#tc-prices button');
   if(btn){ btn.textContent='✅ 已儲存！'; setTimeout(function(){btn.textContent='💾 儲存價格設定';},2000); }
@@ -3022,7 +3022,7 @@ function savePriceSettings(){
 
 function loadBillingConfig(){
   try{
-    var raw=localStorage.getItem('billingConfig');
+    var raw=localStorage.getItem(BILLING_KEY);
     if(raw){
       var saved=JSON.parse(raw);
       Object.keys(saved).forEach(function(k){
@@ -3664,6 +3664,7 @@ function removeFixedPair(i){
 // DATA PERSISTENCE
 // ══════════════════════════════
 var STORAGE_KEY = 'badminton_scheduler_v1';
+var BILLING_KEY = 'billingConfig';
 var autoSaveHandle = null; // FileSystemFileHandle for auto-save
 
 function getDataObj(){
@@ -4269,6 +4270,7 @@ if(!isViewerMode){
       currentUser = user;
       // 讓 localStorage key 依 UID 區分，避免同一瀏覽器多帳號互相污染
       STORAGE_KEY = 'badminton_scheduler_v1_' + user.uid;
+      BILLING_KEY = 'billingConfig_' + user.uid;
       document.getElementById('modal-login').style.display = 'none';
       document.getElementById('btn-signout').style.display = 'block';
       // 載入 Firestore 球員庫
