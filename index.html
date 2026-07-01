@@ -447,9 +447,9 @@ header h1{font-size:1.2rem;font-weight:800;}
 
   /* Courts area: horizontal snap scroll, fixed height */
   .courts-area{
-    flex:0 0 46vh;
-    height:46vh;
-    min-height:46vh;
+    flex:0 0 38vh;
+    height:38vh;
+    min-height:38vh;
     overflow-x:scroll;
     overflow-y:hidden;
     scroll-snap-type:x mandatory;
@@ -465,8 +465,8 @@ header h1{font-size:1.2rem;font-weight:800;}
   .court-card{
     flex:0 0 100vw;
     width:100vw;
-    height:46vh;
-    padding:6px 12px;
+    height:38vh;
+    padding:4px 10px;
     scroll-snap-align:start;
     display:flex;flex-direction:column;
     box-sizing:border-box;
@@ -492,7 +492,7 @@ header h1{font-size:1.2rem;font-weight:800;}
   .slot-player-name{font-size:1.1rem !important;font-weight:700;}
   .mn{width:28px !important;height:28px !important;font-size:0.72rem !important;}
   .slot-box{min-height:38px !important;padding:4px !important;}
-  .court-body{padding:4px 8px !important;justify-content:flex-start !important;}
+  .court-body{padding:4px 8px !important;justify-content:flex-start !important;flex:0 0 auto !important;}
   .court-grid{padding:3px 5px !important;gap:4px !important;}
   .court-card-title{padding:3px 0 1px !important;}
   .p-item-top span[style]{font-size:1rem !important;}
@@ -500,7 +500,7 @@ header h1{font-size:1.2rem;font-weight:800;}
   .court-card-title{display:none !important;}
   .court-center-label{font-size:1.1rem !important;font-weight:900 !important;}
   .court-tab{font-size:0.82rem !important;padding:5px 14px !important;}
-  .cb{font-size:1rem !important;padding:10px 12px !important;}
+  .cb{font-size:0.9rem !important;padding:7px 10px !important;}
   .staging-hdr{font-size:0.82rem !important;}
   .queue-title{font-size:0.9rem !important;}
   .team-lbl-top,.team-lbl-bot{font-size:0.78rem !important;}
@@ -524,7 +524,7 @@ header h1{font-size:1.2rem;font-weight:800;}
   .btn-roster-toggle{font-size:0.92rem;padding:7px 13px;white-space:nowrap;flex-shrink:0;}
 
   /* 候場底部空白 */
-  .queue-body{flex:0 1 auto;}
+  .queue-body{flex:1;min-height:0;}
 
   /* Modals */
   .modal{width:calc(100vw - 32px);max-width:380px;}
