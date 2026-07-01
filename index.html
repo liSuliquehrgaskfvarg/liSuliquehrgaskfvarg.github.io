@@ -66,7 +66,7 @@ header h1{font-size:1.2rem;font-weight:800;}
 .string-price-note{font-size:0.62rem;color:var(--mut);text-align:center;margin-top:6px;line-height:1.5;}
 /* ── Member Card Page ── */
 .mc-page-grid{display:grid;grid-template-columns:1fr 400px;gap:16px;padding:16px;flex:1;overflow:hidden;min-height:0;}
-.mc-col-left{display:flex;flex-direction:column;overflow:hidden;background:var(--sur);border-radius:12px;padding:14px;gap:0;}
+.mc-col-left{display:flex;flex-direction:column;overflow:hidden;min-height:0;background:var(--sur);border-radius:12px;padding:14px;gap:0;}
 .mc-col-right{display:flex;flex-direction:column;gap:10px;overflow-y:auto;}
 .mc-col-right::-webkit-scrollbar{width:3px;}
 .mc-col-right::-webkit-scrollbar-thumb{background:var(--bdr);}
@@ -99,7 +99,7 @@ header h1{font-size:1.2rem;font-weight:800;}
 }
 /* Billing page full-screen layout */
 .bill-page-grid{display:grid;grid-template-columns:1fr 380px;gap:16px;padding:16px;flex:1;overflow:hidden;min-height:0;}
-.bill-col-left{display:flex;flex-direction:column;overflow:hidden;background:var(--sur);border-radius:12px;padding:14px;}
+.bill-col-left{display:flex;flex-direction:column;overflow:hidden;min-height:0;background:var(--sur);border-radius:12px;padding:14px;}
 .bill-col-right{display:flex;flex-direction:column;gap:10px;overflow-y:auto;}
 .bill-col-right::-webkit-scrollbar{width:3px;}
 .bill-col-right::-webkit-scrollbar-thumb{background:var(--bdr);}
@@ -867,6 +867,13 @@ header h1{font-size:1.2rem;font-weight:800;}
           <span>📋 購買歷史</span><span id="tc-mc-hist-arrow">▼</span>
         </div>
         <div id="tc-mc-hist" style="max-height:400px;overflow-y:auto;padding:0 14px 14px"></div>
+      </div>
+      <!-- 使用紀錄 -->
+      <div class="mc-card">
+        <div class="mc-card-hdr" onclick="toggleToolCard('tc-mc-log')">
+          <span>📅 使用紀錄</span><span id="tc-mc-log-arrow">▼</span>
+        </div>
+        <div id="tc-mc-log" style="max-height:500px;overflow-y:auto;padding:0 14px 14px"></div>
       </div>
     </div>
   </div>
@@ -2551,6 +2558,45 @@ function renderMemberCards(){
       +'</div>';
   });
   document.getElementById('tc-mc-hist').innerHTML=histHtml;
+
+  // 使用紀錄 — 依球員歸類所有 usageLog
+  var logByPlayer={};
+  cardRecords.forEach(function(r){
+    if(!r.usageLog||!r.usageLog.length) return;
+    var name=r.playerName;
+    if(!logByPlayer[name]) logByPlayer[name]=[];
+    r.usageLog.forEach(function(u){
+      logByPlayer[name].push({date:u.date,time:u.time,timeLabel:u.timeLabel,sessionsLeft:u.sessionsLeft,cardType:r.cardType});
+    });
+  });
+  // Sort each player's log newest first
+  Object.keys(logByPlayer).forEach(function(name){
+    logByPlayer[name].sort(function(a,b){
+      return (b.date+b.time).localeCompare(a.date+a.time);
+    });
+  });
+  var logHtml='';
+  var logNames=Object.keys(logByPlayer);
+  if(!logNames.length){
+    logHtml='<div style="color:var(--mut);text-align:center;padding:20px;font-size:0.8rem">尚無使用紀錄</div>';
+  } else {
+    logNames.forEach(function(name){
+      var entries=logByPlayer[name];
+      logHtml+='<div style="margin-bottom:12px">'
+        +'<div style="font-size:0.8rem;font-weight:700;color:var(--txt);padding:6px 0 5px;border-bottom:1px solid var(--bdr);margin-bottom:5px">👤 '+name+'</div>';
+      entries.forEach(function(u){
+        logHtml+='<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:0.68rem;padding:4px 6px;border-radius:6px;background:var(--sur2);margin-bottom:3px">'
+          +'<span style="color:var(--txt);font-weight:700">'+u.date+'</span>'
+          +'<span style="color:var(--txt2)">'+u.time+'</span>'
+          +'<span style="color:#60a5fa;flex:1">【'+u.timeLabel+'】</span>'
+          +'<span style="color:var(--mut)">'+u.cardType.replace('月方案-','$')+'</span>'
+          +'<span style="color:#4ade80;font-weight:700">剩 '+u.sessionsLeft+' 場</span>'
+          +'</div>';
+      });
+      logHtml+='</div>';
+    });
+  }
+  document.getElementById('tc-mc-log').innerHTML=logHtml;
 }
 function toggleMemberCardPage(){
   _mcPageOpen=!_mcPageOpen;
