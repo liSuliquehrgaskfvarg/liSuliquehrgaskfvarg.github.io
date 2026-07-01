@@ -783,7 +783,7 @@ header h1{font-size:1.2rem;font-weight:800;}
     <div class="mc-col-left">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-shrink:0">
         <div style="font-size:1rem;font-weight:800;flex:1">🪪 球員月卡狀態</div>
-        <span style="font-size:0.7rem;color:var(--mut)">僅顯示球員庫成員</span>
+        <span style="font-size:0.7rem;color:var(--mut)">球員庫 + 今日候場</span>
       </div>
       <div id="mc-status-list" style="flex:1;overflow-y:auto"></div>
     </div>
@@ -889,6 +889,10 @@ header h1{font-size:1.2rem;font-weight:800;}
         <option value="" disabled selected>請選擇</option><option value="1">新</option><option value="2">初</option><option value="3">中</option><option value="4">高</option>
       </select>
     </div>
+    <div style="margin-top:8px">
+      <label style="font-size:0.72rem;color:var(--mut);display:block;margin-bottom:3px">付款方式（預設）</label>
+      <select id="roster-inp-paytype" style="width:100%;background:var(--sur2);border:1px solid var(--bdr);border-radius:7px;color:var(--txt);padding:7px 9px;font-size:0.82rem;outline:none;box-sizing:border-box"></select>
+    </div>
     <div class="m-acts">
       <button class="mbtn mcancel" onclick="closeRosterAddModal()">取消</button>
       <button class="mbtn mok" onclick="addRosterEntry()">➕ 加入</button>
@@ -905,6 +909,10 @@ header h1{font-size:1.2rem;font-weight:800;}
       <select id="roster-edit-lvl" style="flex:1.4" onchange="_editLvl=this.value">
         <option value="1">新</option><option value="2">初</option><option value="3">中</option><option value="4">高</option>
       </select>
+    </div>
+    <div style="margin-top:8px">
+      <label style="font-size:0.72rem;color:var(--mut);display:block;margin-bottom:3px">付款方式（預設）</label>
+      <select id="roster-edit-paytype" style="width:100%;background:var(--sur2);border:1px solid var(--bdr);border-radius:7px;color:var(--txt);padding:7px 9px;font-size:0.82rem;outline:none;box-sizing:border-box"></select>
     </div>
     <div class="m-acts">
       <button class="mbtn" style="background:#7f1d1d;color:#fff" onclick="deleteRosterEntry()">🗑 刪除</button>
@@ -1299,6 +1307,24 @@ if(isJoinMode){
     var startIdx = slots.indexOf(String(h0).padStart(2,'0')+':'+String(m0).padStart(2,'0'));
     document.getElementById('join-time-start').selectedIndex = Math.max(0,startIdx);
     document.getElementById('join-time-end').selectedIndex = Math.min(slots.length-1, Math.max(0,startIdx)+4);
+    // 開始時間改變時自動修正結束時間
+    document.getElementById('join-time-start').addEventListener('change', function(){
+      var startSel = document.getElementById('join-time-start');
+      var endSel   = document.getElementById('join-time-end');
+      if(endSel.value <= startSel.value){
+        var idx = Array.from(startSel.options).findIndex(function(o){return o.value===startSel.value;});
+        endSel.selectedIndex = Math.min(slots.length-1, idx+4);
+      }
+    });
+    // 結束時間改變時若無效則拒絕並還原
+    document.getElementById('join-time-end').addEventListener('change', function(){
+      var startSel = document.getElementById('join-time-start');
+      var endSel   = document.getElementById('join-time-end');
+      if(endSel.value <= startSel.value){
+        var idx = Array.from(startSel.options).findIndex(function(o){return o.value===startSel.value;});
+        endSel.selectedIndex = Math.min(slots.length-1, idx+2);
+      }
+    });
   });
 }
 
@@ -1311,6 +1337,7 @@ async function submitJoinRequest(){
   const btn  = document.getElementById('join-submit-btn');
   if(!name){ msg.textContent='請輸入姓名'; msg.style.color='#f87171'; return; }
   if(!lvl){  msg.textContent='請選擇等級'; msg.style.color='#f87171'; return; }
+  if(te<=ts){ msg.textContent='結束時間必須晚於開始時間'; msg.style.color='#f87171'; return; }
   btn.disabled=true; btn.textContent='送出中...';
   const TIER=['','新','初','中','高'];
   try {
@@ -2138,8 +2165,9 @@ function confirmCourtsModal(){
 function openRosterAddModal(){
   _rosterAddLvl = '';
   const sel = document.getElementById('roster-inp-lvl');
-  sel.selectedIndex = 0; // 重置到「請選擇」
+  sel.selectedIndex = 0;
   document.getElementById('roster-inp-name').value = '';
+  document.getElementById('roster-inp-paytype').innerHTML = _payTypeOptsHtml('零打');
   document.getElementById('modal-roster-add').classList.add('open');
   setTimeout(()=>document.getElementById('roster-inp-name').focus(),100);
 }
@@ -2155,7 +2183,8 @@ function addRosterEntry(){
   if(!name){nameEl.focus();return;}
   if(!lvlVal){alert('請選擇等級');return;}
   if(roster.find(r=>r.name===name)){alert(`「${name}」已在球員庫中`);return;}
-  roster.push({id:rid++, name, level:lvlVal});
+  var pt=document.getElementById('roster-inp-paytype').value||'零打';
+  roster.push({id:rid++, name, level:lvlVal, payType:pt});
   nameEl.value='';
   document.getElementById('modal-roster-add').classList.remove('open');
   renderLeft();
@@ -2171,6 +2200,7 @@ function openRosterEditModal(rid){
   if(!r) return;
   editingRosterId = rid;
   document.getElementById('roster-edit-name').value = r.name;
+  document.getElementById('roster-edit-paytype').innerHTML = _payTypeOptsHtml(r.payType||'零打');
   // 動態重建選項並設定 _editLvl（相容 iOS Safari）
   const editSel = document.getElementById('roster-edit-lvl');
   const targetLvl = String(LVL(r.level));
@@ -2200,6 +2230,7 @@ function saveRosterEdit(){
   const oldName = r.name;
   r.name = name;
   r.level = newLvl;
+  r.payType = document.getElementById('roster-edit-paytype').value || '零打';
   // Also update any active player with the same name
   const ap = players.find(p=>p.name===oldName);
   if(ap){ ap.name = name; ap.level = r.level; }
@@ -2226,7 +2257,11 @@ function addFromRoster(rosterid){
   if(!re) return;
   if(players.find(p=>p.name===re.name)) return;
   if(!isPro() && players.length >= 16){ showUpgradeHint('免費版最多 16 位球員'); return; }
-  players.push({id:nid++, name:re.name, level:re.level, status:'waiting', offTime:null, playCount:0, partnerHistory:[], payType:'零打', sessionPaid:false});
+  var rePt=re.payType||'零打';
+  var rePkg=_pkgInfo(rePt);
+  var newP={id:nid++, name:re.name, level:re.level, status:'waiting', offTime:null, playCount:0, partnerHistory:[], payType:rePt, sessionPaid:false};
+  if(rePkg&&rePkg.sessions) newP.pkgLeft=rePkg.sessions;
+  players.push(newP);
   render();
   renderLeft();
 }
@@ -2488,7 +2523,9 @@ function renderMemberCards(){
   // Status list — all roster players
   var statusHtml='';
   var allNames=roster.map(function(r){return r.name;});
-  // Also include names from cardRecords not in roster
+  // Also include active session players not in roster
+  players.forEach(function(p){ if(allNames.indexOf(p.name)<0) allNames.push(p.name); });
+  // Also include names from cardRecords not covered above
   cardRecords.forEach(function(cr){ if(allNames.indexOf(cr.playerName)<0) allNames.push(cr.playerName); });
   allNames.forEach(function(name){
     // Find latest non-expired record
@@ -2814,34 +2851,40 @@ function setPayType(id, val){
   var pkg=_pkgInfo(val);
   if(pkg&&pkg.sessions) p.pkgLeft=pkg.sessions;
   else delete p.pkgLeft;
+  // 同步回球員庫
+  var re=roster.find(function(r){return r.name===p.name;});
+  if(re){ re.payType=val; saveUserRoster(); }
   renderBillingModal(); saveData();
 }
+var _PAY_OPTS=[
+  ['零打','💛 零打'],
+  ['三小卡-平日-09','🟢 三小卡 平日 09–12'],
+  ['三小卡-平日-12','🟢 三小卡 平日 12–15'],
+  ['三小卡-平日-15','🟢 三小卡 平日 15–18'],
+  ['三小卡-假日-07','🟢 三小卡 假日 07–10'],
+  ['三小卡-假日-10','🟢 三小卡 假日 10–13'],
+  ['三小卡-假日-19','🟢 三小卡 假日 19–22'],
+  ['月方案-1088','🟠 月方案 $1088 (5場)'],
+  ['月方案-1588','🔴 月方案 $1588 (8場)'],
+  ['月方案-3888','💎 月方案 $3888 (∞)'],
+  ['季繳-平日','🔵 季繳 平日'],
+  ['季繳-夜間','🔵 季繳 夜間'],
+  ['季繳-假日','🔵 季繳 假日'],
+  ['全時段-季全','🟣 全時段 季全'],
+  ['全時段-半年','🟣 全時段 半年'],
+  ['全時段-年全','🟣 全時段 年全'],
+  ['VIP-月全','👑 VIP 月全'],
+  ['VIP-半年','👑 VIP 半年'],
+  ['VIP-年全','👑 VIP 年全'],
+  ['免費','⚫ 免費'],
+];
+function _payTypeOptsHtml(cur){
+  var c=cur||'零打';
+  return _PAY_OPTS.map(function(o){return '<option value="'+o[0]+'"'+(o[0]===c?' selected':'')+'>'+o[1]+'</option>';}).join('');
+}
 function _payTypeSelectHtml(pid, cur){
-  var opts=[
-    ['零打','💛 零打'],
-    ['三小卡-平日-09','🟢 三小卡 平日 09–12'],
-    ['三小卡-平日-12','🟢 三小卡 平日 12–15'],
-    ['三小卡-平日-15','🟢 三小卡 平日 15–18'],
-    ['三小卡-假日-07','🟢 三小卡 假日 07–10'],
-    ['三小卡-假日-10','🟢 三小卡 假日 10–13'],
-    ['三小卡-假日-19','🟢 三小卡 假日 19–22'],
-    ['月方案-1088','🟠 月方案 $1088 (5場)'],
-    ['月方案-1588','🔴 月方案 $1588 (8場)'],
-    ['月方案-3888','💎 月方案 $3888 (∞)'],
-    ['季繳-平日','🔵 季繳 平日'],
-    ['季繳-夜間','🔵 季繳 夜間'],
-    ['季繳-假日','🔵 季繳 假日'],
-    ['全時段-季全','🟣 全時段 季全'],
-    ['全時段-半年','🟣 全時段 半年'],
-    ['全時段-年全','🟣 全時段 年全'],
-    ['VIP-月全','👑 VIP 月全'],
-    ['VIP-半年','👑 VIP 半年'],
-    ['VIP-年全','👑 VIP 年全'],
-    ['免費','⚫ 免費'],
-  ];
   return '<select onchange="setPayType('+pid+',this.value)" onclick="event.stopPropagation()" style="background:var(--sur2);border:1px solid var(--bdr);border-radius:6px;color:var(--txt);font-size:0.68rem;padding:2px 4px;cursor:pointer;max-width:140px">'
-    +opts.map(function(o){return '<option value="'+o[0]+'"'+(o[0]===cur?' selected':'')+'>'+o[1]+'</option>';}).join('')
-    +'</select>';
+    +_payTypeOptsHtml(cur)+'</select>';
 }
 function markAllPaid(){
   players.filter(function(p){return !p.payType||p.payType==='零打';})
