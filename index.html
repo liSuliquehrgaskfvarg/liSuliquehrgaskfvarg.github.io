@@ -565,9 +565,30 @@ header h1{font-size:1.2rem;font-weight:800;}
 /* Join form (larger touch targets) */
 .join-sel-btn{
   flex:1;border:2px solid transparent;
-  border-radius:10px;padding:11px 6px;font-size:1rem;
+  border-radius:10px;padding:11px 6px;font-size:1.5rem;
   font-weight:700;cursor:pointer;text-align:center;transition:all .15s;
 }
+/* ── Join overlay 文字整體放大 1.5x ── */
+#join-overlay h1{font-size:1.95rem!important;}
+#join-overlay p{font-size:1.2rem!important;}
+#join-overlay label{font-size:1.17rem!important;}
+#join-overlay input{font-size:1.5rem!important;}
+#join-overlay select{font-size:1.5rem!important;}
+#join-overlay #join-submit-btn{font-size:1.5rem!important;}
+#join-overlay #join-msg{font-size:1.275rem!important;}
+/* ── Join 等級按鈕改用 lt 色系 ── */
+#join-lvl-group button[data-val="1"]{background:#4ade80!important;color:#14532d!important;border-color:#16a34a!important;}
+#join-lvl-group button[data-val="1"]:hover{background:#86efac!important;color:#14532d!important;}
+#join-lvl-group button[data-val="1"].active{background:#4ade80!important;color:#14532d!important;border-color:#d97706!important;box-shadow:0 0 0 2px #d9770644;}
+#join-lvl-group button[data-val="2"]{background:#f9a8d4!important;color:#831843!important;border-color:#be185d!important;}
+#join-lvl-group button[data-val="2"]:hover{background:#fbcfe8!important;color:#831843!important;}
+#join-lvl-group button[data-val="2"].active{background:#f9a8d4!important;color:#831843!important;border-color:#d97706!important;box-shadow:0 0 0 2px #d9770644;}
+#join-lvl-group button[data-val="3"]{background:#fde047!important;color:#713f12!important;border-color:#ca8a04!important;}
+#join-lvl-group button[data-val="3"]:hover{background:#fef08a!important;color:#713f12!important;}
+#join-lvl-group button[data-val="3"].active{background:#fde047!important;color:#713f12!important;border-color:#d97706!important;box-shadow:0 0 0 2px #d9770644;}
+#join-lvl-group button[data-val="4"]{background:#7dd3fc!important;color:#0c4a6e!important;border-color:#0284c7!important;}
+#join-lvl-group button[data-val="4"]:hover{background:#bae6fd!important;color:#0c4a6e!important;}
+#join-lvl-group button[data-val="4"].active{background:#7dd3fc!important;color:#0c4a6e!important;border-color:#d97706!important;box-shadow:0 0 0 2px #d9770644;}
 /* ── 等級色 (data-val 1–4) ── */
 .sel-btn-group button[data-val="1"]{background:#14532d;color:#86efac;border-color:#166534;}
 .sel-btn-group button[data-val="1"]:hover{background:#166534;color:#4ade80;}
@@ -1855,7 +1876,7 @@ function showJoinNotify(doc){
   card.style.cssText = 'background:#1e293b;border:2px solid #4ade80;border-radius:12px;padding:12px 14px;box-shadow:0 4px 20px rgba(0,0,0,.6);animation:fadeIn .3s ease';
   card.innerHTML = `
     <div style="font-size:0.7rem;color:var(--mut);margin-bottom:4px">🏃 球員申請加入</div>
-    <div style="font-weight:700;font-size:1rem;margin-bottom:2px">${d.name} <span style="font-size:0.75rem;background:#1d4ed8;border-radius:4px;padding:1px 6px">${d.levelName||d.level}</span></div>
+    <div style="font-weight:700;font-size:1rem;margin-bottom:2px">${d.name} <span class="lvl ${['','lt1','lt2','lt3','lt4'][parseInt(d.level)||1]||'lt1'}" style="font-size:0.75rem;border-radius:4px;padding:1px 6px">${d.levelName||d.level}</span></div>
     <div style="font-size:0.78rem;color:#93c5fd;margin-bottom:10px">🕐 ${d.timeRange}</div>
     <div style="display:flex;gap:6px">
       <button onclick="approveJoin('${doc.id}','${d.name}','${d.level}','${d.timeRange}')" style="flex:1;background:#16a34a;border:none;border-radius:7px;padding:7px;color:#fff;font-size:0.85rem;font-weight:700;cursor:pointer">✅ 同意</button>
