@@ -530,6 +530,25 @@ header h1{font-size:1.2rem;font-weight:800;}
   .modal{width:calc(100vw - 32px);max-width:380px;}
   .score-sel{width:42px;font-size:0.8rem;}
 }
+
+/* ── Level / Gender button group ── */
+.sel-btn-group{display:flex;gap:5px;flex-wrap:wrap;}
+.sel-btn{
+  flex:1;min-width:36px;background:var(--sur2);border:2px solid var(--bdr);
+  color:var(--txt2);border-radius:8px;padding:7px 4px;font-size:0.82rem;
+  font-weight:700;cursor:pointer;text-align:center;transition:all .15s;
+}
+.sel-btn:hover{border-color:#475569;color:var(--txt);}
+.sel-btn.active{background:#1c1209;border-color:#d97706;color:#fbbf24;}
+.sel-btn.active-blue{background:#1e3a5f;border-color:#2563eb;color:#93c5fd;}
+/* Join form (larger touch targets) */
+.join-sel-btn{
+  flex:1;background:var(--sur2);border:2px solid var(--bdr);
+  color:var(--txt2);border-radius:10px;padding:11px 6px;font-size:1rem;
+  font-weight:700;cursor:pointer;text-align:center;transition:all .15s;
+}
+.join-sel-btn:hover{border-color:#475569;color:var(--txt);}
+.join-sel-btn.active{background:#1c1209;border-color:#d97706;color:#fbbf24;}
 </style>
 </head>
 <body>
@@ -599,11 +618,24 @@ header h1{font-size:1.2rem;font-weight:800;}
 <div class="overlay" id="modal-add" onclick="closeAddModal(event)">
   <div class="modal" style="width:340px">
     <h3>➕ 加入球員</h3>
-    <div class="row">
-      <input id="inp-name" type="text" placeholder="暱稱" maxlength="8" style="flex:2" autocomplete="off" autocorrect="off" autocapitalize="off">
-      <select id="inp-lvl" style="flex:1.4">
-        <option value="" disabled selected>請選擇</option><option value="1">新</option><option value="2">初</option><option value="3">中</option><option value="4">高</option>
-      </select>
+    <div style="margin-bottom:6px">
+      <input id="inp-name" type="text" placeholder="暱稱" maxlength="8" style="width:100%;box-sizing:border-box;background:var(--sur);border:1px solid var(--bdr);border-radius:7px;color:var(--txt);padding:6px 8px;font-size:0.9rem;outline:none;" autocomplete="off" autocorrect="off" autocapitalize="off">
+    </div>
+    <div style="margin-bottom:6px">
+      <div style="font-size:0.72rem;color:var(--txt2);margin-bottom:4px">等級</div>
+      <div class="sel-btn-group" id="add-lvl-group">
+        <button type="button" class="sel-btn" data-val="1" onclick="selectBtn('add-lvl-group','_addPlayerLvl','1')">新</button>
+        <button type="button" class="sel-btn" data-val="2" onclick="selectBtn('add-lvl-group','_addPlayerLvl','2')">初</button>
+        <button type="button" class="sel-btn" data-val="3" onclick="selectBtn('add-lvl-group','_addPlayerLvl','3')">中</button>
+        <button type="button" class="sel-btn" data-val="4" onclick="selectBtn('add-lvl-group','_addPlayerLvl','4')">高</button>
+      </div>
+    </div>
+    <div style="margin-bottom:6px">
+      <div style="font-size:0.72rem;color:var(--txt2);margin-bottom:4px">性別</div>
+      <div class="sel-btn-group" id="add-gender-group">
+        <button type="button" class="sel-btn" data-val="M" onclick="selectBtn('add-gender-group','_addPlayerGender','M')">♂ 男</button>
+        <button type="button" class="sel-btn" data-val="F" onclick="selectBtn('add-gender-group','_addPlayerGender','F')">♀ 女</button>
+      </div>
     </div>
     <div class="row">
       <select id="inp-pay" style="flex:1" onchange="onPayTypeChange(this.value)">
@@ -891,11 +923,24 @@ header h1{font-size:1.2rem;font-weight:800;}
 <div class="overlay" id="modal-roster-add" onclick="closeRosterAddModal(event)">
   <div class="modal" style="width:300px">
     <h3>➕ 加入球員庫</h3>
-    <div class="row">
-      <input id="roster-inp-name" type="text" placeholder="暱稱" maxlength="8" style="flex:2" autocomplete="off" autocorrect="off" autocapitalize="off">
-      <select id="roster-inp-lvl" style="flex:1.4" onchange="_rosterAddLvl=this.value">
-        <option value="" disabled selected>請選擇</option><option value="1">新</option><option value="2">初</option><option value="3">中</option><option value="4">高</option>
-      </select>
+    <div style="margin-bottom:6px">
+      <input id="roster-inp-name" type="text" placeholder="暱稱" maxlength="8" style="width:100%;box-sizing:border-box;background:var(--sur);border:1px solid var(--bdr);border-radius:7px;color:var(--txt);padding:6px 8px;font-size:0.9rem;outline:none;" autocomplete="off" autocorrect="off" autocapitalize="off">
+    </div>
+    <div style="margin-bottom:6px">
+      <div style="font-size:0.72rem;color:var(--txt2);margin-bottom:4px">等級</div>
+      <div class="sel-btn-group" id="roster-add-lvl-group">
+        <button type="button" class="sel-btn" data-val="1" onclick="selectBtn('roster-add-lvl-group','_rosterAddLvl','1')">新</button>
+        <button type="button" class="sel-btn" data-val="2" onclick="selectBtn('roster-add-lvl-group','_rosterAddLvl','2')">初</button>
+        <button type="button" class="sel-btn" data-val="3" onclick="selectBtn('roster-add-lvl-group','_rosterAddLvl','3')">中</button>
+        <button type="button" class="sel-btn" data-val="4" onclick="selectBtn('roster-add-lvl-group','_rosterAddLvl','4')">高</button>
+      </div>
+    </div>
+    <div style="margin-bottom:6px">
+      <div style="font-size:0.72rem;color:var(--txt2);margin-bottom:4px">性別</div>
+      <div class="sel-btn-group" id="roster-add-gender-group">
+        <button type="button" class="sel-btn" data-val="M" onclick="selectBtn('roster-add-gender-group','_rosterAddGender','M')">♂ 男</button>
+        <button type="button" class="sel-btn" data-val="F" onclick="selectBtn('roster-add-gender-group','_rosterAddGender','F')">♀ 女</button>
+      </div>
     </div>
     <div style="margin-top:8px">
       <label style="font-size:0.72rem;color:var(--mut);display:block;margin-bottom:3px">付款方式（預設）</label>
@@ -912,11 +957,24 @@ header h1{font-size:1.2rem;font-weight:800;}
 <div class="overlay" id="modal-roster-edit" onclick="closeRosterEditModal(event)">
   <div class="modal" style="width:300px">
     <h3>✏️ 編輯球員庫</h3>
-    <div class="row">
-      <input id="roster-edit-name" type="text" placeholder="暱稱" maxlength="8" style="flex:2" autocomplete="off" autocorrect="off" autocapitalize="off">
-      <select id="roster-edit-lvl" style="flex:1.4" onchange="_editLvl=this.value">
-        <option value="1">新</option><option value="2">初</option><option value="3">中</option><option value="4">高</option>
-      </select>
+    <div style="margin-bottom:6px">
+      <input id="roster-edit-name" type="text" placeholder="暱稱" maxlength="8" style="width:100%;box-sizing:border-box;background:var(--sur);border:1px solid var(--bdr);border-radius:7px;color:var(--txt);padding:6px 8px;font-size:0.9rem;outline:none;" autocomplete="off" autocorrect="off" autocapitalize="off">
+    </div>
+    <div style="margin-bottom:6px">
+      <div style="font-size:0.72rem;color:var(--txt2);margin-bottom:4px">等級</div>
+      <div class="sel-btn-group" id="roster-edit-lvl-group">
+        <button type="button" class="sel-btn" data-val="1" onclick="selectBtn('roster-edit-lvl-group','_editLvl','1')">新</button>
+        <button type="button" class="sel-btn" data-val="2" onclick="selectBtn('roster-edit-lvl-group','_editLvl','2')">初</button>
+        <button type="button" class="sel-btn" data-val="3" onclick="selectBtn('roster-edit-lvl-group','_editLvl','3')">中</button>
+        <button type="button" class="sel-btn" data-val="4" onclick="selectBtn('roster-edit-lvl-group','_editLvl','4')">高</button>
+      </div>
+    </div>
+    <div style="margin-bottom:6px">
+      <div style="font-size:0.72rem;color:var(--txt2);margin-bottom:4px">性別</div>
+      <div class="sel-btn-group" id="roster-edit-gender-group">
+        <button type="button" class="sel-btn" data-val="M" onclick="selectBtn('roster-edit-gender-group','_editGender','M')">♂ 男</button>
+        <button type="button" class="sel-btn" data-val="F" onclick="selectBtn('roster-edit-gender-group','_editGender','F')">♀ 女</button>
+      </div>
     </div>
     <div style="margin-top:8px">
       <label style="font-size:0.72rem;color:var(--mut);display:block;margin-bottom:3px">付款方式（預設）</label>
@@ -1103,10 +1161,19 @@ header h1{font-size:1.2rem;font-weight:800;}
       </div>
       <div>
         <label style="font-size:0.78rem;color:var(--mut);font-weight:600;display:block;margin-bottom:5px">等級</label>
-        <select id="join-lvl" style="width:100%;background:var(--sur2);border:1.5px solid var(--bdr);border-radius:8px;padding:10px 12px;color:var(--txt);font-size:1rem;outline:none;-webkit-appearance:none">
-          <option value="" disabled selected>請選擇</option>
-          <option value="1">新</option><option value="2">初</option><option value="3">中</option><option value="4">高</option>
-        </select>
+        <div class="sel-btn-group" id="join-lvl-group">
+          <button type="button" class="join-sel-btn" data-val="1" onclick="selectBtn('join-lvl-group','_joinLvl','1')">新</button>
+          <button type="button" class="join-sel-btn" data-val="2" onclick="selectBtn('join-lvl-group','_joinLvl','2')">初</button>
+          <button type="button" class="join-sel-btn" data-val="3" onclick="selectBtn('join-lvl-group','_joinLvl','3')">中</button>
+          <button type="button" class="join-sel-btn" data-val="4" onclick="selectBtn('join-lvl-group','_joinLvl','4')">高</button>
+        </div>
+      </div>
+      <div>
+        <label style="font-size:0.78rem;color:var(--mut);font-weight:600;display:block;margin-bottom:5px">性別</label>
+        <div class="sel-btn-group" id="join-gender-group">
+          <button type="button" class="join-sel-btn" data-val="M" onclick="selectBtn('join-gender-group','_joinGender','M')">♂ 男</button>
+          <button type="button" class="join-sel-btn" data-val="F" onclick="selectBtn('join-gender-group','_joinGender','F')">♀ 女</button>
+        </div>
       </div>
       <div>
         <label style="font-size:0.78rem;color:var(--mut);font-weight:600;display:block;margin-bottom:5px">可打時間</label>
@@ -1338,20 +1405,19 @@ if(isJoinMode){
 
 async function submitJoinRequest(){
   const name = document.getElementById('join-name').value.trim();
-  const lvl  = document.getElementById('join-lvl').value;
   const ts   = document.getElementById('join-time-start').value;
   const te   = document.getElementById('join-time-end').value;
   const msg  = document.getElementById('join-msg');
   const btn  = document.getElementById('join-submit-btn');
   if(!name){ msg.textContent='請輸入姓名'; msg.style.color='#f87171'; return; }
-  if(!lvl){  msg.textContent='請選擇等級'; msg.style.color='#f87171'; return; }
+  if(!_joinLvl){ msg.textContent='請選擇等級'; msg.style.color='#f87171'; return; }
   if(te<=ts){ msg.textContent='結束時間必須晚於開始時間'; msg.style.color='#f87171'; return; }
   btn.disabled=true; btn.textContent='送出中...';
   const TIER=['','新','初','中','高'];
   try {
     const ref = await db.collection('joinRequests').add({
       organizerUid: _joinUID,
-      name, level: lvl, levelName: TIER[parseInt(lvl)]||lvl,
+      name, level: _joinLvl, levelName: TIER[parseInt(_joinLvl)]||_joinLvl, gender: _joinGender||'',
       timeRange: ts + ' – ' + te,
       timestamp: firebase.firestore.FieldValue.serverTimestamp(),
       status: 'pending'
@@ -2175,9 +2241,9 @@ function confirmCourtsModal(){
 // ROSTER MODAL
 // ══════════════════════════════
 function openRosterAddModal(){
-  _rosterAddLvl = '';
-  const sel = document.getElementById('roster-inp-lvl');
-  sel.selectedIndex = 0;
+  _rosterAddLvl = ''; _rosterAddGender = '';
+  clearBtnGroup('roster-add-lvl-group','_rosterAddLvl');
+  clearBtnGroup('roster-add-gender-group','_rosterAddGender');
   document.getElementById('roster-inp-name').value = '';
   document.getElementById('roster-inp-paytype').innerHTML = _payTypeOptsHtml('零打');
   document.getElementById('modal-roster-add').classList.add('open');
@@ -2189,23 +2255,69 @@ function closeRosterAddModal(e){
 }
 function addRosterEntry(){
   const nameEl=document.getElementById('roster-inp-name');
-  const lvlEl=document.getElementById('roster-inp-lvl');
   const name=nameEl.value.trim();
-  const lvlVal = _rosterAddLvl || lvlEl.value;
   if(!name){nameEl.focus();return;}
-  if(!lvlVal){alert('請選擇等級');return;}
+  if(!_rosterAddLvl){alert('請選擇等級');return;}
   if(roster.find(r=>r.name===name)){alert(`「${name}」已在球員庫中`);return;}
   var pt=document.getElementById('roster-inp-paytype').value||'零打';
-  roster.push({id:rid++, name, level:lvlVal, payType:pt});
-  nameEl.value='';
+  roster.push({id:rid++, name, level:_rosterAddLvl, gender:_rosterAddGender||'', payType:pt});
+  nameEl.value=''; _rosterAddLvl=''; _rosterAddGender='';
   document.getElementById('modal-roster-add').classList.remove('open');
   renderLeft();
   saveUserRoster();
 }
 
 let editingRosterId = null;
-let _editLvl = '';       // iOS Safari 相容：用 onchange 儲存等級
-let _rosterAddLvl = ''; // 球員庫新增等級
+let _editLvl = '';         // 球員庫編輯等級
+let _editGender = '';      // 球員庫編輯性別
+let _rosterAddLvl = '';    // 球員庫新增等級
+let _rosterAddGender = ''; // 球員庫新增性別
+let _addPlayerLvl = '';    // 加球員 modal 等級
+let _addPlayerGender = ''; // 加球員 modal 性別
+let _joinLvl = '';         // join form 等級
+let _joinGender = '';      // join form 性別
+
+// ── 選擇按鈕 helper ──────────────────────────────────────
+function selectBtn(groupId, varName, val){
+  // 更新全域變數
+  if(varName==='_editLvl') _editLvl=val;
+  else if(varName==='_editGender') _editGender=val;
+  else if(varName==='_rosterAddLvl') _rosterAddLvl=val;
+  else if(varName==='_rosterAddGender') _rosterAddGender=val;
+  else if(varName==='_addPlayerLvl') _addPlayerLvl=val;
+  else if(varName==='_addPlayerGender') _addPlayerGender=val;
+  else if(varName==='_joinLvl') _joinLvl=val;
+  else if(varName==='_joinGender') _joinGender=val;
+  // 高亮選中按鈕
+  var grp = document.getElementById(groupId);
+  if(!grp) return;
+  grp.querySelectorAll('button').forEach(function(btn){
+    btn.classList.remove('active','active-blue');
+    if(btn.dataset.val===val) btn.classList.add('active');
+  });
+}
+function clearBtnGroup(groupId, varName){
+  selectBtn(groupId, varName, '');
+  var grp = document.getElementById(groupId);
+  if(grp) grp.querySelectorAll('button').forEach(function(b){ b.classList.remove('active','active-blue'); });
+}
+function setBtnGroup(groupId, varName, val){
+  // 預設選中某值（開啟 edit modal 時用）
+  var grp = document.getElementById(groupId);
+  if(!grp) return;
+  grp.querySelectorAll('button').forEach(function(btn){
+    btn.classList.remove('active','active-blue');
+    if(btn.dataset.val===String(val)) btn.classList.add('active');
+  });
+  if(varName==='_editLvl') _editLvl=String(val);
+  else if(varName==='_editGender') _editGender=String(val||'');
+  else if(varName==='_rosterAddLvl') _rosterAddLvl=String(val);
+  else if(varName==='_rosterAddGender') _rosterAddGender=String(val||'');
+  else if(varName==='_addPlayerLvl') _addPlayerLvl=String(val);
+  else if(varName==='_addPlayerGender') _addPlayerGender=String(val||'');
+  else if(varName==='_joinLvl') _joinLvl=String(val);
+  else if(varName==='_joinGender') _joinGender=String(val||'');
+}
 
 function openRosterEditModal(rid){
   const r = roster.find(r=>r.id===rid);
@@ -2213,12 +2325,9 @@ function openRosterEditModal(rid){
   editingRosterId = rid;
   document.getElementById('roster-edit-name').value = r.name;
   document.getElementById('roster-edit-paytype').innerHTML = _payTypeOptsHtml(r.payType||'零打');
-  // 動態重建選項並設定 _editLvl（相容 iOS Safari）
-  const editSel = document.getElementById('roster-edit-lvl');
-  const targetLvl = String(LVL(r.level));
-  const lvlOpts = [{v:'1',n:'新'},{v:'2',n:'初'},{v:'3',n:'中'},{v:'4',n:'高'}];
-  editSel.innerHTML = lvlOpts.map(l=>`<option value="${l.v}"${l.v===targetLvl?' selected':''}>${l.n}</option>`).join('');
-  _editLvl = targetLvl; // 初始值
+  // 用按鈕組設定等級與性別
+  setBtnGroup('roster-edit-lvl-group','_editLvl', String(LVL(r.level)));
+  setBtnGroup('roster-edit-gender-group','_editGender', r.gender||'');
   document.getElementById('modal-roster-edit').classList.add('open');
   setTimeout(()=>document.getElementById('roster-edit-name').focus(), 100);
 }
@@ -2237,11 +2346,11 @@ function saveRosterEdit(){
   if(!name){ nameEl.focus(); return; }
   const duplicate = roster.find(rx=>rx.name===name && rx.id!==editingRosterId);
   if(duplicate){ alert(`「${name}」已在球員庫中`); return; }
-  const newLvl = _editLvl || document.getElementById('roster-edit-lvl').value;
-  if(!newLvl){ alert('請選擇等級'); return; }
+  if(!_editLvl){ alert('請選擇等級'); return; }
   const oldName = r.name;
   r.name = name;
-  r.level = newLvl;
+  r.level = _editLvl;
+  r.gender = _editGender || '';
   r.payType = document.getElementById('roster-edit-paytype').value || '零打';
   // Also update any active player with the same name
   const ap = players.find(p=>p.name===oldName);
@@ -3119,6 +3228,9 @@ function calcString(){
 // ADD PLAYER MODAL
 // ══════════════════════════════
 function openAddModal(){
+  _addPlayerLvl=''; _addPlayerGender='';
+  clearBtnGroup('add-lvl-group','_addPlayerLvl');
+  clearBtnGroup('add-gender-group','_addPlayerGender');
   document.getElementById('modal-add').classList.add('open');
   setTimeout(()=>document.getElementById('inp-name').focus(),100);
 }
@@ -3206,10 +3318,9 @@ function placeInSlot(courtId, pos, isStaging=false){
 // ══════════════════════════════
 function addPlayer(){
   const nameEl=document.getElementById('inp-name');
-  const lvlEl=document.getElementById('inp-lvl');
   const name=nameEl.value.trim();
   if(!name){nameEl.focus();return;}
-  if(!lvlEl.value){alert('請選擇等級');lvlEl.focus();return;}
+  if(!_addPlayerLvl){alert('請選擇等級');return;}
   if(players.find(p=>p.name===name)){alert(`「${name}」已在名單中`);return;}
   if(!isPro() && players.length >= 16){ showUpgradeHint('免費版最多 16 位球員'); return; }
   const payEl=document.getElementById('inp-pay');
@@ -3218,10 +3329,10 @@ function addPlayer(){
   const isPkg=payType&&payType.startsWith('月方案');
   const pkgLeft=isPkg&&pkgLeftEl&&!pkgLeftEl.disabled?parseInt(pkgLeftEl.value||'0'):undefined;
   const pkgInfo=_pkgInfo(payType);
-  players.push({id:nid++,name,level:lvlEl.value,status:'waiting',offTime:null,playCount:0,partnerHistory:[],
+  players.push({id:nid++,name,level:_addPlayerLvl,gender:_addPlayerGender||'',status:'waiting',offTime:null,playCount:0,partnerHistory:[],
     payType:payType,sessionPaid:false,
     pkgLeft:isPkg?(pkgLeft!==undefined?pkgLeft:(pkgInfo&&pkgInfo.sessions?pkgInfo.sessions:null)):undefined});
-  nameEl.value='';
+  nameEl.value=''; _addPlayerLvl=''; _addPlayerGender='';
   document.getElementById('modal-add').classList.remove('open');
   render();
 }
