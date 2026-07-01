@@ -4225,13 +4225,26 @@ function getShareLink(){
 function toggleRosterDrawer(){
   const panel=document.getElementById('left-panel');
   const overlay=document.getElementById('roster-overlay');
+  const layout=document.getElementById('main-layout');
   const isOpen=panel.classList.contains('mobile-open');
-  if(isOpen){ panel.classList.remove('mobile-open'); overlay.classList.remove('show'); }
-  else { panel.classList.add('mobile-open'); overlay.classList.add('show'); }
+  if(isOpen){
+    panel.classList.remove('mobile-open'); overlay.classList.remove('show');
+    // 若計費/月卡頁仍開著，把 layout 恢復隱藏
+    if(_billPageOpen||_mcPageOpen){layout.style.display='none';layout.style.height='';layout.style.overflow='';}
+  } else {
+    // display:none 的父元素會讓 position:fixed 子元素也消失，
+    // 改成 height:0+overflow:hidden，讓 fixed 面板得以出現但不佔空間
+    if(layout.style.display==='none'){layout.style.display='flex';layout.style.height='0';layout.style.overflow='hidden';}
+    panel.classList.add('mobile-open'); overlay.classList.add('show');
+  }
 }
 function closeRosterDrawer(){
+  const layout=document.getElementById('main-layout');
   document.getElementById('left-panel').classList.remove('mobile-open');
   document.getElementById('roster-overlay').classList.remove('show');
+  // 關閉後若計費/月卡仍開著，還原 layout 隱藏狀態
+  if(_billPageOpen||_mcPageOpen){layout.style.display='none';layout.style.height='';layout.style.overflow='';}
+  else{layout.style.height='';layout.style.overflow='';}
 }
 
 document.addEventListener('keydown',e=>{
