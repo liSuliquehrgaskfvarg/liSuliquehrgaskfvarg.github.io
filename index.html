@@ -4518,9 +4518,8 @@ function closeEndDayModal(e){
   document.getElementById('modal-end-day').classList.remove('open');
 }
 
-// ── 確認結束今天，儲存紀錄到 Firestore ────────────────
-// Firestore 路徑：sessions/{uid}/records/{date}
-async function confirmEndDay(){
+// ── 確認結束今天，儲存紀錄到 localStorage ────────────────
+function confirmEndDay(){
   if(!currentUser) return;
   var today = new Date().toISOString().slice(0,10);
   var endTime = new Date().toTimeString().slice(0,5);
@@ -4552,7 +4551,7 @@ async function confirmEndDay(){
     courts: courts.length,
     totalRevenue: totalRevenue,
     matchResults: [],  // 預留給未來比賽結果擴充
-    savedAt: firebase.firestore.FieldValue.serverTimestamp()
+    savedAt: new Date().toISOString()
   };
 
   var btn = document.getElementById('btn-end-day-confirm');
@@ -4560,15 +4559,20 @@ async function confirmEndDay(){
   btn.textContent = '儲存中...';
 
   try {
-    // 儲存到 Firestore sessions/{uid}/records/{date}
-    await db.collection('sessions').doc(currentUser.uid).collection('records').doc(today).set(record);
+    // 儲存到 localStorage sessionHistory_{uid}
+    var key = 'sessionHistory_' + currentUser.uid;
+    var existing = JSON.parse(localStorage.getItem(key) || '[]');
+    // 移除同日期的舊紀錄（覆蓋）
+    existing = existing.filter(function(r){ return r.date !== today; });
+    existing.unshift(record);
+    localStorage.setItem(key, JSON.stringify(existing));
     document.getElementById('modal-end-day').classList.remove('open');
-    showToast('✅ 今天紀錄已儲存到雲端！');
+    showToast('✅ 今天紀錄已儲存！');
   } catch(e){
     alert('❌ 儲存失敗：' + e.message);
-    btn.disabled = false;
-    btn.textContent = '✅ 確認儲存';
   }
+  btn.disabled = false;
+  btn.textContent = '✅ 確認儲存';
 }
 
 // ── 通用 Toast 提示 ───────────────────────────────────
@@ -4620,20 +4624,13 @@ function toggleHistoryPage(){
   }
 }
 
-// ── 從 Firestore 載入歷史紀錄（sessions/{uid}/records）──
-async function loadHistoryRecords(){
+// ── 從 localStorage 載入歷史紀錄 ──
+function loadHistoryRecords(){
   if(!currentUser) return;
-  var container = document.getElementById('history-list');
-  container.innerHTML = '<div style="color:var(--mut);text-align:center;padding:30px">載入中...</div>';
-  try {
-    var snap = await db.collection('sessions').doc(currentUser.uid)
-      .collection('records').orderBy('date','desc').limit(100).get();
-    _historyRecords = [];
-    snap.forEach(function(doc){ _historyRecords.push(doc.data()); });
-    renderHistoryPage();
-  } catch(e){
-    container.innerHTML = '<div style="color:#f87171;text-align:center;padding:30px">載入失敗：' + e.message + '</div>';
-  }
+  var key = 'sessionHistory_' + currentUser.uid;
+  var data = JSON.parse(localStorage.getItem(key) || '[]');
+  _historyRecords = data;
+  renderHistoryPage();
 }
 
 // ── 渲染歷史紀錄列表 ──────────────────────────────────
