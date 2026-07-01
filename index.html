@@ -705,6 +705,14 @@ header h1{font-size:1.2rem;font-weight:800;}
         <button type="button" class="sel-btn" data-val="F" onclick="selectBtn('add-gender-group','_addPlayerGender','F')">♀ 女</button>
       </div>
     </div>
+    <div style="margin-bottom:6px">
+      <div style="font-size:0.72rem;color:var(--txt2);margin-bottom:4px">時段</div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <input id="add-time-start" type="time" style="flex:1;background:var(--sur);border:1px solid var(--bdr);border-radius:7px;color:var(--txt);padding:5px 7px;font-size:0.85rem;outline:none">
+        <span style="color:var(--txt2);font-size:0.85rem">—</span>
+        <input id="add-time-end" type="time" style="flex:1;background:var(--sur);border:1px solid var(--bdr);border-radius:7px;color:var(--txt);padding:5px 7px;font-size:0.85rem;outline:none">
+      </div>
+    </div>
     <div class="m-acts">
       <button class="mbtn mcancel" onclick="closeAddModal()">取消</button>
       <button class="mbtn mok" onclick="addPlayer()">➕ 加入</button>
@@ -1010,6 +1018,14 @@ header h1{font-size:1.2rem;font-weight:800;}
       <div class="sel-btn-group" id="roster-add-gender-group">
         <button type="button" class="sel-btn" data-val="M" onclick="selectBtn('roster-add-gender-group','_rosterAddGender','M')">♂ 男</button>
         <button type="button" class="sel-btn" data-val="F" onclick="selectBtn('roster-add-gender-group','_rosterAddGender','F')">♀ 女</button>
+      </div>
+    </div>
+    <div style="margin-bottom:6px">
+      <div style="font-size:0.72rem;color:var(--txt2);margin-bottom:4px">時段</div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <input id="roster-add-time-start" type="time" style="flex:1;background:var(--sur);border:1px solid var(--bdr);border-radius:7px;color:var(--txt);padding:5px 7px;font-size:0.85rem;outline:none">
+        <span style="color:var(--txt2);font-size:0.85rem">—</span>
+        <input id="roster-add-time-end" type="time" style="flex:1;background:var(--sur);border:1px solid var(--bdr);border-radius:7px;color:var(--txt);padding:5px 7px;font-size:0.85rem;outline:none">
       </div>
     </div>
     <div class="m-acts">
@@ -1484,6 +1500,7 @@ async function submitJoinRequest(){
     const ref = await db.collection('joinRequests').add({
       organizerUid: _joinUID,
       name, level: _joinLvl, levelName: TIER[parseInt(_joinLvl)]||_joinLvl, gender: _joinGender||'',
+      startTime: ts, endTime: te,
       timeRange: ts + ' – ' + te,
       timestamp: firebase.firestore.FieldValue.serverTimestamp(),
       status: 'pending'
@@ -1876,19 +1893,19 @@ function showJoinNotify(doc){
     <div style="font-weight:700;font-size:1rem;margin-bottom:2px">${d.name} <span class="lvl ${['','lt1','lt2','lt3','lt4'][parseInt(d.level)||1]||'lt1'}" style="font-size:0.75rem;border-radius:4px;padding:1px 6px">${d.levelName||d.level}</span></div>
     <div style="font-size:0.78rem;color:#93c5fd;margin-bottom:10px">🕐 ${d.timeRange}</div>
     <div style="display:flex;gap:6px">
-      <button onclick="approveJoin('${doc.id}','${d.name}','${d.level}','${d.timeRange}')" style="flex:1;background:#16a34a;border:none;border-radius:7px;padding:7px;color:#fff;font-size:0.85rem;font-weight:700;cursor:pointer">✅ 同意</button>
+      <button onclick="approveJoin('${doc.id}','${d.name}','${d.level}','${d.timeRange}','${d.startTime||''}','${d.endTime||''}')" style="flex:1;background:#16a34a;border:none;border-radius:7px;padding:7px;color:#fff;font-size:0.85rem;font-weight:700;cursor:pointer">✅ 同意</button>
       <button onclick="rejectJoin('${doc.id}')" style="flex:1;background:#7f1d1d;border:none;border-radius:7px;padding:7px;color:#fca5a5;font-size:0.85rem;font-weight:700;cursor:pointer">❌ 拒絕</button>
     </div>`;
   stack.appendChild(card);
 }
 
-function approveJoin(docId, name, level, timeRange){
+function approveJoin(docId, name, level, timeRange, startTime, endTime){
   if(players.find(p=>p.name===name)){
     alert(`「${name}」已在名單中`);
     rejectJoin(docId); return;
   }
   if(!isPro() && players.length >= 16){ showUpgradeHint('免費版最多 16 位球員'); return; }
-  players.push({id:nid++, name, level, status:'waiting', offTime:null, playCount:0, partnerHistory:[], availableTime:timeRange, payType:'零打', sessionPaid:false});
+  players.push({id:nid++, name, level, status:'waiting', offTime:null, playCount:0, partnerHistory:[], availableTime:timeRange, startTime:startTime||'', endTime:endTime||'', payType:'零打', sessionPaid:false});
   db.collection('joinRequests').doc(docId).update({status:'approved'}).catch(()=>{});
   const card = document.getElementById('jreq-'+docId);
   if(card) card.remove();
@@ -2318,6 +2335,10 @@ function openRosterAddModal(){
   clearBtnGroup('roster-add-lvl-group','_rosterAddLvl');
   clearBtnGroup('roster-add-gender-group','_rosterAddGender');
   document.getElementById('roster-inp-name').value = '';
+  var stEl=document.getElementById('roster-add-time-start');
+  var etEl=document.getElementById('roster-add-time-end');
+  if(stEl) stEl.value=_sessionStartTime||'';
+  if(etEl) etEl.value='';
   document.getElementById('modal-roster-add').classList.add('open');
   setTimeout(()=>document.getElementById('roster-inp-name').focus(),100);
 }
@@ -2331,8 +2352,10 @@ function addRosterEntry(){
   if(!name){nameEl.focus();return;}
   if(!_rosterAddLvl){alert('請選擇等級');return;}
   if(roster.find(r=>r.name===name)){alert(`「${name}」已在球員庫中`);return;}
+  const st=(document.getElementById('roster-add-time-start')||{}).value||'';
+  const et=(document.getElementById('roster-add-time-end')||{}).value||'';
   var pt='零打';
-  roster.push({id:rid++, name, level:_rosterAddLvl, gender:_rosterAddGender||'', payType:pt});
+  roster.push({id:rid++, name, level:_rosterAddLvl, gender:_rosterAddGender||'', payType:pt, startTime:st, endTime:et});
   nameEl.value=''; _rosterAddLvl=''; _rosterAddGender='';
   document.getElementById('modal-roster-add').classList.remove('open');
   renderLeft();
@@ -3313,6 +3336,10 @@ function openAddModal(){
   _addPlayerLvl=''; _addPlayerGender='';
   clearBtnGroup('add-lvl-group','_addPlayerLvl');
   clearBtnGroup('add-gender-group','_addPlayerGender');
+  var stEl=document.getElementById('add-time-start');
+  var etEl=document.getElementById('add-time-end');
+  if(stEl) stEl.value=_sessionStartTime||'';
+  if(etEl) etEl.value='';
   document.getElementById('modal-add').classList.add('open');
   setTimeout(()=>document.getElementById('inp-name').focus(),100);
 }
@@ -3405,8 +3432,11 @@ function addPlayer(){
   if(!_addPlayerLvl){alert('請選擇等級');return;}
   if(players.find(p=>p.name===name)){alert(`「${name}」已在名單中`);return;}
   if(!isPro() && players.length >= 16){ showUpgradeHint('免費版最多 16 位球員'); return; }
+  const st=(document.getElementById('add-time-start')||{}).value||'';
+  const et=(document.getElementById('add-time-end')||{}).value||'';
+  const availTime=(st&&et)?st+' – '+et:(st||'');
   players.push({id:nid++,name,level:_addPlayerLvl,gender:_addPlayerGender||'',status:'waiting',offTime:null,playCount:0,partnerHistory:[],
-    payType:'零打',sessionPaid:false});
+    payType:'零打',sessionPaid:false,startTime:st,endTime:et,availableTime:availTime});
   nameEl.value=''; _addPlayerLvl=''; _addPlayerGender='';
   document.getElementById('modal-add').classList.remove('open');
   render();
@@ -4100,7 +4130,8 @@ function renderPlayers(){
               ${statusHtml}
               ${partnerName?`<span style="font-size:0.6rem;color:var(--pur)">綁${partnerName}</span>`:''}
             </div>
-            ${p.availableTime?`<span style="font-size:0.58rem;color:#93c5fd;background:#1e3a5f;border-radius:4px;padding:1px 5px;align-self:flex-start">🕐${p.availableTime}</span>`:''}
+            ${(p.startTime&&p.endTime)?`<span style="font-size:0.58rem;color:#93c5fd;background:#1e3a5f;border-radius:4px;padding:1px 5px;align-self:flex-start">🕐${p.startTime}–${p.endTime}</span>`:(p.availableTime?`<span style="font-size:0.58rem;color:#93c5fd;background:#1e3a5f;border-radius:4px;padding:1px 5px;align-self:flex-start">🕐${p.availableTime}</span>`:'')}
+
           </div>
           <button class="btn-rm" onclick="event.stopPropagation();removePlayer(${p.id})" style="font-size:0.7rem;align-self:flex-end">✕</button>
         </div>
