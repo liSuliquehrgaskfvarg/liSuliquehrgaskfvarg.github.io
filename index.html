@@ -33,12 +33,13 @@ body{font-family:'Segoe UI','Microsoft JhengHei',sans-serif;background:var(--bg)
 header{background:linear-gradient(135deg,#1e3a5f,var(--bg));padding:10px 18px;display:flex;align-items:center;gap:10px;border-bottom:2px solid var(--blu);flex-shrink:0;}
 header h1{font-size:1.2rem;font-weight:800;}
 .hdr-sub{font-size:0.68rem;color:var(--txt2);}
-.hdr-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:6px;flex-wrap:nowrap;overflow-x:auto;overflow-y:visible;-webkit-overflow-scrolling:touch;min-width:0;}
+.hdr-right::-webkit-scrollbar{display:none;}
 .rest-cfg{display:flex;align-items:center;gap:6px;font-size:0.75rem;color:var(--txt2);}
 .rest-cfg input{width:46px;background:var(--sur);border:1px solid var(--bdr);border-radius:6px;color:var(--txt);padding:4px 6px;font-size:0.75rem;text-align:center;outline:none;}
-.btn-pair-cfg{background:var(--pur);color:#fff;border:none;border-radius:7px;padding:5px 11px;font-size:0.73rem;font-weight:700;cursor:pointer;}
+.btn-pair-cfg{background:var(--pur);color:#fff;border:none;border-radius:7px;padding:5px 11px;font-size:0.73rem;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;}
 .btn-pair-cfg:hover{filter:brightness(1.1);}
-.btn-billing{background:#78350f;color:#fef3c7;border:1px solid #d97706;border-radius:7px;padding:5px 11px;font-size:0.73rem;font-weight:700;cursor:pointer;}
+.btn-billing{background:#78350f;color:#fef3c7;border:1px solid #d97706;border-radius:7px;padding:5px 11px;font-size:0.73rem;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;}
 .btn-billing:hover{filter:brightness(1.15);}
 .pay-tag{font-size:0.53rem;padding:1px 5px;border-radius:999px;font-weight:700;flex-shrink:0;line-height:1.4;}
 .pay-tag.zero{background:#78350f;color:#fcd34d;}
@@ -125,7 +126,7 @@ header h1{font-size:1.2rem;font-weight:800;}
 .btn-get-link{background:#0f766e;color:#fff;border:none;border-radius:7px;padding:5px 11px;font-size:0.73rem;font-weight:700;cursor:pointer;transition:background 0.3s;}
 .btn-get-link.copied{background:#16a34a;}
 .btn-get-link:hover{filter:brightness(1.1);}
-.btn-update{background:var(--sur);color:var(--txt2);border:1px solid var(--bdr);border-radius:7px;padding:5px 10px;font-size:0.73rem;font-weight:700;cursor:pointer;transition:all 0.3s;}
+.btn-update{background:var(--sur);color:var(--txt2);border:1px solid var(--bdr);border-radius:7px;padding:5px 10px;font-size:0.73rem;font-weight:700;cursor:pointer;transition:all 0.3s;white-space:nowrap;flex-shrink:0;}
 .match-row{background:var(--sur2);border:1px solid var(--bdr);border-radius:8px;padding:9px 12px;margin-bottom:6px;font-size:0.8rem;}
 .match-row .match-num{font-size:0.62rem;color:var(--mut);margin-bottom:4px;}
 .match-row .match-teams{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
@@ -723,6 +724,13 @@ header h1{font-size:1.2rem;font-weight:800;}
           <button onclick="savePriceSettings()" style="width:100%;background:#d97706;color:#fff;border:none;border-radius:8px;padding:8px;font-size:0.82rem;font-weight:700;cursor:pointer;margin-top:8px">💾 儲存價格設定</button>
         </div>
       </div>
+      <!-- Card3 slot config card -->
+      <div class="bill-tool-card">
+        <div class="bill-tool-hdr" onclick="toggleToolCard('tc-card3-slots')">
+          <span>🎫 三小卡時段設定</span><span id="tc-card3-slots-arrow">▶</span>
+        </div>
+        <div id="tc-card3-slots" style="display:none;padding:10px 0"></div>
+      </div>
       <!-- Stringing calculator card -->
       <div class="bill-tool-card">
         <div class="bill-tool-hdr" onclick="toggleToolCard('tc-string')">
@@ -932,7 +940,7 @@ header h1{font-size:1.2rem;font-weight:800;}
       <div style="font-size:0.78rem;color:var(--mut);margin-bottom:8px;font-weight:700;letter-spacing:.06em">今日場地數量</div>
       <div style="display:flex;align-items:center;justify-content:center;gap:12px">
         <button onclick="adjustSetupCourts(-1)" style="width:36px;height:36px;border-radius:50%;border:2px solid var(--bdr);background:var(--sur2);color:var(--txt);font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center">−</button>
-        <span id="setup-court-display" style="font-size:2rem;font-weight:900;color:#60a5fa;min-width:40px">3</span>
+        <span id="setup-court-display" style="font-size:2rem;font-weight:900;color:#60a5fa;min-width:40px">2</span>
         <button onclick="adjustSetupCourts(1)" style="width:36px;height:36px;border-radius:50%;border:2px solid var(--bdr);background:var(--sur2);color:var(--txt);font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center">＋</button>
       </div>
     </div>
@@ -1957,6 +1965,9 @@ function confirmSetup(){
 function openSetupModal(){
   document.getElementById('setup-cancel-btn').style.display = courts.length > 0 ? 'block' : 'none';
   document.getElementById('setup-score-mode').checked = scoreMode;
+  // 同步場地數量顯示與實際 courts.length
+  if(courts.length > 0) setupCourtCount = courts.length;
+  document.getElementById('setup-court-display').textContent = setupCourtCount;
   updateSetupNamingUI();
   document.getElementById('modal-setup').style.display = 'flex';
 }
@@ -2394,12 +2405,12 @@ var billingConfig = {
   // 三小卡
   card3Price: 1188,
   card3Slots: {
-    '三小卡-平日-09': '平日 09:00–12:00',
-    '三小卡-平日-12': '平日 12:00–15:00',
-    '三小卡-平日-15': '平日 15:00–18:00',
-    '三小卡-假日-07': '假日 07:00–10:00',
-    '三小卡-假日-10': '假日 10:00–13:00',
-    '三小卡-假日-19': '假日 19:00–22:00',
+    '三小卡-平日-09': { label:'平日 09:00–12:00', start:'09:00', end:'12:00', isWeekday:true  },
+    '三小卡-平日-12': { label:'平日 12:00–15:00', start:'12:00', end:'15:00', isWeekday:true  },
+    '三小卡-平日-15': { label:'平日 15:00–18:00', start:'15:00', end:'18:00', isWeekday:true  },
+    '三小卡-假日-07': { label:'假日 07:00–10:00', start:'07:00', end:'10:00', isWeekday:false },
+    '三小卡-假日-10': { label:'假日 10:00–13:00', start:'10:00', end:'13:00', isWeekday:false },
+    '三小卡-假日-19': { label:'假日 19:00–22:00', start:'19:00', end:'22:00', isWeekday:false },
   },
   // 穿線
   stringBase: 250,
@@ -2675,6 +2686,7 @@ function toggleBillingPage(){
     btn.style.background='#1e3a5f';
     renderBillingModal();
     renderPriceForm();
+    renderCard3SlotForm();
   } else {
     layout.style.display='';
     page.style.display='none';
@@ -2701,7 +2713,22 @@ function _pkgInfo(payType){
   return null;
 }
 function _cardSlot(payType){
+  var s=billingConfig.card3Slots[payType]; if(!s) return null;
+  return typeof s==='string'?s:s.label;
+}
+function _cardSlotObj(payType){
   return billingConfig.card3Slots[payType]||null;
+}
+function _cardSlotValid(payType){
+  var s=_cardSlotObj(payType);
+  if(!s||typeof s==='string') return true;
+  var now=new Date(), day=now.getDay(), isWknd=(day===0||day===6);
+  if(s.isWeekday&&isWknd) return false;
+  if(!s.isWeekday&&!isWknd) return false;
+  var cur=now.getHours()*60+now.getMinutes();
+  var sp=s.start.split(':'), ep=s.end.split(':');
+  var sMin=parseInt(sp[0])*60+parseInt(sp[1]), eMin=parseInt(ep[0])*60+parseInt(ep[1]);
+  return cur>=sMin&&cur<eMin;
 }
 
 function renderBillingModal(){
@@ -2744,11 +2771,19 @@ function renderBillingModal(){
   if(cards.length>0){
     html+='<div class="bill-section"><div class="bill-sec-hdr">🟢 三小卡（NT$'+billingConfig.card3Price+'/張，已預付）</div>';
     cards.forEach(function(p){
-      var slot=_cardSlot(p.payType)||p.payType;
-      html+='<div class="bill-prow" style="opacity:0.8">'+mn(p)
+      var slotObj=_cardSlotObj(p.payType);
+      var slotLabel=slotObj?slotObj.label:(p.payType||'');
+      var valid=_cardSlotValid(p.payType);
+      var validHtml=valid
+        ?'<span style="font-size:0.62rem;color:#4ade80;flex-shrink:0">✓ 時段內</span>'
+        :'<span style="font-size:0.62rem;color:#f87171;flex-shrink:0;font-weight:700">⚠ 非適用時段</span>';
+      html+='<div class="bill-prow" style="'+(valid?'opacity:0.85':'background:#450a0a;border:1px solid #7f1d1d')+'">'+mn(p)
         +'<div class="bill-pname">'+p.name+'</div>'
         +_payTypeSelectHtml(p.id,p.payType||'零打')
-        +'<div style="font-size:0.68rem;color:#6ee7b7;flex-shrink:0;text-align:right">'+slot+'</div>'
+        +'<div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0">'
+        +'<span style="font-size:0.62rem;color:#6ee7b7">'+slotLabel+'</span>'
+        +validHtml
+        +'</div>'
         +'</div>';
     });
     html+='</div>';
@@ -2892,6 +2927,41 @@ function markAllPaid(){
   renderBillingModal(); saveData();
 }
 
+function renderCard3SlotForm(){
+  var slots=billingConfig.card3Slots;
+  var keys=Object.keys(slots);
+  var tStyle='background:var(--sur2);border:1px solid var(--bdr);border-radius:6px;color:var(--txt);padding:4px 6px;font-size:0.82rem;outline:none;width:88px;box-sizing:border-box';
+  var html='<div style="font-size:0.7rem;color:var(--mut);margin-bottom:8px">設定每種三小卡的允許使用時間，儲存後即時生效。</div>';
+  keys.forEach(function(key,i){
+    var s=slots[key];
+    var dayLabel=s.isWeekday?'平日':'假日';
+    var shortKey=key.replace('三小卡-平日-','').replace('三小卡-假日-');
+    html+='<div style="display:flex;align-items:center;gap:5px;margin-bottom:8px">'
+      +'<label style="flex:1;font-size:0.73rem;color:var(--txt2)">'+dayLabel+' '+key.replace('三小卡-平日-','').replace('三小卡-假日-','')+'點</label>'
+      +'<input type="time" id="c3s_s_'+i+'" value="'+s.start+'" style="'+tStyle+'">'
+      +'<span style="font-size:0.7rem;color:var(--mut)">–</span>'
+      +'<input type="time" id="c3s_e_'+i+'" value="'+s.end+'" style="'+tStyle+'">'
+      +'</div>';
+  });
+  html+='<button onclick="saveCard3Slots()" style="width:100%;background:#0891b2;color:#fff;border:none;border-radius:8px;padding:8px;font-size:0.82rem;font-weight:700;cursor:pointer;margin-top:2px">💾 儲存時段設定</button>';
+  document.getElementById('tc-card3-slots').innerHTML=html;
+}
+function saveCard3Slots(){
+  var slots=billingConfig.card3Slots, keys=Object.keys(slots), bad=false;
+  keys.forEach(function(key,i){
+    var sv=(document.getElementById('c3s_s_'+i)||{}).value;
+    var ev=(document.getElementById('c3s_e_'+i)||{}).value;
+    if(!sv||!ev) return;
+    if(ev<=sv){ bad=true; return; }
+    slots[key].start=sv; slots[key].end=ev;
+    slots[key].label=(slots[key].isWeekday?'平日':'假日')+' '+sv+'–'+ev;
+  });
+  if(bad){ alert('結束時間必須晚於開始時間'); return; }
+  try{ localStorage.setItem('billingConfig',JSON.stringify(billingConfig)); }catch(e){}
+  renderBillingModal(); renderCard3SlotForm();
+  var btn=document.querySelector('#tc-card3-slots button');
+  if(btn){ btn.textContent='✅ 已儲存'; setTimeout(function(){btn.textContent='💾 儲存時段設定';},2000); }
+}
 function renderPriceForm(){
   var cfg=billingConfig;
   var rows=[
@@ -2955,7 +3025,10 @@ function loadBillingConfig(){
     if(raw){
       var saved=JSON.parse(raw);
       Object.keys(saved).forEach(function(k){
-        if(k==='card3Slots') return; // 不覆蓋 slot 定義
+        if(k==='card3Slots'){ // 只更新 start/end/label，保留 isWeekday
+          if(typeof saved[k]==='object') Object.keys(saved[k]).forEach(function(sk){
+            if(billingConfig.card3Slots[sk]) Object.assign(billingConfig.card3Slots[sk], saved[k][sk]);
+          }); return; }
         if(typeof billingConfig[k]==='object'&&billingConfig[k]!==null&&!Array.isArray(billingConfig[k])){
           Object.assign(billingConfig[k],saved[k]);
         } else {
