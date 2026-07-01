@@ -637,51 +637,6 @@ header h1{font-size:1.2rem;font-weight:800;}
         <button type="button" class="sel-btn" data-val="F" onclick="selectBtn('add-gender-group','_addPlayerGender','F')">♀ 女</button>
       </div>
     </div>
-    <div class="row">
-      <select id="inp-pay" style="flex:1" onchange="onPayTypeChange(this.value)">
-        <option value="零打">💛 零打（按次計費）</option>
-        <optgroup label="── 三小卡・平日 ──">
-          <option value="三小卡-平日-09">🟢 三小卡 平日 09:00–12:00</option>
-          <option value="三小卡-平日-12">🟢 三小卡 平日 12:00–15:00</option>
-          <option value="三小卡-平日-15">🟢 三小卡 平日 15:00–18:00</option>
-        </optgroup>
-        <optgroup label="── 三小卡・假日 ──">
-          <option value="三小卡-假日-07">🟢 三小卡 假日 07:00–10:00</option>
-          <option value="三小卡-假日-10">🟢 三小卡 假日 10:00–13:00</option>
-          <option value="三小卡-假日-19">🟢 三小卡 假日 19:00–22:00</option>
-        </optgroup>
-        <optgroup label="── 月方案 ──">
-          <option value="月方案-1088">🟠 月方案 $1088（5場/月）</option>
-          <option value="月方案-1588">🔴 月方案 $1588（8場/月）</option>
-          <option value="月方案-3888">💎 月方案 $3888（無限場）</option>
-        </optgroup>
-        <optgroup label="── 季繳（單時段）──">
-          <option value="季繳-平日">🔵 季繳 平日 ($2500/季)</option>
-          <option value="季繳-夜間">🔵 季繳 平日夜間 ($2800/季)</option>
-          <option value="季繳-假日">🔵 季繳 假日 ($2800/季)</option>
-        </optgroup>
-        <optgroup label="── 全時段票（平日A-E）──">
-          <option value="全時段-季全">🟣 全時段 季全 ($6280)</option>
-          <option value="全時段-半年">🟣 全時段 半年 ($10880)</option>
-          <option value="全時段-年全">🟣 全時段 年全 ($18880)</option>
-        </optgroup>
-        <optgroup label="── VIP ──">
-          <option value="VIP-月全">👑 VIP 月全 ($3888)</option>
-          <option value="VIP-半年">👑 VIP 半年 ($20888)</option>
-          <option value="VIP-年全">👑 VIP 年全 ($38888)</option>
-        </optgroup>
-        <option value="免費">⚫ 免費</option>
-      </select>
-    </div>
-    <div id="inp-pay-pkg-row" style="display:none;margin-bottom:6px">
-      <div style="font-size:0.72rem;color:var(--mut);padding:4px 2px">剩餘場次（此月）：</div>
-      <div style="display:flex;gap:8px;align-items:center">
-        <button type="button" style="background:var(--sur);border:1px solid var(--bdr);color:var(--txt);border-radius:6px;width:28px;height:28px;font-size:1rem;cursor:pointer" onclick="adjPkgInput(-1)">−</button>
-        <input id="inp-pkg-left" type="number" min="0" max="30" value="5" style="width:50px;text-align:center;background:var(--sur);border:1px solid var(--bdr);border-radius:6px;color:var(--txt);padding:4px;font-size:0.85rem">
-        <button type="button" style="background:var(--sur);border:1px solid var(--bdr);color:var(--txt);border-radius:6px;width:28px;height:28px;font-size:1rem;cursor:pointer" onclick="adjPkgInput(1)">+</button>
-        <span id="inp-pkg-hint" style="font-size:0.65rem;color:var(--mut)"></span>
-      </div>
-    </div>
     <div class="m-acts">
       <button class="mbtn mcancel" onclick="closeAddModal()">取消</button>
       <button class="mbtn mok" onclick="addPlayer()">➕ 加入</button>
@@ -3323,15 +3278,8 @@ function addPlayer(){
   if(!_addPlayerLvl){alert('請選擇等級');return;}
   if(players.find(p=>p.name===name)){alert(`「${name}」已在名單中`);return;}
   if(!isPro() && players.length >= 16){ showUpgradeHint('免費版最多 16 位球員'); return; }
-  const payEl=document.getElementById('inp-pay');
-  const payType=payEl?payEl.value:'零打';
-  const pkgLeftEl=document.getElementById('inp-pkg-left');
-  const isPkg=payType&&payType.startsWith('月方案');
-  const pkgLeft=isPkg&&pkgLeftEl&&!pkgLeftEl.disabled?parseInt(pkgLeftEl.value||'0'):undefined;
-  const pkgInfo=_pkgInfo(payType);
   players.push({id:nid++,name,level:_addPlayerLvl,gender:_addPlayerGender||'',status:'waiting',offTime:null,playCount:0,partnerHistory:[],
-    payType:payType,sessionPaid:false,
-    pkgLeft:isPkg?(pkgLeft!==undefined?pkgLeft:(pkgInfo&&pkgInfo.sessions?pkgInfo.sessions:null)):undefined});
+    payType:'零打',sessionPaid:false});
   nameEl.value=''; _addPlayerLvl=''; _addPlayerGender='';
   document.getElementById('modal-add').classList.remove('open');
   render();
