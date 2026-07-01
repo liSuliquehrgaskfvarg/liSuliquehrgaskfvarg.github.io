@@ -23,6 +23,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; touch-action: manipulation; }
+html{font-size:150%;}
 :root {
   --bg:#0f172a; --sur:#1e293b; --sur2:#0a1628; --bdr:#334155;
   --mut:#64748b; --txt:#e2e8f0; --txt2:#94a3b8;
@@ -1010,10 +1011,6 @@ header h1{font-size:1.2rem;font-weight:800;}
         <button type="button" class="sel-btn" data-val="M" onclick="selectBtn('roster-add-gender-group','_rosterAddGender','M')">♂ 男</button>
         <button type="button" class="sel-btn" data-val="F" onclick="selectBtn('roster-add-gender-group','_rosterAddGender','F')">♀ 女</button>
       </div>
-    </div>
-    <div style="margin-top:8px">
-      <label style="font-size:0.72rem;color:var(--mut);display:block;margin-bottom:3px">付款方式（預設）</label>
-      <select id="roster-inp-paytype" style="width:100%;background:var(--sur2);border:1px solid var(--bdr);border-radius:7px;color:var(--txt);padding:7px 9px;font-size:0.82rem;outline:none;box-sizing:border-box"></select>
     </div>
     <div class="m-acts">
       <button class="mbtn mcancel" onclick="closeRosterAddModal()">取消</button>
@@ -2321,7 +2318,6 @@ function openRosterAddModal(){
   clearBtnGroup('roster-add-lvl-group','_rosterAddLvl');
   clearBtnGroup('roster-add-gender-group','_rosterAddGender');
   document.getElementById('roster-inp-name').value = '';
-  document.getElementById('roster-inp-paytype').innerHTML = _payTypeOptsHtml('零打');
   document.getElementById('modal-roster-add').classList.add('open');
   setTimeout(()=>document.getElementById('roster-inp-name').focus(),100);
 }
@@ -2335,7 +2331,7 @@ function addRosterEntry(){
   if(!name){nameEl.focus();return;}
   if(!_rosterAddLvl){alert('請選擇等級');return;}
   if(roster.find(r=>r.name===name)){alert(`「${name}」已在球員庫中`);return;}
-  var pt=document.getElementById('roster-inp-paytype').value||'零打';
+  var pt='零打';
   roster.push({id:rid++, name, level:_rosterAddLvl, gender:_rosterAddGender||'', payType:pt});
   nameEl.value=''; _rosterAddLvl=''; _rosterAddGender='';
   document.getElementById('modal-roster-add').classList.remove('open');
@@ -2992,6 +2988,7 @@ function renderBillingModal(){
       var warn1=!isUnlimited&&left===1;
       var paid=p.sessionPaid;
       var canDeduct=isUnlimited||!warn;
+      var mcPrice=pkg?pkg.price:0;
       html+='<div class="bill-prow">'+mn(p)
         +'<div class="bill-pname">'+p.name+'</div>'
         +_payTypeSelectHtml(p.id,p.payType||'零打')
@@ -3003,6 +3000,10 @@ function renderBillingModal(){
         +'<span class="pkg-left" style="color:'+(warn?'#f87171':warn1?'#fbbf24':'#4ade80')+'">'+left+limitStr+'</span>'
         +(isUnlimited?''
           :'<button class="pkg-btn" onclick="adjPkgLeft('+p.id+',1)">+</button>')
+        +'</div>'
+        +'<div style="display:flex;flex-direction:column;align-items:flex-end;flex-shrink:0;margin-left:4px">'
+        +'<span style="font-size:0.58rem;font-weight:700;background:#92400e;color:#fbbf24;border-radius:4px;padding:1px 5px;margin-bottom:2px">月卡</span>'
+        +'<span class="bill-amt" style="font-size:0.78rem">NT$'+(mcPrice||'—')+'</span>'
         +'</div>'
         +(paid
           ?'<span style="font-size:0.72rem;color:#4ade80;flex-shrink:0;margin-left:4px">✓ 已付</span>'
