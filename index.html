@@ -2534,6 +2534,19 @@ function renderMemberCards(){
       +'<span>到期 '+r.expiryDate+'</span>'
       +(r.note?'<span>📝 '+r.note+'</span>':'')
       +'</div>'
+      +(r.usageLog&&r.usageLog.length
+        ?'<div style="margin-top:5px">'
+          +'<div style="font-size:0.65rem;color:var(--mut);margin-bottom:3px">📅 使用紀錄（最近 '+Math.min(r.usageLog.length,5)+' 筆）</div>'
+          +r.usageLog.slice(0,5).map(function(u){
+            return '<div style="font-size:0.63rem;background:var(--sur);border-radius:4px;padding:2px 7px;margin-bottom:2px;display:flex;gap:8px;flex-wrap:wrap">'
+              +'<span style="color:var(--txt)">'+u.date+'</span>'
+              +'<span style="color:var(--txt2)">'+u.time+'</span>'
+              +'<span style="color:#60a5fa">【'+u.timeLabel+'】</span>'
+              +'<span style="color:var(--mut)">剩 '+u.sessionsLeft+' 場</span>'
+              +'</div>';
+          }).join('')
+          +'</div>'
+        :'')
       +'<button class="btn-mc-del" onclick="deleteCardRecord(\''+r.id+'\')">🗑 刪除</button>'
       +'</div>';
   });
@@ -2668,6 +2681,8 @@ function renderBillingModal(){
       var limitStr=isUnlimited?'':('/ '+pkg.sessions);
       var warn=!isUnlimited&&left<=0;
       var warn1=!isUnlimited&&left===1;
+      var paid=p.sessionPaid;
+      var canDeduct=isUnlimited||!warn;
       html+='<div class="bill-prow">'+mn(p)
         +'<div class="bill-pname">'+p.name+'</div>'
         +_payTypeSelectHtml(p.id,p.payType||'零打')
@@ -2679,7 +2694,13 @@ function renderBillingModal(){
         +'<span class="pkg-left" style="color:'+(warn?'#f87171':warn1?'#fbbf24':'#4ade80')+'">'+left+limitStr+'</span>'
         +(isUnlimited?''
           :'<button class="pkg-btn" onclick="adjPkgLeft('+p.id+',1)">+</button>')
-        +'</div></div>';
+        +'</div>'
+        +(paid
+          ?'<span style="font-size:0.72rem;color:#4ade80;flex-shrink:0;margin-left:4px">✓ 已付</span>'
+          :(canDeduct
+            ?'<button class="btn-mpaid" onclick="deductSession('+p.id+')" style="font-size:0.68rem;padding:3px 8px;margin-left:4px">'+(isUnlimited?'✅ 標記已付':'✅ 扣次已付')+'</button>'
+            :''))
+        +'</div>';
     });
     html+='</div>';
   }
@@ -2862,6 +2883,36 @@ function adjPkgLeft(id, delta){
   var cur=typeof p.pkgLeft==='number'?p.pkgLeft:pkg.sessions;
   p.pkgLeft=Math.max(0,Math.min(pkg.sessions,cur+delta));
   renderBillingModal(); saveData();
+}
+function deductSession(pid){
+  var p=players.find(function(x){return x.id===pid;}); if(!p) return;
+  var pkg=_pkgInfo(p.payType);
+  var isUnlimited=!pkg||!pkg.sessions;
+  if(!isUnlimited){
+    var cur=typeof p.pkgLeft==='number'?p.pkgLeft:(pkg?pkg.sessions:0);
+    if(cur<=0){ alert('月卡次數已用完！'); return; }
+    p.pkgLeft=cur-1;
+  }
+  p.sessionPaid=true;
+  // 記錄使用時段與日期
+  var fr=calcFeeRate();
+  var now=new Date();
+  var todayStr=now.toISOString().slice(0,10);
+  var timeStr=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+  var usageEntry={date:todayStr,time:timeStr,timeLabel:fr.label,sessionsLeft:isUnlimited?'∞':p.pkgLeft};
+  // 更新 cardRecords 中對應的有效月卡
+  var today0=new Date(); today0.setHours(0,0,0,0);
+  for(var i=0;i<cardRecords.length;i++){
+    var r=cardRecords[i];
+    var expD=new Date(r.expiryDate); expD.setHours(0,0,0,0);
+    if(r.playerName===p.name&&r.cardType===p.payType&&expD>=today0){
+      if(!isUnlimited&&r.sessionsLeft>0) r.sessionsLeft--;
+      if(!r.usageLog) r.usageLog=[];
+      r.usageLog.unshift(usageEntry);
+      break;
+    }
+  }
+  saveCardRecords(); saveData(); renderBillingModal();
 }
 
 // ── Add player modal helper ──
