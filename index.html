@@ -4267,6 +4267,8 @@ if(!isViewerMode){
   auth.onAuthStateChanged(async function(user){
     if(user){
       currentUser = user;
+      // 讓 localStorage key 依 UID 區分，避免同一瀏覽器多帳號互相污染
+      STORAGE_KEY = 'badminton_scheduler_v1_' + user.uid;
       document.getElementById('modal-login').style.display = 'none';
       document.getElementById('btn-signout').style.display = 'block';
       // 載入 Firestore 球員庫
