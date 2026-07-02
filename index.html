@@ -119,12 +119,13 @@ header h1{font-size:1.2rem;font-weight:800;}
 .bill-rate-box{background:var(--sur2);border:1px solid var(--bdr);border-radius:10px;padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
 .bill-section{margin-bottom:10px;}
 .bill-sec-hdr{font-size:0.68rem;font-weight:700;color:var(--mut);letter-spacing:.06em;text-transform:uppercase;padding:0 0 6px;}
-.bill-prow{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;background:var(--sur2);margin-bottom:4px;}
-.bill-pname{flex:1;font-size:0.85rem;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.bill-amt{font-size:0.85rem;font-weight:900;color:#fcd34d;min-width:46px;text-align:right;flex-shrink:0;}
+.bill-prow{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;padding:8px 10px;border-radius:8px;background:var(--sur2);margin-bottom:6px;}
+.bill-pname{flex:1;min-width:80px;font-size:0.88rem;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--txt);}
+.bill-prow-controls{display:flex;align-items:center;gap:6px;width:100%;margin-top:2px;}
+.bill-amt{font-size:0.85rem;font-weight:900;color:#d97706;min-width:56px;text-align:right;flex-shrink:0;}
 .btn-mpaid{font-size:0.68rem;padding:3px 8px;border-radius:6px;border:1px solid var(--bdr);background:var(--sur);color:var(--txt2);cursor:pointer;white-space:nowrap;flex-shrink:0;}
 .btn-mpaid.paid{background:#15803d;border-color:#16a34a;color:#fff;}
-.bill-summary{background:#0f1f0f;border:1px solid #16a34a;border-radius:10px;padding:12px 14px;margin-top:12px;}
+.bill-summary{background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:10px;padding:12px 14px;margin-top:12px;}
 .bill-srow{display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:5px;}
 .btn-get-link{background:#0f766e;color:#fff;border:none;border-radius:7px;padding:5px 11px;font-size:0.73rem;font-weight:700;cursor:pointer;transition:background 0.3s;}
 .btn-get-link.copied{background:#16a34a;}
@@ -270,7 +271,7 @@ header h1{font-size:1.2rem;font-weight:800;}
 .le{background:var(--bdr);color:var(--mut);}
 .lp{background:#14532d;color:#4ade80;}
 .lr{background:#1e3a5f;color:#60a5fa;}
-.court-body{flex:1;padding:9px 11px;display:flex;flex-direction:column;justify-content:center;}
+.court-body{flex:1;padding:12px 11px 10px;display:flex;flex-direction:column;justify-content:center;gap:2px;}
 /* court layout — badminton court style */
 .court-field{display:flex;flex-direction:column;gap:0;background:#f8fafc;border-radius:10px;overflow:hidden;border:1px solid var(--bdr);}
 .court-half{display:flex;gap:6px;padding:8px 8px 6px;}
@@ -310,7 +311,7 @@ header h1{font-size:1.2rem;font-weight:800;}
 /* SLOT BOX STYLES */
 .court-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:6px 8px;}
 .slot-box{
-  min-height:52px; border-radius:9px; border:2px dashed #cbd5e1;
+  min-height:58px; border-radius:9px; border:2px dashed #cbd5e1;
   display:flex; align-items:center; justify-content:center;
   cursor:pointer; transition:all .15s; position:relative;
   background:#f8fafc; flex-direction:column; gap:3px; padding:6px;
@@ -324,7 +325,9 @@ header h1{font-size:1.2rem;font-weight:800;}
 .slot-box.slot-pickable:hover{ filter:brightness(1.15); }
 .slot-box.filled.teamA{ border-style:solid; border-color:#f43f5e; }
 .slot-box.filled.teamB{ border-style:solid; border-color:#16a34a; }
-.slot-box.target{ border-color:#fbbf24!important; background:#1c1209!important; animation:pulse-slot .6s ease infinite alternate; }
+.slot-box.target{ animation:pulse-slot .6s ease infinite alternate; }
+.slot-box.target.teamA{ border-color:#f43f5e!important; background:#ffe4e6!important; }
+.slot-box.target.teamB{ border-color:#16a34a!important; background:#dcfce7!important; }
 @keyframes pulse-slot{ from{box-shadow:0 0 0 0 #fbbf2444} to{box-shadow:0 0 0 6px #fbbf2400} }
 .slot-empty-hint{ font-size:0.62rem; color:var(--bdr); }
 .slot-player-name{ font-size:0.8rem; font-weight:600; }
@@ -612,18 +615,19 @@ header h1{font-size:1.2rem;font-weight:800;}
 .sel-btn-group button[data-val="F"].active{background:#be185d;color:#fdf2f8;border-color:#d97706;box-shadow:0 0 0 2px #d9770644;}
 
 /* ══ SIMPLIFIED HEADER ══ */
-.hdr-new{display:flex;align-items:center;padding:10px 14px;gap:8px;background:#ffffff;border-bottom:1.5px solid var(--bdr);flex-shrink:0;box-shadow:0 1px 4px rgba(0,0,0,.06);}
-.hdr-roster-btn{background:var(--sur2);border:1px solid var(--bdr);color:var(--txt);border-radius:8px;padding:7px 12px;font-size:0.78rem;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;-webkit-tap-highlight-color:transparent;}
+.hdr-new{display:flex;align-items:center;padding:8px 10px;gap:6px;background:#ffffff;border-bottom:1.5px solid var(--bdr);flex-shrink:0;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+.hdr-roster-btn{background:var(--sur2);border:1px solid var(--bdr);color:var(--txt);border-radius:8px;padding:6px 9px;font-size:0.75rem;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;-webkit-tap-highlight-color:transparent;}
 .hdr-roster-btn:active{background:var(--bdr);}
-.hdr-title-area{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;}
-.hdr-app-title{font-size:1rem;font-weight:800;color:var(--txt);white-space:nowrap;}
-.hdr-counts{display:flex;gap:6px;}
-.hdr-count-pill{background:var(--sur2);border:1px solid var(--bdr);border-radius:999px;padding:2px 9px;font-size:0.7rem;color:var(--txt2);}
+.hdr-title-area{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0;}
+.hdr-app-title{font-size:0.9rem;font-weight:800;color:var(--txt);white-space:nowrap;}
+.hdr-counts{display:flex;gap:4px;}
+.hdr-count-pill{background:var(--sur2);border:1px solid var(--bdr);border-radius:999px;padding:2px 7px;font-size:0.68rem;color:var(--txt2);}
 .hdr-count-pill b{color:var(--blu);font-weight:800;}
-.hdr-action-btns{display:flex;gap:6px;align-items:center;flex-shrink:0;}
-.hdr-action-btn{background:var(--sur2);border:1px solid var(--bdr);color:var(--txt);border-radius:8px;padding:7px 10px;font-size:0.72rem;font-weight:700;cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent;}
+.hdr-action-btns{display:flex;gap:5px;align-items:center;flex-shrink:0;}
+.hdr-action-btn{background:var(--sur2);border:1px solid var(--bdr);color:var(--txt);border-radius:8px;padding:6px 8px;font-size:0.7rem;font-weight:700;cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent;}
 .hdr-action-btn:active{background:var(--bdr);}
 .hdr-action-btn.purple{background:#ede9fe;border-color:#c4b5fd;color:#6d28d9;}
+@media(max-width:400px){.hdr-btn-lbl{display:none;}.hdr-roster-btn .hdr-btn-txt{display:none;}}
 
 /* ══ TAB PANELS ══ */
 .tab-panel{display:none;flex:1;flex-direction:column;overflow:hidden;min-height:0;}
@@ -679,8 +683,8 @@ header h1{font-size:1.2rem;font-weight:800;}
     </div>
   </div>
   <div class="hdr-action-btns">
-    <button class="hdr-action-btn purple" onclick="callAllCourts()">📢 全場</button>
-    <button class="hdr-action-btn" id="btn-pair" onclick="isPro()?openPairModal():showUpgradeHint('固定搭擋為 Pro 功能')">🔗 固定</button>
+    <button class="hdr-action-btn purple" onclick="callAllCourts()" title="全場叫號">📢<span class="hdr-btn-lbl"> 全場</span></button>
+    <button class="hdr-action-btn" id="btn-pair" onclick="isPro()?openPairModal():showUpgradeHint('固定搭擋為 Pro 功能')" title="固定搭擋">🔗<span class="hdr-btn-lbl"> 固定</span></button>
   </div>
   <!-- hidden stat refs for renderStats() -->
   <span id="s-play" style="display:none">0</span>
@@ -688,18 +692,18 @@ header h1{font-size:1.2rem;font-weight:800;}
 
 <div class="left-overlay-bg" id="roster-overlay" onclick="closeRosterDrawer()"></div>
 
-<div id="main-layout" class="layout">
-
-  <!-- 球員庫 Drawer（所有 tab 共用） -->
-  <div class="left-panel" id="left-panel">
-    <div class="left-hdr">
-      <span class="left-title">球員庫</span>
-      <span class="badge" id="roster-count">0</span>
-      <button class="btn-pair-cfg" style="background:var(--grn);padding:3px 8px;font-size:0.7rem" onclick="openRosterAddModal()">➕</button>
-    </div>
-    <input class="left-filter" id="roster-filter" type="text" placeholder="搜尋球員..." oninput="renderLeft()">
-    <div class="left-body" id="left-body"></div>
+<!-- 球員庫 Drawer（所有 tab 共用，移到 main-layout 外避免 overflow:hidden 裁切） -->
+<div class="left-panel" id="left-panel">
+  <div class="left-hdr">
+    <span class="left-title">球員庫</span>
+    <span class="badge" id="roster-count">0</span>
+    <button class="btn-pair-cfg" style="background:var(--grn);padding:3px 8px;font-size:0.7rem" onclick="openRosterAddModal()">➕</button>
   </div>
+  <input class="left-filter" id="roster-filter" type="text" placeholder="搜尋球員..." oninput="renderLeft()">
+  <div class="left-body" id="left-body"></div>
+</div>
+
+<div id="main-layout" class="layout">
 
   <!-- ══ TAB 1：場地 ══ -->
   <div id="tab-courts" class="tab-panel active">
@@ -721,7 +725,7 @@ header h1{font-size:1.2rem;font-weight:800;}
   <!-- ══ TAB 2：球員 ══ -->
   <div id="tab-players" class="tab-panel">
     <div class="player-tab-hdr">
-      <span class="player-tab-title">候場球員</span>
+      <span class="player-tab-title">所有球員</span>
       <span class="badge" id="player-tab-count">0</span>
       <button class="btn-aa" onclick="openAddModal()">＋ 加球員</button>
     </div>
@@ -771,8 +775,8 @@ header h1{font-size:1.2rem;font-weight:800;}
       </div>
       <div class="settings-item" onclick="isPro()?forceSyncSession():showUpgradeHint('同步功能需要 Pro')">
         <div class="settings-icon">☁️</div>
-        <div class="settings-text"><div class="settings-label">同步</div><div class="settings-desc">強制同步場地資料到雲端</div></div>
-        <div class="settings-arrow">›</div>
+        <div class="settings-text"><div class="settings-label">立即同步</div><div class="settings-desc">把場地資料推送到雲端，讓觀看者看到最新狀態</div></div>
+        <div style="font-size:0.75rem;color:var(--blu);font-weight:700;white-space:nowrap">執行</div>
       </div>
       <div class="settings-item" onclick="openSetupModal()">
         <div class="settings-icon">⚙️</div>
@@ -2675,6 +2679,12 @@ function renderLeft(){
   if(!body) return;
   body.innerHTML='';
 
+  // Empty state hint
+  if(roster.length===0){
+    body.innerHTML='<div style="padding:24px 16px;text-align:center;color:var(--mut);font-size:0.8rem;line-height:1.6">球員庫是空的<br>按右上角 ➕ 新增常客</div>';
+    return;
+  }
+
   // Group roster by tier
   const TIER_LABEL=['新','初','中','高'];
   const groups = Array.from({length:5},()=>[]);
@@ -3123,9 +3133,12 @@ function renderBillingModal(){
       var paid=p.sessionPaid;
       html+='<div class="bill-prow">'+mn(p)
         +'<div class="bill-pname">'+p.name+'</div>'
+        +(paid?'<span style="color:#16a34a;font-size:0.75rem;font-weight:700;flex-shrink:0">✓ 已付</span>':'')
+        +'<div class="bill-prow-controls">'
         +_payTypeSelectHtml(p.id,p.payType||'零打')
-        +'<div class="bill-amt">'+(paid?'<span style="color:#4ade80">✓ 已付</span>':'NT$'+fr.rate)+'</div>'
+        +'<div class="bill-amt" style="flex:1">'+(paid?'':'NT$'+fr.rate)+'</div>'
         +'<button class="btn-mpaid'+(paid?' paid':'')+'" onclick="togglePaid('+p.id+')">'+(paid?'已付款':'標記已付')+'</button>'
+        +'</div>'
         +'</div>';
     });
     html+='</div>';
@@ -3141,12 +3154,14 @@ function renderBillingModal(){
       var validHtml=valid
         ?'<span style="font-size:0.62rem;color:#4ade80;flex-shrink:0">✓ 時段內</span>'
         :'<span style="font-size:0.62rem;color:#f87171;flex-shrink:0;font-weight:700">⚠ 非適用時段</span>';
-      html+='<div class="bill-prow" style="'+(valid?'opacity:0.85':'background:#450a0a;border:1px solid #7f1d1d')+'">'+mn(p)
+      html+='<div class="bill-prow" style="'+(valid?'':'background:#fff1f2;border:1px solid #fca5a5')+'">'+mn(p)
         +'<div class="bill-pname">'+p.name+'</div>'
+        +'<div class="bill-prow-controls">'
         +_payTypeSelectHtml(p.id,p.payType||'零打')
-        +'<div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0">'
-        +'<span style="font-size:0.62rem;color:#6ee7b7">'+slotLabel+'</span>'
+        +'<div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex:1">'
+        +'<span style="font-size:0.62rem;color:#059669">'+slotLabel+'</span>'
         +validHtml
+        +'</div>'
         +'</div>'
         +'</div>';
     });
@@ -3236,12 +3251,12 @@ function renderBillingModal(){
   var unpaidCnt=zeroDa.length-paidCnt;
   var collected=paidCnt*fr.rate, pending=unpaidCnt*fr.rate, total=zeroDa.length*fr.rate;
   document.getElementById('bill-summary').innerHTML=
-    '<div class="bill-srow"><span>零打人數</span><span>'+zeroDa.length+' 人</span></div>'
-    +'<div class="bill-srow"><span>應收總計</span><span style="color:#fcd34d;font-weight:800">NT$ '+total+'</span></div>'
-    +'<div class="bill-srow"><span>✅ 已收</span><span style="color:#4ade80;font-weight:800">NT$ '+collected+'</span></div>'
-    +'<div class="bill-srow" style="border-top:1px solid var(--bdr);padding-top:8px;margin-top:4px">'
-    +'<span style="font-weight:700">⏳ 待收</span>'
-    +'<span style="font-size:1.1rem;font-weight:900;color:#fcd34d">NT$ '+pending+'</span></div>';
+    '<div class="bill-srow"><span style="color:var(--txt2)">零打人數</span><span style="color:var(--txt);font-weight:700">'+zeroDa.length+' 人</span></div>'
+    +'<div class="bill-srow"><span style="color:var(--txt2)">應收總計</span><span style="color:#d97706;font-weight:800">NT$ '+total+'</span></div>'
+    +'<div class="bill-srow"><span style="color:var(--txt2)">✅ 已收</span><span style="color:#16a34a;font-weight:800">NT$ '+collected+'</span></div>'
+    +'<div class="bill-srow" style="border-top:1.5px solid #bbf7d0;padding-top:8px;margin-top:4px">'
+    +'<span style="font-weight:700;color:var(--txt)">⏳ 待收</span>'
+    +'<span style="font-size:1.1rem;font-weight:900;color:#d97706">NT$ '+pending+'</span></div>';
 }
 
 function togglePaid(id){
@@ -4202,7 +4217,7 @@ function syncLevelsFromRoster(){
     if(r && r.level) p.level = r.level;
   });
 }
-function render(){ syncLevelsFromRoster();renderPlayers();renderCourts();renderQueue();renderStats();renderLeft();saveData();syncSession(); }
+function render(){ syncLevelsFromRoster();renderPlayers();renderCourts();renderQueue();renderStats();renderLeft();renderPlayerTab();saveData();syncSession(); }
 
 // ══ 底部導航 Tab 切換 ══
 function switchTab(name){
@@ -4215,24 +4230,73 @@ function switchTab(name){
   if(name==='players') renderPlayerTab();
 }
 function renderPlayerTab(){
-  var src=document.getElementById('player-list');
   var dst=document.getElementById('player-tab-list');
   var cnt=document.getElementById('player-tab-count');
-  if(!dst||!src) return;
-  // 複製 innerHTML（btn-rm 的 onclick attribute 會保留）
-  dst.innerHTML=src.innerHTML;
-  // 重新附加 selectPlayer 事件（通過 delegation）
-  dst.querySelectorAll('.p-item:not(.playing)').forEach(function(el){
-    var match=el.className.match(/\bselected\b/);
-    el.addEventListener('click',function(e){
-      if(e.target.closest('button')) return;
-      // 找到對應的 p-item 在 player-list 裡，取其序號
-      var idx=Array.from(dst.querySelectorAll('.p-item')).indexOf(el);
-      var orig=document.getElementById('player-list').querySelectorAll('.p-item')[idx];
-      if(orig) orig.click();
-    });
+  if(!dst) return;
+  dst.innerHTML='';
+  if(players.length===0){
+    dst.innerHTML='<div style="text-align:center;color:var(--mut);padding:24px;font-size:0.85rem">尚無球員，按「＋ 加球員」新增</div>';
+    if(cnt) cnt.textContent='0';
+    return;
+  }
+
+  // 建立狀態 map
+  var inMainSlot=new Set(), inNextSlot=new Set();
+  courts.forEach(function(c){
+    c.playerSlots.forEach(function(id){if(id!==null)inMainSlot.add(id);});
+    c.nextSlots.forEach(function(id){if(id!==null)inNextSlot.add(id);});
   });
-  if(cnt) cnt.textContent=document.getElementById('p-count').textContent;
+
+  function statusTag(p){
+    if(p.status==='playing'||inMainSlot.has(p.id))
+      return '<span style="font-size:0.6rem;font-weight:700;background:#fef9c3;color:#92400e;border-radius:4px;padding:1px 5px;flex-shrink:0">⚔️ 上場</span>';
+    if(inNextSlot.has(p.id))
+      return '<span style="font-size:0.6rem;font-weight:700;background:#ede9fe;color:#6d28d9;border-radius:4px;padding:1px 5px;flex-shrink:0">⏭ 下一場</span>';
+    if(p.status==='cooling'){
+      var rs=restSecs(p);
+      return '<span style="font-size:0.6rem;font-weight:700;background:#fef2f2;color:#dc2626;border-radius:4px;padding:1px 5px;flex-shrink:0">休 '+fmtTime(rs)+'</span>';
+    }
+    return '<span style="font-size:0.6rem;font-weight:700;background:#f0fdf4;color:#15803d;border-radius:4px;padding:1px 5px;flex-shrink:0">候場</span>';
+  }
+
+  // 排序：上場 → 下一場 → 候場 → 休息
+  var sorted=[...players].sort(function(a,b){
+    function order(p){
+      if(p.status==='playing'||inMainSlot.has(p.id)) return 0;
+      if(inNextSlot.has(p.id)) return 1;
+      if(p.status==='cooling') return 3;
+      return 2;
+    }
+    var oa=order(a), ob=order(b);
+    if(oa!==ob) return oa-ob;
+    return parseInt(b.level)-parseInt(a.level);
+  });
+
+  sorted.forEach(function(p){
+    var isPlay=p.status==='playing'||inMainSlot.has(p.id);
+    var partnerName=(function(){ var partner=getPairPartner(p.id); if(!partner) return ''; var pp=players.find(function(x){return x.id===partner;}); return pp?pp.name:''; })();
+    var cnt2=p.playCount||0;
+    var div=document.createElement('div');
+    div.className='p-item'+(isPlay?' playing':'');
+    div.onclick=function(e){ if(e.target.closest('button')) return; if(!isPlay) selectPlayer(p.id); };
+    div.innerHTML=
+      '<div class="p-item-top">'
+      +'<div class="mn '+LCLS(p.level)+'">'+tierName(p.level)+'</div>'
+      +'<span style="font-size:0.84rem;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+p.name+'</span>'
+      +'<span style="font-size:0.7rem;font-weight:800;color:#60a5fa;flex-shrink:0">'+cnt2+'場</span>'
+      +'</div>'
+      +'<div class="p-item-bot">'
+      +'<div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;flex:1">'
+      +statusTag(p)
+      +(partnerName?'<span style="font-size:0.6rem;color:var(--pur)">綁'+partnerName+'</span>':'')
+      +((p.startTime&&p.endTime)?'<span style="font-size:0.58rem;color:#1d4ed8;background:#dbeafe;border-radius:4px;padding:1px 5px">🕐'+p.startTime+'–'+p.endTime+'</span>':(p.availableTime?'<span style="font-size:0.58rem;color:#1d4ed8;background:#dbeafe;border-radius:4px;padding:1px 5px">🕐'+p.availableTime+'</span>':''))
+      +'</div>'
+      +'<button class="btn-rm" onclick="event.stopPropagation();removePlayer('+p.id+')" style="font-size:0.7rem;align-self:flex-end">✕</button>'
+      +'</div>';
+    dst.appendChild(div);
+  });
+
+  if(cnt) cnt.textContent=players.length;
 }
 
 function renderPlayers(){
