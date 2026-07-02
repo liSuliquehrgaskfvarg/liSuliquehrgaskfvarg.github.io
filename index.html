@@ -922,10 +922,14 @@ header h1{font-size:1.2rem;font-weight:800;}
           <div class="settings-card-icon">❓</div>
           <div class="settings-card-label">使用說明</div>
         </div>
-      </div>
-      <button class="settings-end-btn" onclick="openEndDayModal()">🏁 結束今天並儲存</button>
-      <div class="settings-signout-row">
-        <button id="btn-signout" style="display:none;background:none;border:none;color:var(--mut);font-size:0.8rem;cursor:pointer;padding:6px 16px;" onclick="signOut()">🚪 登出</button>
+        <div class="settings-card" onclick="openEndDayModal()">
+          <div class="settings-card-icon">🏁</div>
+          <div class="settings-card-label">結束今天</div>
+        </div>
+        <div class="settings-card" id="btn-signout" onclick="signOut()">
+          <div class="settings-card-icon">🚪</div>
+          <div class="settings-card-label">登出</div>
+        </div>
       </div>
       <div class="settings-version">羽球排版表 · v2.0</div>
     </div>
@@ -5219,7 +5223,7 @@ if(!isViewerMode){
       STORAGE_KEY = 'badminton_scheduler_v1_' + user.uid;
       BILLING_KEY = 'billingConfig_' + user.uid;
       document.getElementById('modal-login').style.display = 'none';
-      document.getElementById('btn-signout').style.display = 'inline-block';
+      document.getElementById('btn-signout').style.display = 'flex';
       // 載入 Firestore 球員庫
       await loadUserRoster();
       // 嘗試從 localStorage 還原 session
