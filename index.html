@@ -746,6 +746,56 @@ header h1{font-size:1.2rem;font-weight:800;}
 .settings-arrow{color:#cbd5e1;font-size:1rem;}
 .settings-item.danger .settings-label{color:#ef4444;}
 
+/* ══ STATS ROW ══ */
+.stats-row{display:flex;gap:10px;padding:12px 14px 0;flex-shrink:0;}
+.stat-card{flex:1;background:#fff;border-radius:12px;border:1px solid var(--bdr);padding:10px 12px;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+.stat-num{font-size:1.6rem;font-weight:900;color:var(--txt);line-height:1.1;}
+.stat-label{font-size:0.7rem;color:var(--mut);margin-top:2px;}
+
+/* ══ COURTS SECTION HEADER ══ */
+.courts-sec-hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 14px 4px;flex-shrink:0;}
+.courts-sec-title{font-size:1rem;font-weight:800;color:var(--txt);}
+.btn-auto-all{background:#2d5a1e;color:#fff;border:none;border-radius:10px;padding:8px 14px;font-size:0.82rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;-webkit-tap-highlight-color:transparent;}
+.btn-auto-all:active{opacity:0.82;}
+
+/* ══ HEADER LOGO ══ */
+.hdr-logo{width:40px;height:40px;background:#2d5a1e;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;}
+
+/* ══ NEW COURT CARD ══ */
+.cc-hdr{display:flex;align-items:center;gap:8px;padding:12px 14px 8px;}
+.cc-num{width:28px;height:28px;background:var(--sur2);border:1px solid var(--bdr);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:900;color:var(--txt);flex-shrink:0;}
+.cc-status{display:flex;align-items:center;gap:5px;}
+.cc-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.cc-dot.empty{background:var(--bdr);}
+.cc-dot.on{background:#22c55e;box-shadow:0 0 5px #22c55e;}
+.cc-dot.ready{background:#fbbf24;}
+.cc-status-txt{font-size:0.78rem;font-weight:700;color:var(--txt2);}
+.cc-timer{margin-left:auto;font-size:0.9rem;font-weight:800;color:var(--txt);}
+
+.cc-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:0 12px;}
+.cc-net{display:flex;align-items:center;gap:8px;padding:6px 18px;}
+.cc-net-line{flex:1;height:0;border-top:2px dashed var(--bdr);}
+.cc-net-lbl{font-size:0.72rem;font-weight:800;color:var(--txt2);white-space:nowrap;}
+
+.cc-slot{border-radius:10px;border:1.5px dashed #d4c9b5;background:var(--sur2);display:flex;align-items:center;gap:8px;padding:9px 10px;cursor:pointer;min-height:58px;-webkit-tap-highlight-color:transparent;}
+.cc-slot.teamA{border-color:#fecdd3;background:#fff1f2;}
+.cc-slot.teamB{border-color:#bbf7d0;background:#f0fdf4;}
+.cc-slot.filled.teamA{border-color:#f43f5e;border-style:solid;}
+.cc-slot.filled.teamB{border-color:#16a34a;border-style:solid;}
+.cc-slot.target{border-color:#fbbf24!important;background:#fffbeb!important;animation:pulse-slot .6s ease infinite alternate;}
+.cc-slot:active{opacity:.85;}
+.cc-badge{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:0.78rem;font-weight:900;flex-shrink:0;}
+.cc-pinfo{display:flex;flex-direction:column;gap:0;min-width:0;flex:1;}
+.cc-pname{font-size:0.95rem;font-weight:700;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cc-plv{font-size:0.65rem;color:var(--mut);}
+.cc-empty-hint{font-size:0.78rem;color:var(--mut);margin:auto;display:flex;align-items:center;gap:4px;}
+
+.cc-actions{padding:8px 12px 12px;display:flex;flex-direction:column;gap:7px;}
+.cc-end-btn{width:100%;background:#1c1c1e;color:#fff;border:none;border-radius:12px;padding:14px;font-size:0.9rem;font-weight:700;cursor:pointer;letter-spacing:.02em;-webkit-tap-highlight-color:transparent;}
+.cc-end-btn:active{opacity:.8;}
+.cc-row-btns{display:flex;gap:6px;}
+.cc-row-btns .cb{flex:1;}
+
 /* ══ PAGE BACK BAR ══ */
 .page-back-bar{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--sur2);border-bottom:1px solid var(--bdr);flex-shrink:0;}
 .page-back-btn{background:none;border:none;color:#6abf5a;font-size:0.9rem;font-weight:700;cursor:pointer;padding:4px 8px;border-radius:6px;display:flex;align-items:center;gap:4px;-webkit-tap-highlight-color:transparent;}
@@ -756,20 +806,23 @@ header h1{font-size:1.2rem;font-weight:800;}
 <body>
 
 <header class="hdr-new">
-  <button class="hdr-roster-btn" onclick="toggleRosterDrawer()">📋 球員庫</button>
+  <div class="hdr-logo">🏸</div>
   <div class="hdr-title-area">
-    <span class="hdr-app-title">🏸 羽球排版表</span>
-    <div class="hdr-counts">
-      <div class="hdr-count-pill"><b id="s-total">0</b> 球員</div>
-      <div class="hdr-count-pill"><b id="s-courts">0/0</b> 場地</div>
-    </div>
+    <span class="hdr-app-title">羽球排版表</span>
+    <span class="hdr-sub" style="font-size:0.65rem;color:var(--mut)">板橋羽球館</span>
   </div>
   <div class="hdr-action-btns">
-    <button class="hdr-action-btn purple" onclick="callAllCourts()" title="全場叫號">📢<span class="hdr-btn-lbl"> 全場</span></button>
-    <button class="hdr-action-btn" id="btn-pair" onclick="isPro()?openPairModal():showUpgradeHint('固定搭擋為 Pro 功能')" title="綁定搭擋">🔗<span class="hdr-btn-lbl"> 綁定</span></button>
+    <button class="hdr-action-btn" onclick="toggleRosterDrawer()" title="球員庫">📋</button>
+    <button class="hdr-action-btn purple" onclick="callAllCourts()" title="全場叫號">📢</button>
+    <button class="hdr-action-btn" id="btn-pair" onclick="isPro()?openPairModal():showUpgradeHint('固定搭擋為 Pro 功能')" title="綁定搭擋">🔗</button>
+    <button class="hdr-action-btn" onclick="switchTab('settings')" title="設定">⚙️</button>
   </div>
   <!-- hidden stat refs for renderStats() -->
+  <span id="s-total" style="display:none">0</span>
   <span id="s-play" style="display:none">0</span>
+  <span id="s-courts" style="display:none">0</span>
+  <span id="s-wait" style="display:none">0</span>
+  <span id="s-cool" style="display:none">0</span>
 </header>
 
 <div class="left-overlay-bg" id="roster-overlay" onclick="closeRosterDrawer()"></div>
@@ -789,6 +842,15 @@ header h1{font-size:1.2rem;font-weight:800;}
 
   <!-- ══ TAB 1：場地 ══ -->
   <div id="tab-courts" class="tab-panel active">
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-num" id="sc-total">0</div><div class="stat-label">球員</div></div>
+      <div class="stat-card"><div class="stat-num" id="sc-play">0</div><div class="stat-label">上場中</div></div>
+      <div class="stat-card"><div class="stat-num" id="sc-courts">0/0</div><div class="stat-label">場地</div></div>
+    </div>
+    <div class="courts-sec-hdr">
+      <span class="courts-sec-title">場地</span>
+      <button class="btn-auto-all" onclick="autoFillAll()">⚡ 全部自動排場</button>
+    </div>
     <div id="court-tabs"></div>
     <div class="courts-area" id="courts-area"></div>
     <div class="queue-area">
@@ -872,20 +934,20 @@ header h1{font-size:1.2rem;font-weight:800;}
   <!-- ══ 底部導航 ══ -->
   <nav class="bottom-nav">
     <button class="nav-btn active" id="nav-courts" onclick="switchTab('courts')">
-      <span class="nav-icon">🏸</span>
+      <span class="nav-icon">⊞</span>
       <span class="nav-label">場地</span>
     </button>
     <button class="nav-btn" id="nav-players" onclick="switchTab('players')">
       <span class="nav-icon">👤</span>
-      <span class="nav-label">球員</span>
+      <span class="nav-label">球員庫</span>
     </button>
     <button class="nav-btn" id="nav-qr" onclick="switchTab('qr')">
-      <span class="nav-icon">📱</span>
-      <span class="nav-label">QR碼</span>
+      <span class="nav-icon">📊</span>
+      <span class="nav-label">記錄</span>
     </button>
     <button class="nav-btn" id="nav-settings" onclick="switchTab('settings')">
-      <span class="nav-icon">⚙️</span>
-      <span class="nav-label">設定</span>
+      <span class="nav-icon">···</span>
+      <span class="nav-label">更多</span>
     </button>
   </nav>
 
@@ -4559,7 +4621,34 @@ function renderCourts(){
       }
     };
 
-    // Staging slots render
+    const nextFilled=c.nextSlots.filter(id=>id!==null).length;
+    const hasWinners=(c._lastWinners||[]).length===2&&isEmpty;
+
+    // New slot render (cc-slot style)
+    const renderCCSlot=(pos)=>{
+      const pid=c.playerSlots[pos];
+      const t=slotTeam(pos);
+      const isTarget=selectedPlayerId!==null;
+      if(pid!=null){
+        const p=players.find(pl=>pl.id===pid);
+        if(!p) return `<div class="cc-slot filled team${t}"><span class="cc-empty-hint">─</span></div>`;
+        const isFP=hasPair(pid);
+        const lvlNames={'1':'新','2':'初','3':'中','4':'高'};
+        return `<div class="cc-slot filled team${t}${!isPlay?' slot-pickable':''}" ${!isPlay?`onclick="placeInSlot(${c.id},${pos})"`:''}>
+          <div class="cc-badge ${LCLS(p.level)}">${tierName(p.level)}</div>
+          <div class="cc-pinfo">
+            <span class="cc-pname">${p.name}${isFP?' 💜':''}${genderTag(p.gender||'')}</span>
+            <span class="cc-plv">Lv.${lvlNames[p.level]||p.level}</span>
+          </div>
+        </div>`;
+      } else {
+        return `<div class="cc-slot team${t}${isTarget?' target':''}" onclick="placeInSlot(${c.id},${pos})">
+          <span class="cc-empty-hint">${isTarget?'👆 點此放置':'+ 空位'}</span>
+        </div>`;
+      }
+    };
+
+    // Staging slots
     const renderStagingSlot=(pos)=>{
       const pid=c.nextSlots[pos];
       const t=slotTeam(pos);
@@ -4580,21 +4669,7 @@ function renderCourts(){
       }
     };
 
-    const nextFilled=c.nextSlots.filter(id=>id!==null).length;
-
-    let body=`
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:2px 8px 0;min-height:22px">
-        ${isPlay&&c.startTime?`<span id="ctimer-${c.id}" style="font-size:0.8rem;font-weight:700;color:#fbbf24">${fmtTime((now()-c.startTime)/1000)}</span>`:'<span></span>'}
-        ${isPlay?`<span style="font-size:0.72rem;font-weight:700;color:#4ade80;letter-spacing:.04em">● 比賽中</span>`:'<span></span>'}
-      </div>
-      <div class="court-grid" style="background:rgba(190,24,93,0.08);border-radius:8px 8px 0 0">${[0,1].map(pos=>renderSlot(pos)).join('')}</div>
-      <div class="court-net"><div class="net-line"></div><div class="court-center-label">${courtLabel(c)}</div><div class="net-line"></div></div>
-      <div class="court-grid" style="background:rgba(6,87,70,0.1);border-radius:0 0 8px 8px">${[2,3].map(pos=>renderSlot(pos)).join('')}</div>
-    `;
-
-    const hasWinners=(c._lastWinners||[]).length===2&&isEmpty;
-
-    // Staging HTML
+    // Staging area
     const stagingHtml=`
       <div class="staging-area">
         <div class="staging-hdr">⏭ 下一場 <span style="font-size:0.65rem;color:var(--mut)">${nextFilled}/4</span></div>
@@ -4604,18 +4679,33 @@ function renderCourts(){
       </div>
     `;
 
+    // Action area
+    const actionsHtml = isPlay
+      ? `<button class="cc-end-btn" onclick="finishCourt(${c.id})">■ 結束下場</button>`
+      : `<div class="cc-row-btns">
+          <button class="cb cs" ${isReady?'':'disabled'} onclick="startCourt(${c.id})">開始</button>
+          <button class="cb ca" onclick="autoPickCourt(${c.id})">自動</button>
+          ${!isEmpty?`<button class="cb cc" onclick="clearCourt(${c.id})">清空</button>`:''}
+          ${!isEmpty?`<button class="cb" style="background:#2d5a1e;color:#fff" onclick="callCourt(${c.id})">叫號</button>`:''}
+        </div>`;
+
+    const dotCls = isPlay?'on':isReady?'ready':'empty';
+    const statusTxt = isPlay?'比賽中':isReady?'待開始':'空場';
+
     card.innerHTML=`
-      <div class="court-card-title">${courtLabel(c)}</div>
-      <div class="court-body">${body}</div>
-      <hr class="staging-separator">
-      ${stagingHtml}
-      <div class="court-actions">
-        <button class="cb cs" ${isReady?'':'disabled'} onclick="startCourt(${c.id})">開始</button>
-        <button class="cb cf" ${isPlay?'':'disabled'} onclick="finishCourt(${c.id})">下場</button>
-        <button class="cb ca" ${isPlay?'disabled':''} onclick="autoPickCourt(${c.id})">自動</button>
-        ${!isEmpty?`<button class="cb cc" ${isPlay?'disabled':''} onclick="clearCourt(${c.id})">清空</button>`:''}
-        ${!isEmpty?`<button class="cb" style="background:#7c3aed;color:#fff" onclick="callCourt(${c.id})">叫號</button>`:''}
+      <div class="cc-hdr">
+        <div class="cc-num">${c.name}</div>
+        <div class="cc-status">
+          <span class="cc-dot ${dotCls}"></span>
+          <span class="cc-status-txt">${statusTxt}</span>
+        </div>
+        ${isPlay&&c.startTime?`<span id="ctimer-${c.id}" class="cc-timer">${fmtTime((now()-c.startTime)/1000)}</span>`:'<span class="cc-timer"></span>'}
       </div>
+      <div class="cc-grid">${[0,1].map(pos=>renderCCSlot(pos)).join('')}</div>
+      <div class="cc-net"><div class="cc-net-line"></div><div class="cc-net-lbl">${courtLabel(c)}</div><div class="cc-net-line"></div></div>
+      <div class="cc-grid">${[2,3].map(pos=>renderCCSlot(pos)).join('')}</div>
+      ${stagingHtml}
+      <div class="cc-actions">${actionsHtml}</div>
     `;
     cardContainer.appendChild(card);
 
@@ -4670,12 +4760,18 @@ function renderQueue(){
 
 function renderStats(){
   const pid=playingIds();
+  const playing=pid.size;
+  const courtActive=courts.filter(c=>c.status==='playing').length;
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
   set('s-total',players.length);
-  set('s-play',pid.size);
+  set('s-play',playing);
   set('s-wait',players.filter(p=>p.status==='waiting').length);
   set('s-cool',players.filter(p=>p.status==='cooling').length);
   set('s-courts',courts.length);
+  // stat cards
+  set('sc-total',players.length);
+  set('sc-play',playing);
+  set('sc-courts',courtActive+'/'+courts.length);
 }
 
 
