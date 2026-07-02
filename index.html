@@ -712,7 +712,6 @@ header h1{font-size:1.2rem;font-weight:800;}
 .nav-btn.active{color:var(--blu);}
 .nav-btn .nav-icon{font-size:1.45rem;line-height:1;}
 .nav-btn .nav-label{font-size:0.62rem;font-weight:700;letter-spacing:.02em;}
-#nav-qr .nav-icon{color:#94a3b8;}
 
 /* ══ PLAYER TAB ══ */
 .player-tab-hdr{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--sur2);}
@@ -968,7 +967,7 @@ header h1{font-size:1.2rem;font-weight:800;}
       <span class="nav-label">球員庫</span>
     </button>
     <button class="nav-btn" id="nav-qr" onclick="switchTab('qr')">
-      <span class="nav-icon">QR</span>
+      <span class="nav-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><rect x="2" y="2" width="8" height="8" rx="1"/><rect x="4" y="4" width="4" height="4" fill="white"/><rect x="14" y="2" width="8" height="8" rx="1"/><rect x="16" y="4" width="4" height="4" fill="white"/><rect x="2" y="14" width="8" height="8" rx="1"/><rect x="4" y="16" width="4" height="4" fill="white"/><rect x="14" y="14" width="2" height="2"/><rect x="18" y="14" width="4" height="2"/><rect x="14" y="18" width="4" height="4"/><rect x="20" y="18" width="2" height="2"/></svg></span>
       <span class="nav-label">QRcode</span>
     </button>
     <button class="nav-btn" id="nav-settings" onclick="switchTab('settings')">
@@ -2156,7 +2155,7 @@ var TUT_STEPS = [
   { tab:'players', targetId:'tut-add-player', icon:'👤',
     title:'第一步：加入球員',
     desc:'點下面高亮的按鈕\n加入今天來打球的人', nextBtn:'我加好了，繼續 →' },
-  { tab:'courts', targetId:'tut-queue-area', icon:'🏃',
+  { tab:'courts', targetId:'tut-queue-area', icon:'🏃', extraUp: true,
     title:'第二步：手動派球員上場',
     desc:'在候場名單點一下球員（卡片變色代表已選取）\n再點場地上的空位，就能把他派上場\n也可按下面的「自動排場」讓系統幫你分配！', nextBtn:'了解了 →' },
   { tab:'courts', targetId:'tut-auto-all', icon:'⚡',
@@ -2205,7 +2204,9 @@ function _tutShowStep(){
     document.getElementById('tut-backdrop').style.cssText = 'display:block;position:fixed;inset:0;z-index:3500;background:rgba(0,0,0,.6);';
     document.getElementById('tut-spotlight').style.display = 'none';
     document.getElementById('tut-tap-zone').style.display = 'none';
-    document.getElementById('tut-tooltip').style.display = 'block';
+    var tt = document.getElementById('tut-tooltip');
+    tt.style.display = 'block';
+    tt.style.bottom = '';
     return;
   }
 
@@ -2233,7 +2234,9 @@ function _tutShowStep(){
         +'width:'+(r.width+pad*2)+'px;height:'+(r.height+pad*2)+'px;';
 
       document.getElementById('tut-backdrop').style.cssText = 'display:block;position:fixed;inset:0;z-index:3500;';
-      document.getElementById('tut-tooltip').style.display = 'block';
+      var tooltip = document.getElementById('tut-tooltip');
+      tooltip.style.display = 'block';
+      tooltip.style.bottom = s.extraUp ? '300px' : '';
     }, 200);
   }, 320);
 }
