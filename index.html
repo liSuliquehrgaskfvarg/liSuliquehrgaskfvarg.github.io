@@ -1195,6 +1195,24 @@ header h1{font-size:1.2rem;font-weight:800;}
   </div>
 </div>
 
+<!-- Add From Roster Modal -->
+<div class="overlay" id="modal-raf" onclick="if(event.target.id==='modal-raf')document.getElementById('modal-raf').classList.remove('open')">
+  <div class="modal" style="width:300px">
+    <h3>➕ 加入本場</h3>
+    <div style="font-size:1rem;font-weight:700;color:var(--txt);margin-bottom:14px;text-align:center" id="raf-name"></div>
+    <div style="font-size:0.72rem;color:var(--txt2);margin-bottom:6px">可打時段（選填）</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+      <input id="raf-start" type="time" step="1800" style="flex:1;background:var(--sur2);border:1px solid var(--bdr);border-radius:7px;color:var(--txt);padding:6px 8px;font-size:0.9rem;outline:none">
+      <span style="color:var(--mut)">—</span>
+      <input id="raf-end" type="time" step="1800" style="flex:1;background:var(--sur2);border:1px solid var(--bdr);border-radius:7px;color:var(--txt);padding:6px 8px;font-size:0.9rem;outline:none">
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="mbtn mcancel" onclick="document.getElementById('modal-raf').classList.remove('open')">取消</button>
+      <button class="mbtn mconfirm" onclick="_confirmAddFromRoster()">加入</button>
+    </div>
+  </div>
+</div>
+
 <!-- Roster Edit Modal -->
 <div class="overlay" id="modal-roster-edit" onclick="closeRosterEditModal(event)">
   <div class="modal" style="width:300px">
@@ -2369,7 +2387,16 @@ function groupScore(group){
       repeatPenalty += cnt*cnt*5;
     }
   }
-  return tierPenalty + repeatPenalty;
+  // 性別平衡懲罰：3:1 必然造成「2男 vs 1男1女」的不平衡局面
+  const males=group.filter(p=>p.gender==='M').length;
+  const females=group.filter(p=>p.gender==='F').length;
+  const knownGender=males+females;
+  let genderPenalty=0;
+  if(knownGender>=3){
+    // 3男1女 或 1男3女 → 高懲罰
+    if(males===3||females===3) genderPenalty=40;
+  }
+  return tierPenalty + repeatPenalty + genderPenalty;
 }
 
 // ══════════════════════════════
@@ -2450,6 +2477,23 @@ function assignTeams(group){
     const pair  = group.filter(p=>p.id===fp.id1||p.id===fp.id2);
     const other = group.filter(p=>p.id!==fp.id1&&p.id!==fp.id2);
     return [pair[0].id, pair[1].id, other[0].id, other[1].id];
+  }
+  // 性別平衡：2男2女時，確保每隊各1男1女
+  const males=group.filter(p=>p.gender==='M');
+  const females=group.filter(p=>p.gender==='F');
+  if(males.length===2&&females.length===2){
+    // 按等級排序後，高低搭配 → teamA: 男高+女高 or 男高+女低；讓等級盡量均衡
+    const mSorted=[...males].sort((a,b)=>LVL(b.level)-LVL(a.level));
+    const fSorted=[...females].sort((a,b)=>LVL(b.level)-LVL(a.level));
+    // teamA: m0+f0 vs teamB: m1+f1（高+高 vs 低+低）
+    // teamA: m0+f1 vs teamB: m1+f0（高+低 vs 低+高）→ 更均衡
+    const scoreOpt1=Math.abs(LVL(mSorted[0].level)+LVL(fSorted[0].level)-LVL(mSorted[1].level)-LVL(fSorted[1].level));
+    const scoreOpt2=Math.abs(LVL(mSorted[0].level)+LVL(fSorted[1].level)-LVL(mSorted[1].level)-LVL(fSorted[0].level));
+    if(scoreOpt2<=scoreOpt1){
+      return [mSorted[0].id,fSorted[1].id,mSorted[1].id,fSorted[0].id];
+    } else {
+      return [mSorted[0].id,fSorted[0].id,mSorted[1].id,fSorted[1].id];
+    }
   }
   const sorted=[...group].sort((a,b)=>LVL(a.level)-LVL(b.level));
   return [sorted[0].id, sorted[2].id, sorted[1].id, sorted[3].id];
@@ -2629,18 +2673,33 @@ function deleteRosterEntry(){
   saveUserRoster();
 }
 
+var _rosterAddId=null;
 function addFromRoster(rosterid){
-  const re = roster.find(r=>r.id===rosterid);
+  const re=roster.find(r=>r.id===rosterid);
   if(!re) return;
-  if(players.find(p=>p.name===re.name)) return;
-  if(!isPro() && players.length >= 16){ showUpgradeHint('免費版最多 16 位球員'); return; }
+  if(players.find(p=>p.name===re.name)){ showToast('⚠ '+re.name+' 已在場上'); return; }
+  if(!isPro()&&players.length>=16){ showUpgradeHint('免費版最多 16 位球員'); return; }
+  _rosterAddId=rosterid;
+  // Pre-fill name in modal
+  var nameEl=document.getElementById('raf-name');
+  if(nameEl) nameEl.textContent=re.name+(re.gender==='M'?' ♂':re.gender==='F'?' ♀':'');
+  var s=document.getElementById('raf-start'), e=document.getElementById('raf-end');
+  if(s) s.value=''; if(e) e.value='';
+  document.getElementById('modal-raf').classList.add('open');
+}
+function _confirmAddFromRoster(){
+  var re=roster.find(r=>r.id===_rosterAddId); if(!re) return;
+  var st=(document.getElementById('raf-start')||{}).value||'';
+  var et=(document.getElementById('raf-end')||{}).value||'';
   var rePt=re.payType||'零打';
   var rePkg=_pkgInfo(rePt);
-  var newP={id:nid++, name:re.name, level:re.level, status:'waiting', offTime:null, playCount:0, partnerHistory:[], payType:rePt, sessionPaid:false};
+  var newP={id:nid++,name:re.name,level:re.level,gender:re.gender||'',status:'waiting',offTime:null,playCount:0,partnerHistory:[],payType:rePt,sessionPaid:false,availableTime:'',startTime:st,endTime:et};
+  if(st&&et) newP.availableTime=st+'–'+et;
   if(rePkg&&rePkg.sessions) newP.pkgLeft=rePkg.sessions;
   players.push(newP);
-  render();
-  renderLeft();
+  document.getElementById('modal-raf').classList.remove('open');
+  _rosterAddId=null;
+  render(); renderLeft();
 }
 
 function addPairFromRoster(fp){
