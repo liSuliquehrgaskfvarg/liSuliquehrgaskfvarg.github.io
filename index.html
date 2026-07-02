@@ -743,6 +743,10 @@ header h1{font-size:1.2rem;font-weight:800;}
 .end-day-big-btn:active{opacity:.88;}
 /* Pro lock badge */
 .pro-lock::before{content:'🔒';font-size:0.65rem;margin-left:3px;vertical-align:middle;}
+/* Locked card style (Pro only features) */
+.settings-card.locked{background:#f5f0e8;border-color:#e0d9cc;cursor:default;}
+.settings-card.locked .settings-card-icon{opacity:0.4;filter:grayscale(0.6);}
+.settings-card.locked .settings-card-label{color:#aaa;}
 /* 新手教學 dots */
 .tut-dot{width:7px;height:7px;border-radius:50%;background:var(--bdr);transition:background .2s;}
 .tut-dot.active{background:var(--blu);}
@@ -907,15 +911,15 @@ header h1{font-size:1.2rem;font-weight:800;}
   <div id="tab-settings" class="tab-panel">
     <div class="settings-tab-wrap">
       <div class="settings-grid">
-        <div class="settings-card" onclick="isPro()?toggleBillingPage():showUpgradeHint('球員計費為 Pro 功能')">
+        <div class="settings-card" id="card-billing" onclick="isPro()?toggleBillingPage():showUpgradeHint('球員計費為 Pro 功能')">
           <div class="settings-card-icon">💰</div>
           <div class="settings-card-label">球員計費<span class="pro-lock" id="lock-billing"></span></div>
         </div>
-        <div class="settings-card" onclick="isPro()?toggleMemberCardPage():showUpgradeHint('月卡狀態為 Pro 功能')">
+        <div class="settings-card" id="card-mc" onclick="isPro()?toggleMemberCardPage():showUpgradeHint('月卡狀態為 Pro 功能')">
           <div class="settings-card-icon">🪪</div>
           <div class="settings-card-label">月卡狀態<span class="pro-lock" id="lock-mc"></span></div>
         </div>
-        <div class="settings-card" onclick="isPro()?toggleHistoryPage():showUpgradeHint('歷史紀錄為 Pro 功能')">
+        <div class="settings-card" id="card-hist" onclick="isPro()?toggleHistoryPage():showUpgradeHint('歷史紀錄為 Pro 功能')">
           <div class="settings-card-icon">📋</div>
           <div class="settings-card-label">歷史紀錄<span class="pro-lock" id="lock-hist"></span></div>
         </div>
@@ -1677,10 +1681,17 @@ let _guestMode = false; // 訪客本地模式（不需 Firebase）
 function isPro(){ return _userPro && !_guestMode; }
 
 function updateProUI(){
-  // QR碼、戰績、固定搭檔按鈕只有 Pro 才能用
-  ['btn-qr','btn-stats','btn-pair','btn-sync'].forEach(function(id){
+  // QR碼、固定搭檔按鈕只有 Pro 才能用
+  ['btn-qr','btn-pair','btn-sync'].forEach(function(id){
     const el=document.getElementById(id);
     if(el) el.style.opacity = isPro()?'1':'0.45';
+  });
+  // Pro-only settings cards: apply locked style when not Pro
+  ['btn-stats','card-billing','card-mc','card-hist'].forEach(function(id){
+    const el=document.getElementById(id);
+    if(!el) return;
+    if(isPro()){ el.classList.remove('locked'); }
+    else { el.classList.add('locked'); }
   });
 }
 
