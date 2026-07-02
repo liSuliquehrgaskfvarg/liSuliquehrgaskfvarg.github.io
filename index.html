@@ -1199,10 +1199,7 @@ header h1{font-size:1.2rem;font-weight:800;}
                 <option value="月方案-1588">🔴 月方案 $1588（8場/月）</option>
                 <option value="月方案-3888">💎 月方案 $3888（無限場）</option>
               </optgroup>
-              <optgroup label="三小卡">
-                <option value="三小卡-平日">🟢 三小卡 平日</option>
-                <option value="三小卡-假日">🟢 三小卡 假日</option>
-              </optgroup>
+              <option value="三小卡">🟢 三小卡</option>
               <optgroup label="季繳">
                 <option value="季繳-平日">🔵 季繳 平日（3個月）</option>
                 <option value="季繳-夜間">🔵 季繳 夜間（3個月）</option>
@@ -2189,29 +2186,42 @@ function _tutShowStep(){
     return;
   }
 
-  // Navigate to correct tab
-  if(s.tab) switchTab(s.tab);
+  // Navigate to correct tab (bypass Pro lock during tutorial)
+  if(s.tab) _tutSwitchTab(s.tab);
 
-  // Wait a tick for tab to render, then position spotlight
+  // Wait for tab to render, then scroll target into view, then position spotlight
   setTimeout(function(){
     var el = document.getElementById(s.targetId);
     if(!el){ tutNext(); return; }
-    var r = el.getBoundingClientRect();
-    var pad = 8;
-    var sp = document.getElementById('tut-spotlight');
-    sp.style.cssText = 'display:block;position:fixed;z-index:3600;border-radius:14px;pointer-events:none;'
-      +'box-shadow:0 0 0 9999px rgba(0,0,0,.72);transition:top .35s,left .35s,width .35s,height .35s;'
-      +'top:'+(r.top-pad)+'px;left:'+(r.left-pad)+'px;'
-      +'width:'+(r.width+pad*2)+'px;height:'+(r.height+pad*2)+'px;';
+    // Scroll element to center of viewport so getBoundingClientRect is accurate
+    el.scrollIntoView({behavior:'auto', block:'center'});
+    setTimeout(function(){
+      var r = el.getBoundingClientRect();
+      var pad = 8;
+      var sp = document.getElementById('tut-spotlight');
+      sp.style.cssText = 'display:block;position:fixed;z-index:3600;border-radius:14px;pointer-events:none;'
+        +'box-shadow:0 0 0 9999px rgba(0,0,0,.72);transition:top .35s,left .35s,width .35s,height .35s;'
+        +'top:'+(r.top-pad)+'px;left:'+(r.left-pad)+'px;'
+        +'width:'+(r.width+pad*2)+'px;height:'+(r.height+pad*2)+'px;';
 
-    var tz = document.getElementById('tut-tap-zone');
-    tz.style.cssText = 'display:block;position:fixed;z-index:3700;cursor:pointer;border-radius:14px;'
-      +'top:'+(r.top-pad)+'px;left:'+(r.left-pad)+'px;'
-      +'width:'+(r.width+pad*2)+'px;height:'+(r.height+pad*2)+'px;';
+      var tz = document.getElementById('tut-tap-zone');
+      tz.style.cssText = 'display:block;position:fixed;z-index:3700;cursor:pointer;border-radius:14px;'
+        +'top:'+(r.top-pad)+'px;left:'+(r.left-pad)+'px;'
+        +'width:'+(r.width+pad*2)+'px;height:'+(r.height+pad*2)+'px;';
 
-    document.getElementById('tut-backdrop').style.cssText = 'display:block;position:fixed;inset:0;z-index:3500;';
-    document.getElementById('tut-tooltip').style.display = 'block';
+      document.getElementById('tut-backdrop').style.cssText = 'display:block;position:fixed;inset:0;z-index:3500;';
+      document.getElementById('tut-tooltip').style.display = 'block';
+    }, 200);
   }, 320);
+}
+function _tutSwitchTab(name){
+  // Force switch without Pro check (tutorial needs access to all tabs)
+  ['courts','players','qr','settings'].forEach(function(t){
+    var panel=document.getElementById('tab-'+t);
+    var btn=document.getElementById('nav-'+t);
+    if(panel){ if(t===name){panel.classList.add('active');}else{panel.classList.remove('active');} }
+    if(btn){ if(t===name){btn.classList.add('active');}else{btn.classList.remove('active');} }
+  });
 }
 
 async function deployUpdate(){
@@ -2228,10 +2238,13 @@ async function deployUpdate(){
     }
     const res = await fetch('http://localhost:8766/deploy', {signal: AbortSignal.timeout(90000)});
     const data = await res.json();
-    if(iconEl) iconEl.textContent = origIcon;
     if(data.status === 'ok'){
-      alert('✅ 這是最新版本');
+      if(iconEl) iconEl.textContent = '✅';
+      const labelEl = btn.querySelector('.settings-card-label');
+      if(labelEl) labelEl.textContent = '有最新版本';
+      alert('✅ 有最新版本');
     } else {
+      if(iconEl) iconEl.textContent = origIcon;
       alert('❌ 更新失敗，請稍後再試');
     }
   } catch(e){
@@ -2976,11 +2989,17 @@ function _confirmAddFromRoster(){
   var st=(document.getElementById('raf-start')||{}).value||'';
   var et=(document.getElementById('raf-end')||{}).value||'';
   var _terr=validateTimeRange(st,et); if(_terr){alert(_terr);return;}
-  var rePt=re.payType||'零打';
+  // 自動從月卡記錄帶入付款方式
+  var activeCard=cardRecords.filter(function(r){
+    return r.playerName===re.name && r.active!==false;
+  }).sort(function(a,b){return (b.buyDate||'').localeCompare(a.buyDate||'');});
+  var rePt = (activeCard.length>0 ? activeCard[0].cardType : (re.payType||'零打'));
   var rePkg=_pkgInfo(rePt);
   var newP={id:nid++,name:re.name,level:re.level,gender:re.gender||'',status:'waiting',offTime:null,playCount:0,partnerHistory:[],payType:rePt,sessionPaid:false,availableTime:'',startTime:st,endTime:et};
   if(st&&et) newP.availableTime=st+'–'+et;
   if(rePkg&&rePkg.sessions) newP.pkgLeft=rePkg.sessions;
+  // 若月卡有剩餘場次，從記錄帶入
+  if(activeCard.length>0 && typeof activeCard[0].sessionsLeft==='number') newP.pkgLeft=activeCard[0].sessionsLeft;
   players.push(newP);
   document.getElementById('modal-raf').classList.remove('open');
   _rosterAddId=null;
@@ -3121,8 +3140,7 @@ var billingConfig = {
   // 三小卡
   card3Price: 1188,
   card3Slots: {
-    '三小卡-平日': { label:'平日', start:'09:00', end:'18:00', isWeekday:true  },
-    '三小卡-假日': { label:'假日', start:'07:00', end:'22:00', isWeekday:false },
+    '三小卡': { label:'三小卡', start:'06:00', end:'23:30' },
   },
   // 穿線
   stringBase: 250,
@@ -3613,8 +3631,7 @@ function setPayType(id, val){
 }
 var _PAY_OPTS=[
   ['零打','💛 零打'],
-  ['三小卡-平日','🟢 三小卡 平日'],
-  ['三小卡-假日','🟢 三小卡 假日'],
+  ['三小卡','🟢 三小卡'],
   ['月方案-1088','🟠 月方案 $1088 (5場)'],
   ['月方案-1588','🔴 月方案 $1588 (8場)'],
   ['月方案-3888','💎 月方案 $3888 (∞)'],
@@ -3635,7 +3652,7 @@ function _payTypeOptsHtml(cur){
 }
 // 球員庫用：排除「零打」
 function _rosterPayTypeOptsHtml(cur){
-  var c=cur||'三小卡-平日';
+  var c=cur||'三小卡';
   return _PAY_OPTS.filter(function(o){return o[0]!=='零打';})
     .map(function(o){return '<option value="'+o[0]+'"'+(o[0]===c?' selected':'')+'>'+o[1]+'</option>';}).join('');
 }
@@ -3666,34 +3683,24 @@ function markAllPaid(){
 
 function renderCard3SlotForm(){
   var sStyle='background:var(--sur2);border:1px solid var(--bdr);border-radius:6px;color:var(--txt);padding:4px 6px;font-size:0.82rem;outline:none;flex:1;box-sizing:border-box';
-  var wd=billingConfig.card3Slots['三小卡-平日']||{start:'09:00',end:'18:00'};
-  var hd=billingConfig.card3Slots['三小卡-假日']||{start:'07:00',end:'22:00'};
+  var s=billingConfig.card3Slots['三小卡']||{start:'06:00',end:'23:30'};
   var html='<div style="font-size:0.7rem;color:var(--mut);margin-bottom:10px">設定三小卡可用時段，儲存後即時生效。</div>'
-    +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">'
-    +'<span style="font-size:0.82rem;font-weight:700;color:var(--txt);width:36px">平日</span>'
-    +'<select id="c3s_wd_s" style="'+sStyle+'">'+_timeSelectOpts(wd.start)+'</select>'
-    +'<span style="font-size:0.7rem;color:var(--mut)">–</span>'
-    +'<select id="c3s_wd_e" style="'+sStyle+'">'+_timeSelectOpts(wd.end)+'</select>'
-    +'</div>'
     +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:12px">'
-    +'<span style="font-size:0.82rem;font-weight:700;color:var(--txt);width:36px">假日</span>'
-    +'<select id="c3s_hd_s" style="'+sStyle+'">'+_timeSelectOpts(hd.start)+'</select>'
+    +'<span style="font-size:0.82rem;font-weight:700;color:var(--txt);min-width:36px">時段</span>'
+    +'<select id="c3s_s" style="'+sStyle+'">'+_timeSelectOpts(s.start)+'</select>'
     +'<span style="font-size:0.7rem;color:var(--mut)">–</span>'
-    +'<select id="c3s_hd_e" style="'+sStyle+'">'+_timeSelectOpts(hd.end)+'</select>'
+    +'<select id="c3s_e" style="'+sStyle+'">'+_timeSelectOpts(s.end)+'</select>'
     +'</div>'
     +'<button onclick="saveCard3Slots()" style="width:100%;background:#2d7a3e;color:#fff;border:none;border-radius:8px;padding:8px;font-size:0.82rem;font-weight:700;cursor:pointer">💾 儲存時段設定</button>';
   document.getElementById('tc-card3-slots').innerHTML=html;
 }
 function saveCard3Slots(){
-  var wds=(document.getElementById('c3s_wd_s')||{}).value;
-  var wde=(document.getElementById('c3s_wd_e')||{}).value;
-  var hds=(document.getElementById('c3s_hd_s')||{}).value;
-  var hde=(document.getElementById('c3s_hd_e')||{}).value;
-  if(!wds||!wde||!hds||!hde){ alert('請填寫所有時間'); return; }
-  if(wde<=wds||hde<=hds){ alert('結束時間必須晚於開始時間'); return; }
-  billingConfig.card3Slots['三小卡-平日']={ label:'平日', start:wds, end:wde, isWeekday:true };
-  billingConfig.card3Slots['三小卡-假日']={ label:'假日', start:hds, end:hde, isWeekday:false };
-  try{ localStorage.setItem(BILLING_KEY,JSON.stringify(billingConfig)); }catch(e){}
+  var s=(document.getElementById('c3s_s')||{}).value;
+  var e=(document.getElementById('c3s_e')||{}).value;
+  if(!s||!e){ alert('請填寫時間'); return; }
+  if(e<=s){ alert('結束時間必須晚於開始時間'); return; }
+  billingConfig.card3Slots['三小卡']={ label:'三小卡', start:s, end:e };
+  try{ localStorage.setItem(BILLING_KEY,JSON.stringify(billingConfig)); }catch(e2){}
   renderBillingModal(); renderCard3SlotForm();
   var btn=document.querySelector('#tc-card3-slots button');
   if(btn){ btn.textContent='✅ 已儲存'; setTimeout(function(){btn.textContent='💾 儲存時段設定';},2000); }
