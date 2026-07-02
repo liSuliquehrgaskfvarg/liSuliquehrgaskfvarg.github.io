@@ -615,71 +615,223 @@ header h1{font-size:1.2rem;font-weight:800;}
 .sel-btn-group button[data-val="F"]{background:#500724;color:#f9a8d4;border-color:#9f1239;}
 .sel-btn-group button[data-val="F"]:hover{background:#9f1239;color:#fce7f3;}
 .sel-btn-group button[data-val="F"].active{background:#be185d;color:#fdf2f8;border-color:#d97706;box-shadow:0 0 0 2px #d9770644;}
+
+/* ══ SIMPLIFIED HEADER ══ */
+.hdr-new{display:flex;align-items:center;padding:8px 12px;gap:8px;background:linear-gradient(135deg,#1e3a5f,var(--bg));border-bottom:2px solid var(--blu);flex-shrink:0;}
+.hdr-roster-btn{background:var(--sur2);border:1px solid var(--bdr);color:var(--txt2);border-radius:8px;padding:7px 12px;font-size:0.78rem;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;-webkit-tap-highlight-color:transparent;}
+.hdr-roster-btn:active{background:var(--bdr);}
+.hdr-title-area{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;}
+.hdr-app-title{font-size:1rem;font-weight:800;color:var(--txt);white-space:nowrap;}
+.hdr-counts{display:flex;gap:6px;}
+.hdr-count-pill{background:var(--sur2);border:1px solid var(--bdr);border-radius:999px;padding:2px 9px;font-size:0.7rem;color:var(--txt2);}
+.hdr-count-pill b{color:#60a5fa;font-weight:800;}
+.hdr-action-btns{display:flex;gap:6px;align-items:center;flex-shrink:0;}
+.hdr-action-btn{background:var(--sur2);border:1px solid var(--bdr);color:var(--txt2);border-radius:8px;padding:7px 10px;font-size:0.72rem;font-weight:700;cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent;}
+.hdr-action-btn:active{background:var(--bdr);}
+.hdr-action-btn.purple{background:#2d1b69;border-color:#7c3aed;color:#c4b5fd;}
+
+/* ══ TAB PANELS ══ */
+.tab-panel{display:none;flex:1;flex-direction:column;overflow:hidden;min-height:0;}
+.tab-panel.active{display:flex;}
+
+/* ══ BOTTOM NAV ══ */
+.bottom-nav{display:flex;background:var(--sur2);border-top:2px solid var(--bdr);flex-shrink:0;padding-bottom:env(safe-area-inset-bottom,0);}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:10px 4px 8px;background:none;border:none;color:var(--mut);cursor:pointer;transition:color .15s;font-family:inherit;-webkit-tap-highlight-color:transparent;}
+.nav-btn.active{color:#60a5fa;}
+.nav-btn .nav-icon{font-size:1.45rem;line-height:1;}
+.nav-btn .nav-label{font-size:0.62rem;font-weight:700;letter-spacing:.02em;}
+
+/* ══ PLAYER TAB ══ */
+.player-tab-hdr{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--sur2);}
+.player-tab-title{font-size:0.85rem;font-weight:700;flex:1;}
+.player-tab-body{flex:1;overflow-y:auto;padding:10px 14px;}
+
+/* ══ QR TAB ══ */
+.qr-tab-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:24px 20px;}
+.qr-choice-card{background:var(--sur);border:2px solid var(--bdr);border-radius:16px;padding:28px 24px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;width:100%;max-width:320px;transition:border-color .15s;-webkit-tap-highlight-color:transparent;}
+.qr-choice-card:active{border-color:var(--blu);background:var(--sur2);}
+.qr-choice-icon{font-size:2.8rem;line-height:1;}
+.qr-choice-label{font-size:1.05rem;font-weight:800;color:var(--txt);}
+.qr-choice-sub{font-size:0.75rem;color:var(--mut);text-align:center;}
+
+/* ══ SETTINGS TAB ══ */
+.settings-tab-wrap{flex:1;overflow-y:auto;padding:12px 14px 16px;}
+.settings-item{display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--sur);border-radius:12px;margin-bottom:8px;cursor:pointer;border:1px solid var(--bdr);-webkit-tap-highlight-color:transparent;}
+.settings-item:active{background:var(--sur2);}
+.settings-icon{font-size:1.3rem;flex-shrink:0;width:30px;text-align:center;}
+.settings-text{flex:1;}
+.settings-label{font-size:0.9rem;font-weight:700;color:var(--txt);}
+.settings-desc{font-size:0.7rem;color:var(--mut);margin-top:2px;}
+.settings-arrow{color:var(--mut);font-size:1rem;}
+.settings-item.danger .settings-label{color:#f87171;}
+
+/* ══ PAGE BACK BAR ══ */
+.page-back-bar{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--sur2);border-bottom:1px solid var(--bdr);flex-shrink:0;}
+.page-back-btn{background:none;border:none;color:#60a5fa;font-size:0.9rem;font-weight:700;cursor:pointer;padding:4px 8px;border-radius:6px;display:flex;align-items:center;gap:4px;-webkit-tap-highlight-color:transparent;}
+.page-back-btn:active{background:var(--bdr);}
+.page-back-title{font-size:0.9rem;font-weight:800;color:var(--txt);flex:1;}
 </style>
 </head>
 <body>
 
-<header>
-  <span style="font-size:1.5rem">🏸</span>
-  <div style="flex-shrink:0"><h1>羽球排版表</h1></div>
-  <!-- Stats inline in header -->
-  <div class="hdr-stats">
-    <div class="hstat"><span class="hsv" id="s-total">0</span><span class="hsl">球員</span></div>
-    <div class="hstat"><span class="hsv" id="s-play">0</span><span class="hsl">上場</span></div>
-    <div class="hstat"><span class="hsv" id="s-courts">0/3</span><span class="hsl">場地</span></div>
+<header class="hdr-new">
+  <button class="hdr-roster-btn" onclick="toggleRosterDrawer()">📋 球員庫</button>
+  <div class="hdr-title-area">
+    <span class="hdr-app-title">🏸 羽球排版表</span>
+    <div class="hdr-counts">
+      <div class="hdr-count-pill"><b id="s-total">0</b> 球員</div>
+      <div class="hdr-count-pill"><b id="s-courts">0/0</b> 場地</div>
+    </div>
   </div>
-  <div class="hdr-right">
-    <button class="btn-roster-toggle" onclick="toggleRosterDrawer()">球員庫</button>
-    <button class="btn-pair-cfg" style="background:var(--grn)" onclick="openAddModal()">加球員</button>
-    <button id="btn-pair" class="btn-pair-cfg" onclick="isPro()?openPairModal():showUpgradeHint('固定搭檔為 Pro 功能')">固定搭檔</button>
-    <button class="btn-pair-cfg" style="background:#7c3aed" onclick="callAllCourts()">全場叫號</button>
-    <button id="btn-stats" class="btn-pair-cfg" style="background:#0e7490" onclick="isPro()?openStatsModal():showUpgradeHint('戰績紀錄為 Pro 功能')">戰績紀錄</button>
-    <button class="btn-billing" id="btn-billing-toggle" onclick="toggleBillingPage()">💰 計費</button>
-    <button class="btn-billing" id="btn-mc-toggle" onclick="toggleMemberCardPage()">🪪 月卡</button>
-    <button class="btn-billing" id="btn-history-toggle" onclick="toggleHistoryPage()" style="background:#0c4a6e;border-color:#0891b2;color:#7dd3fc">📋 歷史</button>
-    <button class="btn-billing" onclick="openEndDayModal()" style="background:#14532d;border-color:#16a34a;color:#4ade80">🏁 結束今天</button>
-    <button class="btn-pair-cfg" style="background:var(--cyn)" onclick="openSetupModal()">初始設定</button>
-    <button class="btn-pair-cfg" style="background:#7f1d1d" onclick="resetSession()">清除</button>
-    <button class="btn-update" id="btn-update" onclick="manualCheckUpdate()">更新</button>
-    <button id="btn-qr" class="btn-update" onclick="isPro()?showQRCode():showUpgradeHint('QR碼觀看者為 Pro 功能')" style="background:#0f4c75;border-color:#1a6fa8;color:#7dd3fc">QR碼</button>
-    <button class="btn-update" onclick="showJoinQR()" style="background:#14532d;border-color:#16a34a;color:#4ade80">加入QR</button>
-    <button class="btn-update" id="btn-sync" onclick="isPro()?forceSyncSession():showUpgradeHint('同步功能需要 Pro')" style="background:#1a3a1a;border-color:#4ade80;color:#4ade80" title="強制同步到 Firestore">同步</button>
-    <button class="btn-update" onclick="openHelpModal()" style="background:#1e3a5f;border-color:#3b82f6;color:#93c5fd">說明</button>
-    <button id="btn-signout" onclick="signOut()" style="display:none;background:#3b0764;color:#e9d5ff;border:1px solid #6b21a8;border-radius:7px;padding:7px 13px;font-size:0.92rem;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0">登出</button>
+  <div class="hdr-action-btns">
+    <button class="hdr-action-btn purple" onclick="callAllCourts()">📢 全場</button>
+    <button class="hdr-action-btn" id="btn-pair" onclick="isPro()?openPairModal():showUpgradeHint('固定搭擋為 Pro 功能')">🔗 固定</button>
   </div>
+  <!-- hidden stat refs for renderStats() -->
+  <span id="s-play" style="display:none">0</span>
 </header>
 
 <div class="left-overlay-bg" id="roster-overlay" onclick="closeRosterDrawer()"></div>
 
 <div id="main-layout" class="layout">
-  <div class="main-area">
-    <!-- LEFT PANEL: 球員庫 -->
-    <div class="left-panel" id="left-panel">
-      <div class="left-hdr">
-        <span class="left-title">球員庫</span>
-        <span class="badge" id="roster-count">0</span>
-        <button class="btn-pair-cfg" style="background:var(--grn);padding:3px 8px;font-size:0.7rem" onclick="openRosterAddModal()">➕</button>
-      </div>
-      <input class="left-filter" id="roster-filter" type="text" placeholder="搜尋球員..." oninput="renderLeft()">
-      <div class="left-body" id="left-body"></div>
+
+  <!-- 球員庫 Drawer（所有 tab 共用） -->
+  <div class="left-panel" id="left-panel">
+    <div class="left-hdr">
+      <span class="left-title">球員庫</span>
+      <span class="badge" id="roster-count">0</span>
+      <button class="btn-pair-cfg" style="background:var(--grn);padding:3px 8px;font-size:0.7rem" onclick="openRosterAddModal()">➕</button>
     </div>
-    <!-- RIGHT: courts + player queue -->
-    <div class="right-panel">
-      <div id="court-tabs"></div>
-      <div class="courts-area" id="courts-area"></div>
-      <div class="queue-area">
-        <div class="queue-hdr" onclick="toggleQueuePanel()">
-          <span class="queue-title">⏳ 候場名單</span>
-          <span class="badge" id="p-count">0</span>
-          <span class="select-hint-bar" id="select-hint"></span>
-          <button class="btn-aa" onclick="event.stopPropagation();autoFillAll()">⚡ 自動排場</button>
-        </div>
-        <div class="queue-body" id="queue-body">
-          <div class="player-list" id="player-list"></div>
-        </div>
+    <input class="left-filter" id="roster-filter" type="text" placeholder="搜尋球員..." oninput="renderLeft()">
+    <div class="left-body" id="left-body"></div>
+  </div>
+
+  <!-- ══ TAB 1：場地 ══ -->
+  <div id="tab-courts" class="tab-panel active">
+    <div id="court-tabs"></div>
+    <div class="courts-area" id="courts-area"></div>
+    <div class="queue-area">
+      <div class="queue-hdr">
+        <span class="queue-title">⏳ 候場名單</span>
+        <span class="badge" id="p-count">0</span>
+        <span class="select-hint-bar" id="select-hint"></span>
+        <button class="btn-aa" onclick="autoFillAll()">⚡ 自動排場</button>
+      </div>
+      <div class="queue-body" id="queue-body">
+        <div class="player-list" id="player-list"></div>
       </div>
     </div>
   </div>
+
+  <!-- ══ TAB 2：球員 ══ -->
+  <div id="tab-players" class="tab-panel">
+    <div class="player-tab-hdr">
+      <span class="player-tab-title">候場球員</span>
+      <span class="badge" id="player-tab-count">0</span>
+      <button class="btn-aa" onclick="openAddModal()">＋ 加球員</button>
+    </div>
+    <div class="player-tab-body">
+      <div class="player-list" id="player-tab-list"></div>
+    </div>
+  </div>
+
+  <!-- ══ TAB 3：QR碼 ══ -->
+  <div id="tab-qr" class="tab-panel">
+    <div class="qr-tab-wrap">
+      <div class="qr-choice-card" onclick="isPro()?showQRCode():showUpgradeHint('QR碼觀看者為 Pro 功能')">
+        <div class="qr-choice-icon">👁️</div>
+        <div class="qr-choice-label">觀看者 QR碼</div>
+        <div class="qr-choice-sub">讓觀眾掃描，即時查看場地狀態</div>
+      </div>
+      <div class="qr-choice-card" onclick="showJoinQR()">
+        <div class="qr-choice-icon">🏸</div>
+        <div class="qr-choice-label">加入者 QR碼</div>
+        <div class="qr-choice-sub">讓球員掃描申請加入</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ TAB 4：設定 ══ -->
+  <div id="tab-settings" class="tab-panel">
+    <div class="settings-tab-wrap">
+      <div class="settings-item" id="btn-stats" onclick="isPro()?openStatsModal():showUpgradeHint('戰績紀錄為 Pro 功能')">
+        <div class="settings-icon">🏆</div>
+        <div class="settings-text"><div class="settings-label">戰績紀錄</div><div class="settings-desc">查看球員對戰記錄與統計</div></div>
+        <div class="settings-arrow">›</div>
+      </div>
+      <div class="settings-item" onclick="toggleBillingPage()">
+        <div class="settings-icon">💰</div>
+        <div class="settings-text"><div class="settings-label">計費</div><div class="settings-desc">管理今日費用與付款</div></div>
+        <div class="settings-arrow">›</div>
+      </div>
+      <div class="settings-item" onclick="toggleMemberCardPage()">
+        <div class="settings-icon">🪪</div>
+        <div class="settings-text"><div class="settings-label">月卡管理</div><div class="settings-desc">球員月卡與次數紀錄</div></div>
+        <div class="settings-arrow">›</div>
+      </div>
+      <div class="settings-item" onclick="toggleHistoryPage()">
+        <div class="settings-icon">📋</div>
+        <div class="settings-text"><div class="settings-label">歷史紀錄</div><div class="settings-desc">查看過去每天的排程</div></div>
+        <div class="settings-arrow">›</div>
+      </div>
+      <div class="settings-item" onclick="isPro()?forceSyncSession():showUpgradeHint('同步功能需要 Pro')">
+        <div class="settings-icon">☁️</div>
+        <div class="settings-text"><div class="settings-label">同步</div><div class="settings-desc">強制同步場地資料到雲端</div></div>
+        <div class="settings-arrow">›</div>
+      </div>
+      <div class="settings-item" onclick="openSetupModal()">
+        <div class="settings-icon">⚙️</div>
+        <div class="settings-text"><div class="settings-label">初始設定</div><div class="settings-desc">設定場地數量與名稱</div></div>
+        <div class="settings-arrow">›</div>
+      </div>
+      <div class="settings-item" onclick="openEndDayModal()">
+        <div class="settings-icon">🏁</div>
+        <div class="settings-text"><div class="settings-label">結束今天</div><div class="settings-desc">儲存今日記錄並結束場次</div></div>
+        <div class="settings-arrow">›</div>
+      </div>
+      <div class="settings-item" onclick="manualCheckUpdate()">
+        <div class="settings-icon">🔄</div>
+        <div class="settings-text"><div id="btn-update" class="settings-label">更新版本</div><div class="settings-desc">檢查並更新至最新版本</div></div>
+        <div class="settings-arrow">›</div>
+      </div>
+      <div class="settings-item" onclick="openHelpModal()">
+        <div class="settings-icon">❓</div>
+        <div class="settings-text"><div class="settings-label">說明</div><div class="settings-desc">使用說明與教學</div></div>
+        <div class="settings-arrow">›</div>
+      </div>
+      <div class="settings-item" onclick="resetSession()">
+        <div class="settings-icon">🗑️</div>
+        <div class="settings-text"><div class="settings-label">清除資料</div><div class="settings-desc">清空今日所有球員與場地</div></div>
+        <div class="settings-arrow">›</div>
+      </div>
+      <div id="btn-signout" class="settings-item danger" style="display:none" onclick="signOut()">
+        <div class="settings-icon">🚪</div>
+        <div class="settings-text"><div class="settings-label">登出</div><div class="settings-desc">登出目前帳號</div></div>
+        <div class="settings-arrow">›</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 底部導航 ══ -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" id="nav-courts" onclick="switchTab('courts')">
+      <span class="nav-icon">🏸</span>
+      <span class="nav-label">場地</span>
+    </button>
+    <button class="nav-btn" id="nav-players" onclick="switchTab('players')">
+      <span class="nav-icon">👤</span>
+      <span class="nav-label">球員</span>
+    </button>
+    <button class="nav-btn" id="nav-qr" onclick="switchTab('qr')">
+      <span class="nav-icon">📱</span>
+      <span class="nav-label">QR碼</span>
+    </button>
+    <button class="nav-btn" id="nav-settings" onclick="switchTab('settings')">
+      <span class="nav-icon">⚙️</span>
+      <span class="nav-label">設定</span>
+    </button>
+  </nav>
+
 </div>
 
 <!-- Add Player Modal -->
@@ -763,6 +915,10 @@ header h1{font-size:1.2rem;font-weight:800;}
 
 <!-- Billing Page (full-screen, toggled by header button) -->
 <div id="billing-page" style="display:none;flex:1;overflow:hidden;flex-direction:column">
+  <div class="page-back-bar">
+    <button class="page-back-btn" onclick="toggleBillingPage()">‹ 返回</button>
+    <span class="page-back-title">💰 計費</span>
+  </div>
   <div class="bill-page-grid">
     <!-- LEFT: Player billing list -->
     <div class="bill-col-left">
@@ -849,6 +1005,10 @@ header h1{font-size:1.2rem;font-weight:800;}
 
 <!-- Member Card Management Page -->
 <div id="mc-page" style="display:none;flex:1;overflow:hidden;flex-direction:column">
+  <div class="page-back-bar">
+    <button class="page-back-btn" onclick="toggleMemberCardPage()">‹ 返回</button>
+    <span class="page-back-title">🪪 月卡管理</span>
+  </div>
   <div class="mc-page-grid">
     <!-- LEFT: 球員月卡狀態 -->
     <div class="mc-col-left">
@@ -954,6 +1114,10 @@ header h1{font-size:1.2rem;font-weight:800;}
      HISTORY PAGE (全螢幕，toggleHistoryPage 切換)
 ══════════════════════════════ -->
 <div id="history-page" style="display:none;flex:1;overflow:hidden;flex-direction:column">
+  <div class="page-back-bar">
+    <button class="page-back-btn" onclick="toggleHistoryPage()">‹ 返回</button>
+    <span class="page-back-title">📋 歷史紀錄</span>
+  </div>
   <div class="hist-page-wrap">
     <div class="hist-page-toolbar">
       <div class="hist-page-title">📋 歷史打球紀錄</div>
@@ -1956,10 +2120,8 @@ async function forceSyncSession(){
   try {
     await db.collection('users').doc(currentUser.uid).set({ session: sessionData }, { merge: true });
     showToast('✅ 成功同步！');
-    if(btn){ const orig=btn.textContent; btn.textContent='✅ 成功同步！'; setTimeout(()=>btn.textContent=orig,2000); }
   } catch(e) {
     showToast('❌ 同步失敗：' + e.code);
-    if(btn){ const orig=btn.textContent; btn.textContent='❌ 失敗'; setTimeout(()=>btn.textContent=orig,2000); }
   }
 }
 
@@ -2861,19 +3023,16 @@ function toggleMemberCardPage(){
   _mcPageOpen=!_mcPageOpen;
   var page=document.getElementById('mc-page');
   var layout=document.getElementById('main-layout');
-  var btn=document.getElementById('btn-mc-toggle');
   // Close billing if open
-  if(_billPageOpen){ _billPageOpen=false; document.getElementById('billing-page').style.display='none'; document.getElementById('btn-billing-toggle').textContent='💰 計費'; document.getElementById('btn-billing-toggle').style.background=''; }
+  if(_billPageOpen){ _billPageOpen=false; document.getElementById('billing-page').style.display='none'; }
   // Close history if open
-  if(_historyPageOpen){ _historyPageOpen=false; document.getElementById('history-page').style.display='none'; document.getElementById('btn-history-toggle').textContent='📋 歷史'; document.getElementById('btn-history-toggle').style.background=''; }
+  if(_historyPageOpen){ _historyPageOpen=false; document.getElementById('history-page').style.display='none'; }
   if(_mcPageOpen){
     layout.style.display='none';
     page.style.display='flex'; page.style.flexDirection='column';
-    btn.textContent='← 返回排版'; btn.style.background='#1e3a5f';
     renderMemberCards();
   } else {
     layout.style.display=''; page.style.display='none';
-    btn.textContent='🪪 月卡'; btn.style.background='';
   }
 }
 
@@ -2889,24 +3048,19 @@ function toggleBillingPage(){
   _billPageOpen=!_billPageOpen;
   var page=document.getElementById('billing-page');
   var layout=document.getElementById('main-layout');
-  var btn=document.getElementById('btn-billing-toggle');
   // Close mc page if open
-  if(_mcPageOpen){ _mcPageOpen=false; document.getElementById('mc-page').style.display='none'; document.getElementById('btn-mc-toggle').textContent='🪪 月卡'; document.getElementById('btn-mc-toggle').style.background=''; }
+  if(_mcPageOpen){ _mcPageOpen=false; document.getElementById('mc-page').style.display='none'; }
   // Close history if open
-  if(_historyPageOpen){ _historyPageOpen=false; document.getElementById('history-page').style.display='none'; document.getElementById('btn-history-toggle').textContent='📋 歷史'; document.getElementById('btn-history-toggle').style.background=''; }
+  if(_historyPageOpen){ _historyPageOpen=false; document.getElementById('history-page').style.display='none'; }
   if(_billPageOpen){
     layout.style.display='none';
     page.style.display='flex'; page.style.flexDirection='column';
-    btn.textContent='← 返回排版';
-    btn.style.background='#1e3a5f';
     renderBillingModal();
     renderPriceForm();
     renderCard3SlotForm();
   } else {
     layout.style.display='';
     page.style.display='none';
-    btn.textContent='💰 計費';
-    btn.style.background='';
   }
 }
 function toggleToolCard(id){
@@ -4055,6 +4209,37 @@ function syncLevelsFromRoster(){
 }
 function render(){ syncLevelsFromRoster();renderPlayers();renderCourts();renderQueue();renderStats();renderLeft();saveData();syncSession(); }
 
+// ══ 底部導航 Tab 切換 ══
+function switchTab(name){
+  ['courts','players','qr','settings'].forEach(function(t){
+    var panel=document.getElementById('tab-'+t);
+    var btn=document.getElementById('nav-'+t);
+    if(panel) panel.classList.toggle('active', t===name);
+    if(btn) btn.classList.toggle('active', t===name);
+  });
+  if(name==='players') renderPlayerTab();
+}
+function renderPlayerTab(){
+  var src=document.getElementById('player-list');
+  var dst=document.getElementById('player-tab-list');
+  var cnt=document.getElementById('player-tab-count');
+  if(!dst||!src) return;
+  // 複製 innerHTML（btn-rm 的 onclick attribute 會保留）
+  dst.innerHTML=src.innerHTML;
+  // 重新附加 selectPlayer 事件（通過 delegation）
+  dst.querySelectorAll('.p-item:not(.playing)').forEach(function(el){
+    var match=el.className.match(/\bselected\b/);
+    el.addEventListener('click',function(e){
+      if(e.target.closest('button')) return;
+      // 找到對應的 p-item 在 player-list 裡，取其序號
+      var idx=Array.from(dst.querySelectorAll('.p-item')).indexOf(el);
+      var orig=document.getElementById('player-list').querySelectorAll('.p-item')[idx];
+      if(orig) orig.click();
+    });
+  });
+  if(cnt) cnt.textContent=document.getElementById('p-count').textContent;
+}
+
 function renderPlayers(){
   const list=document.getElementById('player-list');
   const pid=playingIds();
@@ -4597,34 +4782,19 @@ function toggleHistoryPage(){
   _historyPageOpen = !_historyPageOpen;
   var page = document.getElementById('history-page');
   var layout = document.getElementById('main-layout');
-  var btn = document.getElementById('btn-history-toggle');
 
   // 關閉其他全螢幕頁面
-  if(_billPageOpen){
-    _billPageOpen = false;
-    document.getElementById('billing-page').style.display = 'none';
-    document.getElementById('btn-billing-toggle').textContent = '💰 計費';
-    document.getElementById('btn-billing-toggle').style.background = '';
-  }
-  if(_mcPageOpen){
-    _mcPageOpen = false;
-    document.getElementById('mc-page').style.display = 'none';
-    document.getElementById('btn-mc-toggle').textContent = '🪪 月卡';
-    document.getElementById('btn-mc-toggle').style.background = '';
-  }
+  if(_billPageOpen){ _billPageOpen = false; document.getElementById('billing-page').style.display = 'none'; }
+  if(_mcPageOpen){ _mcPageOpen = false; document.getElementById('mc-page').style.display = 'none'; }
 
   if(_historyPageOpen){
     layout.style.display = 'none';
     page.style.display = 'flex';
     page.style.flexDirection = 'column';
-    btn.textContent = '← 返回排版';
-    btn.style.background = '#0c4a6e';
     loadHistoryRecords();
   } else {
     layout.style.display = '';
     page.style.display = 'none';
-    btn.textContent = '📋 歷史';
-    btn.style.background = '';
   }
 }
 
