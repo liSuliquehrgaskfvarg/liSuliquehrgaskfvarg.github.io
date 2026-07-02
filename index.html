@@ -25,10 +25,10 @@
 * { box-sizing: border-box; margin: 0; padding: 0; touch-action: manipulation; }
 html{font-size:150%;}
 :root {
-  --bg:#f1f5f9; --sur:#ffffff; --sur2:#f8fafc; --bdr:#e2e8f0;
-  --mut:#94a3b8; --txt:#0f172a; --txt2:#475569;
-  --blu:#2563eb; --grn:#16a34a; --red:#dc2626;
-  --yel:#d97706; --pur:#7c3aed; --cyn:#0891b2;
+  --bg:#eef1e8; --sur:#ffffff; --sur2:#f4f7f0; --bdr:#d4e0ca;
+  --mut:#8a9e84; --txt:#1a2e1a; --txt2:#4a5e44;
+  --blu:#2d5a1e; --grn:#2d5a1e; --red:#dc2626;
+  --yel:#d97706; --pur:#2d5a1e; --cyn:#2d7a3e;
 }
 body{font-family:'Segoe UI','Microsoft JhengHei',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;display:flex;flex-direction:column;height:100vh;overflow:hidden;}
 
@@ -50,7 +50,7 @@ header h1{font-size:1.2rem;font-weight:800;}
 .pay-tag.pkg1{background:#431407;color:#fdba74;}
 .pay-tag.pkg2{background:#450a0a;color:#fca5a5;}
 .pay-tag.pkg3{background:#1e1b4b;color:#a5b4fc;}
-.pay-tag.season{background:#1e3a5f;color:#93c5fd;}
+.pay-tag.season{background:#1a3d1a;color:#86efac;}
 .pay-tag.fullpass{background:#1e1b4b;color:#c4b5fd;}
 .pay-tag.vip{background:#3b0764;color:#d8b4fe;}
 .pay-tag.pfree{background:#1e293b;color:#64748b;}
@@ -135,7 +135,7 @@ header h1{font-size:1.2rem;font-weight:800;}
 .match-row{background:var(--sur2);border:1px solid var(--bdr);border-radius:8px;padding:9px 12px;margin-bottom:6px;font-size:0.8rem;}
 .match-row .match-num{font-size:0.62rem;color:var(--mut);margin-bottom:4px;}
 .match-row .match-teams{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
-.match-row .match-score{font-size:1rem;font-weight:900;color:#60a5fa;margin-left:auto;white-space:nowrap;}
+.match-row .match-score{font-size:1rem;font-weight:900;color:#6abf5a;margin-left:auto;white-space:nowrap;}
 .match-row .match-win{color:#4ade80;font-size:0.65rem;margin-left:4px;}
 .btn-update:hover{filter:brightness(1.2);}
 .btn-update.has-update{background:#16a34a;color:#fff;border-color:#16a34a;animation:pulse-update 1.5s infinite;}
@@ -146,7 +146,7 @@ header h1{font-size:1.2rem;font-weight:800;}
 .hdr-stats{display:flex;align-items:center;gap:3px;margin:0 10px;flex:1;}
 .hstat{display:flex;flex-direction:column;align-items:center;padding:3px 10px;border-right:1px solid var(--bdr);min-width:48px;}
 .hstat:last-child{border-right:none;}
-.hsv{font-size:1.1rem;font-weight:800;color:#60a5fa;line-height:1.1;}
+.hsv{font-size:1.1rem;font-weight:800;color:#6abf5a;line-height:1.1;}
 .hsl{font-size:0.55rem;color:var(--mut);text-transform:uppercase;letter-spacing:.06em;}
 
 /* LAYOUT */
@@ -186,7 +186,7 @@ header h1{font-size:1.2rem;font-weight:800;}
 .row input,.row select{flex:1;background:var(--sur);border:1px solid var(--bdr);border-radius:7px;color:var(--txt);padding:6px 8px;font-size:0.8rem;outline:none;}
 .row input:focus,.row select:focus{border-color:var(--blu);}
 .btn-add{width:100%;background:var(--blu);color:#fff;border:none;border-radius:7px;padding:7px;font-size:0.8rem;font-weight:700;cursor:pointer;}
-.btn-add:hover{background:#1d4ed8;}
+.btn-add:hover{background:#1a4a10;}
 .badge{background:var(--blu);color:#fff;font-size:0.65rem;padding:1px 6px;border-radius:999px;}
 
 .player-list{display:flex;flex-wrap:wrap;gap:6px;padding:5px 2px;align-content:flex-start;}
@@ -194,9 +194,9 @@ header h1{font-size:1.2rem;font-weight:800;}
 .player-list::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:3px;}
 
 .p-item{display:flex;flex-direction:column;gap:4px;padding:8px 9px;border-radius:10px;background:#ffffff;border:1.5px solid var(--bdr);transition:all .15s;cursor:pointer;width:130px;flex-shrink:0;box-shadow:0 1px 3px rgba(0,0,0,.05);}
-.p-item:hover{border-color:#93c5fd;}
+.p-item:hover{border-color:#86efac;}
 .p-item.playing{opacity:.45;cursor:not-allowed;}
-.p-item.selected{background:#eff6ff;border-color:var(--blu);box-shadow:0 0 0 3px #bfdbfe;}
+.p-item.selected{background:#f0fdf4;border-color:var(--blu);box-shadow:0 0 0 3px #bbf7d0;}
 .p-item-top{display:flex;align-items:center;gap:5px;}
 .p-item-bot{display:flex;align-items:flex-end;gap:6px;}
 .p-item-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:4px;}
@@ -204,7 +204,7 @@ header h1{font-size:1.2rem;font-weight:800;}
 .p-time.soon{color:#fbbf24;background:#451a03;}
 .p-time.leaving{color:#f87171;background:#450a0a;}
 .btn-edit-time{background:none;border:none;color:var(--bdr);cursor:pointer;font-size:0.75rem;padding:3px 6px;border-radius:5px;transition:color .15s;}
-.btn-edit-time:hover{color:#60a5fa;}
+.btn-edit-time:hover{color:#6abf5a;}
 .grad-badge{font-size:0.68rem;background:#422006;color:#fbbf24;border:1px solid #92400e;border-radius:5px;padding:1px 6px;white-space:nowrap;animation:glow .9s ease-in-out infinite alternate;}
 @keyframes glow{from{box-shadow:0 0 3px #92400e}to{box-shadow:0 0 10px #fbbf24}}
 
@@ -225,7 +225,7 @@ header h1{font-size:1.2rem;font-weight:800;}
 .lt7{background:#0f172a;color:#fbbf24;border:1px solid #fbbf24;}
 .p-name{flex:1;font-size:0.82rem;font-weight:500;}
 .ptag{font-size:0.62rem;padding:2px 5px;border-radius:4px;}
-.tw{background:#1e3a5f;color:#60a5fa;}.tp{background:#14532d;color:#4ade80;}.tc{background:#451a03;color:#fbbf24;}
+.tw{background:#1a3d1a;color:#6abf5a;}.tp{background:#14532d;color:#4ade80;}.tc{background:#451a03;color:#fbbf24;}
 .rtimer{font-size:0.62rem;color:var(--mut);white-space:nowrap;}
 .rtimer.rdy{color:#4ade80;}
 .btn-rm{background:none;border:1px solid var(--bdr);color:var(--txt2);cursor:pointer;font-size:0.72rem;padding:2px 7px;border-radius:5px;transition:all .15s;}
@@ -263,7 +263,7 @@ header h1{font-size:1.2rem;font-weight:800;}
 #courts-nav-r{border-left:1px solid var(--bdr);border-right:none;}
 .courts-area{flex:1;overflow-x:auto;overflow-y:auto;display:flex;flex-direction:row;align-items:flex-start;gap:12px;padding:12px;min-height:0;}
 .court-card{background:#ffffff;border-radius:14px;border:1.5px solid var(--bdr);display:flex;flex-direction:column;overflow:visible;transition:border-color .3s;min-width:260px;flex:0 0 260px;box-shadow:0 1px 6px rgba(0,0,0,.06);}
-.court-card.active{border-color:var(--blu);box-shadow:0 0 0 3px #dbeafe;}
+.court-card.active{border-color:var(--blu);box-shadow:0 0 0 3px #dcfce7;}
 .court-hdr{background:#f8fafc;padding:9px 13px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:1px solid var(--bdr);}
 .court-num{font-size:0.95rem;font-weight:900;display:flex;align-items:center;gap:5px;}
 .dot{width:8px;height:8px;border-radius:50%;background:var(--bdr);}
@@ -271,7 +271,7 @@ header h1{font-size:1.2rem;font-weight:800;}
 .clbl{font-size:0.65rem;padding:3px 7px;border-radius:999px;font-weight:700;}
 .le{background:var(--bdr);color:var(--mut);}
 .lp{background:#14532d;color:#4ade80;}
-.lr{background:#1e3a5f;color:#60a5fa;}
+.lr{background:#1a3d1a;color:#6abf5a;}
 .court-body{flex:1;padding:12px 11px 10px;display:flex;flex-direction:column;justify-content:center;gap:2px;}
 /* court layout — badminton court style */
 .court-field{display:flex;flex-direction:column;gap:0;background:#f8fafc;border-radius:10px;overflow:hidden;border:1px solid var(--bdr);}
@@ -283,8 +283,8 @@ header h1{font-size:1.2rem;font-weight:800;}
 .net-icon{font-size:0.75rem;color:var(--mut);}
 .court-center-label{font-size:0.78rem;font-weight:900;color:var(--txt2);white-space:nowrap;padding:0 8px;letter-spacing:.04em;}
 .setup-ntype-btn{background:var(--sur2);border:2px solid var(--bdr);color:var(--txt2);border-radius:8px;padding:6px 16px;font-size:0.82rem;font-weight:700;cursor:pointer;transition:all .15s;}
-.setup-ntype-btn.active{background:#1e3a5f;border-color:#60a5fa;color:#60a5fa;}
-.setup-ntype-btn:hover{border-color:#60a5fa;}
+.setup-ntype-btn.active{background:#1a3d1a;border-color:#6abf5a;color:#6abf5a;}
+.setup-ntype-btn:hover{border-color:#6abf5a;}
 .staging-separator{border:none;border-top:2px dashed var(--bdr);margin:0 11px 4px;}
 .team-lbl-top{font-size:0.65rem;font-weight:800;color:#f472b6;text-align:center;padding:4px 0 0;letter-spacing:.06em;}
 .team-lbl-bot{font-size:0.65rem;font-weight:800;color:#34d399;text-align:center;padding:0 0 4px;letter-spacing:.06em;}
@@ -349,7 +349,7 @@ header h1{font-size:1.2rem;font-weight:800;}
 .staging-slot-rm:hover{color:var(--red);}
 
 /* QUEUE / PLAYER PANEL */
-.queue-area{background:#f0f9ff;border-top:2px solid #bae6fd;display:flex;flex-direction:column;flex:1;min-height:180px;}
+.queue-area{background:#f2f7ee;border-top:2px solid #c6ddb8;display:flex;flex-direction:column;flex:1;min-height:180px;}
 .queue-hdr{display:flex;align-items:center;gap:8px;padding:7px 14px 5px;flex-shrink:0;border-bottom:1px solid var(--bdr);}
 .queue-title{font-size:0.68rem;font-weight:700;letter-spacing:.08em;color:var(--mut);text-transform:uppercase;}
 .select-hint-bar{font-size:0.72rem;color:#fbbf24;background:#1c1209;border-radius:6px;padding:2px 9px;display:none;}
@@ -365,7 +365,7 @@ header h1{font-size:1.2rem;font-weight:800;}
 .tier-group-hdr{font-size:0.85rem;font-weight:700;color:var(--mut);padding:4px 2px 2px;width:100%;text-transform:uppercase;letter-spacing:.06em;}
 /* legacy chip (not used in main view anymore but keep for compat) */
 .qchip{display:flex;align-items:center;gap:4px;background:var(--sur2);border:1px solid var(--bdr);border-radius:999px;padding:3px 9px 3px 4px;font-size:0.76rem;white-space:nowrap;}
-.qchip.asgn{border-color:var(--blu);background:#1e3a5f;}
+.qchip.asgn{border-color:var(--blu);background:#1a3d1a;}
 .qchip.cool{}
 .qnum{background:var(--bdr);color:var(--txt2);width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.58rem;font-weight:700;}
 .qr{font-size:0.62rem;color:var(--mut);}
@@ -373,8 +373,8 @@ header h1{font-size:1.2rem;font-weight:800;}
 .noq{color:var(--bdr);font-size:0.78rem;}
 
 /* ANNOUNCE BANNER */
-.announce-banner{position:fixed;top:72px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#1e3a5f,#0f172a);border:2px solid #60a5fa;border-radius:14px;padding:14px 28px;z-index:1200;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.8);pointer-events:none;animation:abIn .3s ease;}
-.announce-banner .ab-court{font-size:0.75rem;color:#60a5fa;font-weight:700;letter-spacing:.08em;margin-bottom:6px;}
+.announce-banner{position:fixed;top:72px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#1a3d1a,#0f172a);border:2px solid #6abf5a;border-radius:14px;padding:14px 28px;z-index:1200;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.8);pointer-events:none;animation:abIn .3s ease;}
+.announce-banner .ab-court{font-size:0.75rem;color:#6abf5a;font-weight:700;letter-spacing:.08em;margin-bottom:6px;}
 .announce-banner .ab-names{font-size:1.3rem;font-weight:900;color:#fff;letter-spacing:.04em;}
 @keyframes abIn{from{opacity:0;top:50px}to{opacity:1;top:72px}}
 
@@ -393,7 +393,7 @@ header h1{font-size:1.2rem;font-weight:800;}
 .mmeta{font-size:0.65rem;color:var(--mut);}
 .m-acts{display:flex;gap:7px;margin-top:12px;}
 .mbtn{flex:1;border:none;border-radius:8px;padding:8px;font-size:0.8rem;font-weight:700;cursor:pointer;}
-.mok{background:var(--blu);color:#fff;}.mok:hover{background:#1d4ed8;}
+.mok{background:var(--blu);color:#fff;}.mok:hover{background:#1a4a10;}
 .mcancel{background:var(--bdr);color:var(--txt2);}.mcancel:hover{background:#475569;}
 
 /* PAIR CONFIG MODAL */
@@ -540,7 +540,7 @@ header h1{font-size:1.2rem;font-weight:800;}
 .hist-rec-card{background:var(--sur);border-radius:12px;border:1px solid var(--bdr);margin-bottom:8px;overflow:hidden;}
 .hist-rec-hdr{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;transition:background .15s;}
 .hist-rec-hdr:hover{background:var(--sur2);}
-.hist-rec-date{font-size:0.9rem;font-weight:800;color:#60a5fa;white-space:nowrap;}
+.hist-rec-date{font-size:0.9rem;font-weight:800;color:#6abf5a;white-space:nowrap;}
 .hist-rec-stats{display:flex;gap:10px;flex:1;font-size:0.78rem;color:var(--txt2);flex-wrap:wrap;}
 .hist-rec-stats span{background:var(--sur2);border-radius:999px;padding:2px 9px;white-space:nowrap;}
 .hist-rec-arrow{font-size:0.7rem;color:var(--mut);flex-shrink:0;transition:transform .2s;}
@@ -629,9 +629,9 @@ header h1{font-size:1.2rem;font-weight:800;}
 .sel-btn-group button[data-val="1"]:hover{background:#166534;color:#4ade80;}
 .sel-btn-group button[data-val="1"].active{background:#15803d;color:#bbf7d0;border-color:#d97706;box-shadow:0 0 0 2px #d9770644;}
 
-.sel-btn-group button[data-val="2"]{background:#1e3a5f;color:#93c5fd;border-color:#1d4ed8;}
-.sel-btn-group button[data-val="2"]:hover{background:#1d4ed8;color:#bfdbfe;}
-.sel-btn-group button[data-val="2"].active{background:#2563eb;color:#dbeafe;border-color:#d97706;box-shadow:0 0 0 2px #d9770644;}
+.sel-btn-group button[data-val="2"]{background:#831843;color:#f9a8d4;border-color:#be185d;}
+.sel-btn-group button[data-val="2"]:hover{background:#be185d;color:#fce7f3;}
+.sel-btn-group button[data-val="2"].active{background:#be185d;color:#fdf2f8;border-color:#d97706;box-shadow:0 0 0 2px #d9770644;}
 
 .sel-btn-group button[data-val="3"]{background:#7c2d12;color:#fdba74;border-color:#c2410c;}
 .sel-btn-group button[data-val="3"]:hover{background:#c2410c;color:#ffedd5;}
@@ -642,7 +642,7 @@ header h1{font-size:1.2rem;font-weight:800;}
 .sel-btn-group button[data-val="4"].active{background:#9333ea;color:#faf5ff;border-color:#d97706;box-shadow:0 0 0 2px #d9770644;}
 
 /* ── 性別色 ── */
-.sel-btn-group button[data-val="M"]{background:#1e3a5f;color:#93c5fd;border-color:#1d4ed8;}
+.sel-btn-group button[data-val="M"]{background:#1e3a8a;color:#93c5fd;border-color:#1d4ed8;}
 .sel-btn-group button[data-val="M"]:hover{background:#1d4ed8;color:#bfdbfe;}
 .sel-btn-group button[data-val="M"].active{background:#2563eb;color:#dbeafe;border-color:#d97706;box-shadow:0 0 0 2px #d9770644;}
 
@@ -702,7 +702,7 @@ header h1{font-size:1.2rem;font-weight:800;}
 
 /* ══ PAGE BACK BAR ══ */
 .page-back-bar{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--sur2);border-bottom:1px solid var(--bdr);flex-shrink:0;}
-.page-back-btn{background:none;border:none;color:#60a5fa;font-size:0.9rem;font-weight:700;cursor:pointer;padding:4px 8px;border-radius:6px;display:flex;align-items:center;gap:4px;-webkit-tap-highlight-color:transparent;}
+.page-back-btn{background:none;border:none;color:#6abf5a;font-size:0.9rem;font-weight:700;cursor:pointer;padding:4px 8px;border-radius:6px;display:flex;align-items:center;gap:4px;-webkit-tap-highlight-color:transparent;}
 .page-back-btn:active{background:var(--bdr);}
 .page-back-title{font-size:0.9rem;font-weight:800;color:var(--txt);flex:1;}
 </style>
@@ -1289,7 +1289,7 @@ header h1{font-size:1.2rem;font-weight:800;}
       <div style="font-size:0.78rem;color:var(--mut);margin-bottom:8px;font-weight:700;letter-spacing:.06em">今日場地數量</div>
       <div style="display:flex;align-items:center;justify-content:center;gap:12px">
         <button onclick="adjustSetupCourts(-1)" style="width:36px;height:36px;border-radius:50%;border:2px solid var(--bdr);background:var(--sur2);color:var(--txt);font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center">−</button>
-        <span id="setup-court-display" style="font-size:2rem;font-weight:900;color:#60a5fa;min-width:40px">2</span>
+        <span id="setup-court-display" style="font-size:2rem;font-weight:900;color:#6abf5a;min-width:40px">2</span>
         <button onclick="adjustSetupCourts(1)" style="width:36px;height:36px;border-radius:50%;border:2px solid var(--bdr);background:var(--sur2);color:var(--txt);font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center">＋</button>
       </div>
     </div>
@@ -1303,11 +1303,11 @@ header h1{font-size:1.2rem;font-weight:800;}
       </div>
       <!-- Number range dropdown -->
       <div id="setup-num-row">
-        <select id="setup-num-range" style="background:var(--sur2);border:2px solid #60a5fa;border-radius:8px;color:var(--txt);padding:7px 14px;font-size:0.9rem;outline:none;cursor:pointer;width:160px"></select>
+        <select id="setup-num-range" style="background:var(--sur2);border:2px solid #6abf5a;border-radius:8px;color:var(--txt);padding:7px 14px;font-size:0.9rem;outline:none;cursor:pointer;width:160px"></select>
       </div>
       <!-- Letter range dropdown -->
       <div id="setup-let-row" style="display:none">
-        <select id="setup-let-range" style="background:var(--sur2);border:2px solid #60a5fa;border-radius:8px;color:var(--txt);padding:7px 14px;font-size:0.9rem;outline:none;cursor:pointer;width:160px"></select>
+        <select id="setup-let-range" style="background:var(--sur2);border:2px solid #6abf5a;border-radius:8px;color:var(--txt);padding:7px 14px;font-size:0.9rem;outline:none;cursor:pointer;width:160px"></select>
       </div>
       <!-- Custom inputs -->
       <div id="setup-custom-row" style="display:none">
@@ -1479,7 +1479,7 @@ header h1{font-size:1.2rem;font-weight:800;}
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
       <span style="font-size:1.5rem">🏸</span>
       <h1 style="font-size:1.1rem;font-weight:800">羽球排版表</h1>
-      <span style="font-size:0.65rem;background:#1e3a5f;color:#60a5fa;border-radius:999px;padding:2px 9px;margin-left:4px">👁 觀看</span>
+      <span style="font-size:0.65rem;background:#1a3d1a;color:#6abf5a;border-radius:999px;padding:2px 9px;margin-left:4px">👁 觀看</span>
       <span id="viewer-updated" style="font-size:0.62rem;color:var(--mut);margin-left:auto"></span>
     </div>
     <div id="viewer-my-bar" style="display:none;background:#1e293b;border-radius:10px;padding:8px 14px;margin-bottom:10px;align-items:center;gap:10px">
@@ -1563,8 +1563,8 @@ function showUpgradeHint(msg){
   if(document.getElementById('upgrade-toast')) return;
   const t=document.createElement('div');
   t.id='upgrade-toast';
-  t.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1e3a5f;border:2px solid #60a5fa;color:#e2e8f0;border-radius:12px;padding:12px 20px;z-index:9999;font-size:0.85rem;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.6);max-width:300px';
-  t.innerHTML=`<div style="font-weight:700;margin-bottom:4px">🔒 ${msg||'升級 Pro 解鎖此功能'}</div><div style="font-size:0.72rem;color:#93c5fd">聯絡主辦人升級 Pro 版</div>`;
+  t.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1a3d1a;border:2px solid #6abf5a;color:#e2e8f0;border-radius:12px;padding:12px 20px;z-index:9999;font-size:0.85rem;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.6);max-width:300px';
+  t.innerHTML=`<div style="font-weight:700;margin-bottom:4px">🔒 ${msg||'升級 Pro 解鎖此功能'}</div><div style="font-size:0.72rem;color:#86efac">聯絡主辦人升級 Pro 版</div>`;
   document.body.appendChild(t);
   setTimeout(()=>{if(t.parentNode)t.parentNode.removeChild(t);},3000);
 }
@@ -1932,7 +1932,7 @@ function renderViewerUI(updatedAt){
       if(isMe) base += 'border:2.5px solid #fff;box-shadow:0 0 0 3px rgba(255,255,255,0.35);';
       return '<span style="'+base+'">'+p.name+'</span>';
     }
-    div.innerHTML = '<div style="font-size:1rem;font-weight:900;color:#60a5fa;margin-bottom:10px">場地 '+c.name+'  <span style="font-size:0.85rem;padding:3px 10px;border-radius:999px;background:'+(c.status==='playing'?'#14532d':'var(--bdr)')+';color:'+(c.status==='playing'?'#4ade80':'var(--mut)')+'">'+({empty:'空',playing:'比賽中',ready:'準備中'}[c.status]||c.status)+'</span></div>'
+    div.innerHTML = '<div style="font-size:1rem;font-weight:900;color:#6abf5a;margin-bottom:10px">場地 '+c.name+'  <span style="font-size:0.85rem;padding:3px 10px;border-radius:999px;background:'+(c.status==='playing'?'#14532d':'var(--bdr)')+';color:'+(c.status==='playing'?'#4ade80':'var(--mut)')+'">'+({empty:'空',playing:'比賽中',ready:'準備中'}[c.status]||c.status)+'</span></div>'
       + (teamA.length||teamB.length ? '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'
         + '<span style="display:flex;gap:6px">'+teamA.map(function(p){return nameSpan(p);}).join('')+'</span>'
         + '<span style="color:var(--mut);font-size:1rem">vs</span>'
@@ -2090,7 +2090,7 @@ function showJoinNotify(doc){
   card.innerHTML = `
     <div style="font-size:0.7rem;color:var(--mut);margin-bottom:4px">🏃 球員申請加入</div>
     <div style="font-weight:700;font-size:1rem;margin-bottom:2px">${d.name} <span class="lvl ${['','lt1','lt2','lt3','lt4'][parseInt(d.level)||1]||'lt1'}" style="font-size:0.75rem;border-radius:4px;padding:1px 6px">${d.levelName||d.level}</span></div>
-    <div style="font-size:0.78rem;color:#93c5fd;margin-bottom:10px">🕐 ${d.timeRange}</div>
+    <div style="font-size:0.78rem;color:#86efac;margin-bottom:10px">🕐 ${d.timeRange}</div>
     <div style="display:flex;gap:6px">
       <button onclick="approveJoin('${doc.id}','${d.name}','${d.level}','${d.timeRange}','${d.startTime||''}','${d.endTime||''}')" style="flex:1;background:#16a34a;border:none;border-radius:7px;padding:7px;color:#fff;font-size:0.85rem;font-weight:700;cursor:pointer">✅ 同意</button>
       <button onclick="rejectJoin('${doc.id}')" style="flex:1;background:#7f1d1d;border:none;border-radius:7px;padding:7px;color:#fca5a5;font-size:0.85rem;font-weight:700;cursor:pointer">❌ 拒絕</button>
@@ -2273,7 +2273,7 @@ function updateSetupNamingUI(){
       inp.placeholder = '場地'+(j+1);
       inp.value = existing[j] || '';
       inp.style.cssText = 'width:72px;background:var(--sur2);border:2px solid var(--bdr);border-radius:7px;color:var(--txt);padding:7px 6px;font-size:0.9rem;outline:none;text-align:center';
-      inp.onfocus = function(){ this.style.borderColor='#60a5fa'; };
+      inp.onfocus = function(){ this.style.borderColor='#6abf5a'; };
       inp.onblur  = function(){ this.style.borderColor='var(--bdr)'; };
       container.appendChild(inp);
     }
@@ -2359,7 +2359,7 @@ function validateTimeRange(st, et){
   if(st && et && et<=st) return '結束時間必須晚於開始時間';
   return null;
 }
-function genderTag(g){ if(g==='M') return '<span style="font-size:0.6rem;color:#2563eb;font-weight:700">♂</span>'; if(g==='F') return '<span style="font-size:0.6rem;color:#db2777;font-weight:700">♀</span>'; return ''; }
+function genderTag(g){ if(g==='M') return '<span style="font-size:0.6rem;color:#2d5a1e;font-weight:700">♂</span>'; if(g==='F') return '<span style="font-size:0.6rem;color:#db2777;font-weight:700">♀</span>'; return ''; }
 const PARTNER_HISTORY_LEN = 12;
 
 function courtName(c){ return c.name || String(c.id); }
@@ -2794,7 +2794,7 @@ function renderLeft(){
         const rp=players.find(p=>p.id===r.id);
         const rCnt=rp?(rp.playCount||0):0;
         const avgCnt=players.length?players.reduce((s,p)=>s+(p.playCount||0),0)/Math.max(1,players.length):0;
-        const cntColor=rCnt>0&&rCnt>=avgCnt+2?'#f87171':rCnt>0?'#60a5fa':'var(--mut)';
+        const cntColor=rCnt>0&&rCnt>=avgCnt+2?'#f87171':rCnt>0?'#6abf5a':'var(--mut)';
         row.innerHTML=`
           <div class="mn ${LCLS(r.level)}" style="width:32px;height:32px;font-size:0.8rem;font-weight:900;flex-shrink:0">${tierName(r.level)}</div>
           <span class="roster-name">${r.name}</span>
@@ -3051,7 +3051,7 @@ function renderMemberCards(){
             return '<div style="font-size:0.63rem;background:var(--sur);border-radius:4px;padding:2px 7px;margin-bottom:2px;display:flex;gap:8px;flex-wrap:wrap">'
               +'<span style="color:var(--txt)">'+u.date+'</span>'
               +'<span style="color:var(--txt2)">'+u.time+'</span>'
-              +'<span style="color:#60a5fa">【'+u.timeLabel+'】</span>'
+              +'<span style="color:#6abf5a">【'+u.timeLabel+'】</span>'
               +'<span style="color:var(--mut)">剩 '+u.sessionsLeft+' 場</span>'
               +'</div>';
           }).join('')
@@ -3091,7 +3091,7 @@ function renderMemberCards(){
         logHtml+='<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:0.68rem;padding:4px 6px;border-radius:6px;background:var(--sur2);margin-bottom:3px">'
           +'<span style="color:var(--txt);font-weight:700">'+u.date+'</span>'
           +'<span style="color:var(--txt2)">'+u.time+'</span>'
-          +'<span style="color:#60a5fa;flex:1">【'+u.timeLabel+'】</span>'
+          +'<span style="color:#6abf5a;flex:1">【'+u.timeLabel+'】</span>'
           +'<span style="color:var(--mut)">'+u.cardType.replace('月方案-','$')+'</span>'
           +'<span style="color:#4ade80;font-weight:700">剩 '+u.sessionsLeft+' 場</span>'
           +'</div>';
@@ -3422,7 +3422,7 @@ function renderCard3SlotForm(){
     +'<span style="font-size:0.7rem;color:var(--mut)">–</span>'
     +'<select id="c3s_hd_e" style="'+sStyle+'">'+_timeSelectOpts(hd.end)+'</select>'
     +'</div>'
-    +'<button onclick="saveCard3Slots()" style="width:100%;background:#0891b2;color:#fff;border:none;border-radius:8px;padding:8px;font-size:0.82rem;font-weight:700;cursor:pointer">💾 儲存時段設定</button>';
+    +'<button onclick="saveCard3Slots()" style="width:100%;background:#2d7a3e;color:#fff;border:none;border-radius:8px;padding:8px;font-size:0.82rem;font-weight:700;cursor:pointer">💾 儲存時段設定</button>';
   document.getElementById('tc-card3-slots').innerHTML=html;
 }
 function saveCard3Slots(){
@@ -4374,13 +4374,13 @@ function renderPlayerTab(){
       +'<div class="mn '+LCLS(p.level)+'">'+tierName(p.level)+'</div>'
       +genderTag(p.gender||'')
       +'<span style="font-size:0.84rem;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+p.name+'</span>'
-      +'<span style="font-size:0.7rem;font-weight:800;color:#60a5fa;flex-shrink:0">'+cnt2+'場</span>'
+      +'<span style="font-size:0.7rem;font-weight:800;color:#6abf5a;flex-shrink:0">'+cnt2+'場</span>'
       +'</div>'
       +'<div class="p-item-bot">'
       +'<div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;flex:1">'
       +statusTag(p)
       +(partnerName?'<span style="font-size:0.6rem;color:var(--pur)">綁'+partnerName+'</span>':'')
-      +((p.startTime&&p.endTime)?'<span style="font-size:0.58rem;color:#1d4ed8;background:#dbeafe;border-radius:4px;padding:1px 5px">🕐'+p.startTime+'–'+p.endTime+'</span>':(p.availableTime?'<span style="font-size:0.58rem;color:#1d4ed8;background:#dbeafe;border-radius:4px;padding:1px 5px">🕐'+p.availableTime+'</span>':''))
+      +((p.startTime&&p.endTime)?'<span style="font-size:0.58rem;color:#1a4a10;background:#dcfce7;border-radius:4px;padding:1px 5px">🕐'+p.startTime+'–'+p.endTime+'</span>':(p.availableTime?'<span style="font-size:0.58rem;color:#1a4a10;background:#dcfce7;border-radius:4px;padding:1px 5px">🕐'+p.availableTime+'</span>':''))
       +'</div>'
       +'<button class="btn-rm" onclick="event.stopPropagation();removePlayer('+p.id+')" style="font-size:0.7rem;align-self:flex-end">✕</button>'
       +'</div>';
@@ -4437,7 +4437,7 @@ function renderPlayers(){
         statusHtml=`<span class="ptag tc" style="font-size:0.58rem;padding:1px 4px">休 ${fmtTime(rs)}</span>`;
       } else {
         const inCourt=courts.some(ct=>ct.playerSlots.includes(p.id)||ct.nextSlots.includes(p.id));
-        if(inCourt) statusHtml='<span class="ptag tw" style="font-size:0.58rem;padding:1px 4px;border-color:#60a5fa;color:#60a5fa">已派</span>';
+        if(inCourt) statusHtml='<span class="ptag tw" style="font-size:0.58rem;padding:1px 4px;border-color:#6abf5a;color:#6abf5a">已派</span>';
         else if(p.offTime) statusHtml=`<span class="ptag tw" style="font-size:0.58rem;padding:1px 4px">候 休${fmtTime(rs)}</span>`;
         else statusHtml='';
       }
@@ -4462,7 +4462,7 @@ function renderPlayers(){
           <div class="mn ${LCLS(p.level)}">${tierName(p.level)}</div>
           ${genderTag(p.gender||'')}
           <span style="font-size:0.84rem;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.name}</span>
-          <span style="font-size:0.7rem;font-weight:800;color:#60a5fa;flex-shrink:0">${cnt}場</span>
+          <span style="font-size:0.7rem;font-weight:800;color:#6abf5a;flex-shrink:0">${cnt}場</span>
         </div>
         <div class="p-item-bot">
           <div style="display:flex;flex-direction:column;gap:2px;flex:1;min-width:0">
@@ -4470,7 +4470,7 @@ function renderPlayers(){
               ${statusHtml}
               ${partnerName?`<span style="font-size:0.6rem;color:var(--pur)">綁${partnerName}</span>`:''}
             </div>
-            ${(p.startTime&&p.endTime)?`<span style="font-size:0.58rem;color:#93c5fd;background:#1e3a5f;border-radius:4px;padding:1px 5px;align-self:flex-start">🕐${p.startTime}–${p.endTime}</span>`:(p.availableTime?`<span style="font-size:0.58rem;color:#93c5fd;background:#1e3a5f;border-radius:4px;padding:1px 5px;align-self:flex-start">🕐${p.availableTime}</span>`:'')}
+            ${(p.startTime&&p.endTime)?`<span style="font-size:0.58rem;color:#86efac;background:#1a3d1a;border-radius:4px;padding:1px 5px;align-self:flex-start">🕐${p.startTime}–${p.endTime}</span>`:(p.availableTime?`<span style="font-size:0.58rem;color:#86efac;background:#1a3d1a;border-radius:4px;padding:1px 5px;align-self:flex-start">🕐${p.availableTime}</span>`:'')}
 
           </div>
           <button class="btn-rm" onclick="event.stopPropagation();removePlayer(${p.id})" style="font-size:0.7rem;align-self:flex-end">✕</button>
