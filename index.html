@@ -375,7 +375,7 @@ header h1{font-size:1.2rem;font-weight:800;}
 /* ANNOUNCE BANNER */
 .announce-banner{position:fixed;top:72px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#1a3d1a,#0f172a);border:2px solid #6abf5a;border-radius:14px;padding:14px 28px;z-index:1200;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.8);pointer-events:none;animation:abIn .3s ease;}
 .announce-banner .ab-court{font-size:0.75rem;color:#6abf5a;font-weight:700;letter-spacing:.08em;margin-bottom:6px;}
-.announce-banner .ab-names{font-size:1.3rem;font-weight:900;color:#fff;letter-spacing:.04em;}
+.announce-banner .ab-names{font-size:1.15rem;font-weight:900;color:#fff;letter-spacing:.04em;line-height:1.7;}
 @keyframes abIn{from{opacity:0;top:50px}to{opacity:1;top:72px}}
 
 /* MODAL BASE */
@@ -929,11 +929,8 @@ header h1{font-size:1.2rem;font-weight:800;}
           <div class="settings-card-icon">🚀</div>
           <div class="settings-card-label">部署更新</div>
         </div>
-        <div class="settings-card" id="btn-signout" onclick="signOut()">
-          <div class="settings-card-icon">🚪</div>
-          <div class="settings-card-label">登出</div>
-        </div>
       </div>
+      <button id="btn-signout" class="settings-end-btn" style="background:#f1f5f9;color:#475569;border-color:#cbd5e1;display:none" onclick="signOut()">🚪 登出</button>
       <div class="settings-version">羽球排版表 · v2.0</div>
     </div>
   </div>
@@ -4021,7 +4018,7 @@ function showAnnounceBanner(courtLabel, names){
   const el = document.createElement('div');
   el.id = 'announce-banner';
   el.className = 'announce-banner';
-  el.innerHTML = `<div class="ab-court">📢 ${courtLabel}</div><div class="ab-names">${names.join('　')}</div>`;
+  el.innerHTML = `<div class="ab-court">📢 ${courtLabel}</div><div class="ab-names">${names.join('<br>')}</div>`;
   document.body.appendChild(el);
   announceBannerTimer = setTimeout(()=>{ el.remove(); announceBannerTimer=null; }, 5000);
 }
@@ -5252,7 +5249,7 @@ if(!isViewerMode){
       STORAGE_KEY = 'badminton_scheduler_v1_' + user.uid;
       BILLING_KEY = 'billingConfig_' + user.uid;
       document.getElementById('modal-login').style.display = 'none';
-      document.getElementById('btn-signout').style.display = 'flex';
+      document.getElementById('btn-signout').style.display = 'block';
       // 載入 Firestore 球員庫
       await loadUserRoster();
       // 嘗試從 localStorage 還原 session
