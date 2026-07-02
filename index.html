@@ -241,7 +241,7 @@ header h1{font-size:1.2rem;font-weight:800;}
 #court-tabs::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:3px;}
 .court-tab{background:var(--sur);border:1px solid var(--bdr);color:var(--txt2);border-radius:999px;padding:4px 12px;font-size:0.72rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .15s;flex-shrink:0;}
 .court-tab:hover{background:var(--bdr);}
-.court-tab.active{background:var(--blu);color:#fff;border-color:var(--blu);}
+.court-tab.active{background:#2d6a4f;color:#fff;border-color:#2d6a4f;}
 .court-card-title{display:none;}
 .court-tab.viewing{border-color:var(--cyn);color:var(--cyn);box-shadow:0 0 0 2px rgba(8,145,178,0.35);}
 .court-tab.active.viewing{background:var(--sur);color:var(--cyn);border-color:var(--cyn);box-shadow:0 0 0 2px rgba(8,145,178,0.35);}
@@ -1672,8 +1672,9 @@ const db = firebase.firestore();
 
 let currentUser = null;
 let _userPro = false; // 從 Firestore 載入
+let _guestMode = false; // 訪客本地模式（不需 Firebase）
 
-function isPro(){ return _userPro; }
+function isPro(){ return _userPro && !_guestMode; }
 
 function updateProUI(){
   // QR碼、戰績、固定搭檔按鈕只有 Pro 才能用
@@ -2101,14 +2102,35 @@ function signInWithGoogle(){
 }
 
 function signInAsGuest(){
-  auth.signInAnonymously().catch(function(err){
-    document.getElementById('login-error').textContent = '訪客登入失敗：' + err.message;
-  });
+  _guestMode = true;
+  _userPro = false;
+  // 用固定的 guest key，資料存在本機 localStorage
+  STORAGE_KEY = 'badminton_scheduler_v1_guest';
+  BILLING_KEY = 'billingConfig_guest';
+  document.getElementById('modal-login').style.display = 'none';
+  document.getElementById('btn-signout').style.display = 'block';
+  loadFontSize();
+  updateProUI();
+  if(!loadData()){
+    document.getElementById('modal-setup').style.display = 'flex';
+  } else {
+    render();
+    if(!localStorage.getItem('tutorialDone')) setTimeout(openTutorial, 600);
+  }
 }
 
 function signOut(){
   if(!confirm('確定要登出？')) return;
-  auth.signOut();
+  if(_guestMode){
+    _guestMode = false;
+    currentUser = null;
+    document.getElementById('btn-signout').style.display = 'none';
+    document.getElementById('modal-login').style.display = 'flex';
+    var loginBtn = document.getElementById('btn-google-login');
+    if(loginBtn){ loginBtn.disabled = false; }
+  } else {
+    auth.signOut();
+  }
 }
 
 // ── 字體大小 ─────────────────────────────────────────
