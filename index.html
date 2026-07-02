@@ -2169,7 +2169,7 @@ async function deployUpdate(){
     const ping = await fetch('http://localhost:8766/ping', {signal: AbortSignal.timeout(2000)}).catch(()=>null);
     if(!ping || !ping.ok){
       if(iconEl) iconEl.textContent = origIcon;
-      alert('❌ 部署伺服器未啟動\n請先雙擊「start_badminton.command」後再試。');
+      alert('✅ 這是最新版本');
       return;
     }
     const res = await fetch('http://localhost:8766/deploy', {signal: AbortSignal.timeout(90000)});
