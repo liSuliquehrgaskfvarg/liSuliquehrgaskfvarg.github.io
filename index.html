@@ -5265,6 +5265,14 @@ if(!isViewerMode){
       currentUser = null;
       document.getElementById('btn-signout').style.display = 'none';
       document.getElementById('modal-login').style.display = 'flex';
+      // 重置登入按鈕，避免登出後按鈕卡在 disabled 狀態
+      var loginBtn = document.getElementById('btn-google-login');
+      if(loginBtn){
+        loginBtn.disabled = false;
+        loginBtn.innerHTML = '<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" style="width:22px;height:22px"> 使用 Google 帳號登入';
+      }
+      var loginErr = document.getElementById('login-error');
+      if(loginErr) loginErr.textContent = '';
     }
   });
 }
