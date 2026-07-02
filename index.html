@@ -925,6 +925,10 @@ header h1{font-size:1.2rem;font-weight:800;}
           <div class="settings-card-icon">🏁</div>
           <div class="settings-card-label">結束今天</div>
         </div>
+        <div class="settings-card" onclick="deployUpdate()">
+          <div class="settings-card-icon">🚀</div>
+          <div class="settings-card-label">部署更新</div>
+        </div>
         <div class="settings-card" id="btn-signout" onclick="signOut()">
           <div class="settings-card-icon">🚪</div>
           <div class="settings-card-label">登出</div>
@@ -2066,6 +2070,32 @@ function signInWithGoogle(){
 function signOut(){
   if(!confirm('確定要登出？')) return;
   auth.signOut();
+}
+
+async function deployUpdate(){
+  const btn = event.currentTarget;
+  const iconEl = btn.querySelector('.settings-card-icon');
+  const origIcon = iconEl ? iconEl.textContent : '🚀';
+  if(iconEl) iconEl.textContent = '⏳';
+  try {
+    const ping = await fetch('http://localhost:8766/ping', {signal: AbortSignal.timeout(2000)}).catch(()=>null);
+    if(!ping || !ping.ok){
+      if(iconEl) iconEl.textContent = origIcon;
+      alert('❌ 部署伺服器未啟動\n請先雙擊「start_badminton.command」後再試。');
+      return;
+    }
+    const res = await fetch('http://localhost:8766/deploy', {signal: AbortSignal.timeout(90000)});
+    const data = await res.json();
+    if(iconEl) iconEl.textContent = origIcon;
+    if(data.status === 'ok'){
+      alert('✅ 部署成功！\nhttps://liSuliquehrgaskfvarg.github.io');
+    } else {
+      alert('❌ 部署失敗\n' + (data.output||'').slice(0,200));
+    }
+  } catch(e){
+    if(iconEl) iconEl.textContent = origIcon;
+    alert('❌ 部署錯誤：' + e.message);
+  }
 }
 
 // ── Firestore 球員庫 ──────────────────────────────────────
