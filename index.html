@@ -572,19 +572,58 @@ header h1{font-size:1.2rem;font-weight:800;}
 #join-overlay select{font-size:1.5rem!important;}
 #join-overlay #join-submit-btn{font-size:1.5rem!important;}
 #join-overlay #join-msg{font-size:1.275rem!important;}
-/* ── Join 等級按鈕改用 lt 色系 ── */
-#join-lvl-group button[data-val="1"]{background:#4ade80!important;color:#14532d!important;border-color:#16a34a!important;}
-#join-lvl-group button[data-val="1"]:hover{background:#86efac!important;color:#14532d!important;}
-#join-lvl-group button[data-val="1"].active{background:#4ade80!important;color:#14532d!important;border-color:#d97706!important;box-shadow:0 0 0 2px #d9770644;}
-#join-lvl-group button[data-val="2"]{background:#f9a8d4!important;color:#831843!important;border-color:#be185d!important;}
-#join-lvl-group button[data-val="2"]:hover{background:#fbcfe8!important;color:#831843!important;}
-#join-lvl-group button[data-val="2"].active{background:#f9a8d4!important;color:#831843!important;border-color:#d97706!important;box-shadow:0 0 0 2px #d9770644;}
-#join-lvl-group button[data-val="3"]{background:#fde047!important;color:#713f12!important;border-color:#ca8a04!important;}
-#join-lvl-group button[data-val="3"]:hover{background:#fef08a!important;color:#713f12!important;}
-#join-lvl-group button[data-val="3"].active{background:#fde047!important;color:#713f12!important;border-color:#d97706!important;box-shadow:0 0 0 2px #d9770644;}
-#join-lvl-group button[data-val="4"]{background:#7dd3fc!important;color:#0c4a6e!important;border-color:#0284c7!important;}
-#join-lvl-group button[data-val="4"]:hover{background:#bae6fd!important;color:#0c4a6e!important;}
-#join-lvl-group button[data-val="4"].active{background:#7dd3fc!important;color:#0c4a6e!important;border-color:#d97706!important;box-shadow:0 0 0 2px #d9770644;}
+/* ── 等級按鈕共用色系（新=綠、初=粉、中=黃、高=水藍） ── */
+#join-lvl-group button[data-val="1"],
+#add-lvl-group button[data-val="1"],
+#roster-add-lvl-group button[data-val="1"],
+#roster-edit-lvl-group button[data-val="1"]{background:#4ade80!important;color:#14532d!important;border-color:#16a34a!important;}
+#join-lvl-group button[data-val="1"]:hover,
+#add-lvl-group button[data-val="1"]:hover,
+#roster-add-lvl-group button[data-val="1"]:hover,
+#roster-edit-lvl-group button[data-val="1"]:hover{background:#86efac!important;color:#14532d!important;}
+#join-lvl-group button[data-val="1"].active,
+#add-lvl-group button[data-val="1"].active,
+#roster-add-lvl-group button[data-val="1"].active,
+#roster-edit-lvl-group button[data-val="1"].active{background:#4ade80!important;color:#14532d!important;border-color:#d97706!important;box-shadow:0 0 0 2px #d9770644;}
+
+#join-lvl-group button[data-val="2"],
+#add-lvl-group button[data-val="2"],
+#roster-add-lvl-group button[data-val="2"],
+#roster-edit-lvl-group button[data-val="2"]{background:#f9a8d4!important;color:#831843!important;border-color:#be185d!important;}
+#join-lvl-group button[data-val="2"]:hover,
+#add-lvl-group button[data-val="2"]:hover,
+#roster-add-lvl-group button[data-val="2"]:hover,
+#roster-edit-lvl-group button[data-val="2"]:hover{background:#fbcfe8!important;color:#831843!important;}
+#join-lvl-group button[data-val="2"].active,
+#add-lvl-group button[data-val="2"].active,
+#roster-add-lvl-group button[data-val="2"].active,
+#roster-edit-lvl-group button[data-val="2"].active{background:#f9a8d4!important;color:#831843!important;border-color:#d97706!important;box-shadow:0 0 0 2px #d9770644;}
+
+#join-lvl-group button[data-val="3"],
+#add-lvl-group button[data-val="3"],
+#roster-add-lvl-group button[data-val="3"],
+#roster-edit-lvl-group button[data-val="3"]{background:#fde047!important;color:#713f12!important;border-color:#ca8a04!important;}
+#join-lvl-group button[data-val="3"]:hover,
+#add-lvl-group button[data-val="3"]:hover,
+#roster-add-lvl-group button[data-val="3"]:hover,
+#roster-edit-lvl-group button[data-val="3"]:hover{background:#fef08a!important;color:#713f12!important;}
+#join-lvl-group button[data-val="3"].active,
+#add-lvl-group button[data-val="3"].active,
+#roster-add-lvl-group button[data-val="3"].active,
+#roster-edit-lvl-group button[data-val="3"].active{background:#fde047!important;color:#713f12!important;border-color:#d97706!important;box-shadow:0 0 0 2px #d9770644;}
+
+#join-lvl-group button[data-val="4"],
+#add-lvl-group button[data-val="4"],
+#roster-add-lvl-group button[data-val="4"],
+#roster-edit-lvl-group button[data-val="4"]{background:#7dd3fc!important;color:#0c4a6e!important;border-color:#0284c7!important;}
+#join-lvl-group button[data-val="4"]:hover,
+#add-lvl-group button[data-val="4"]:hover,
+#roster-add-lvl-group button[data-val="4"]:hover,
+#roster-edit-lvl-group button[data-val="4"]:hover{background:#bae6fd!important;color:#0c4a6e!important;}
+#join-lvl-group button[data-val="4"].active,
+#add-lvl-group button[data-val="4"].active,
+#roster-add-lvl-group button[data-val="4"].active,
+#roster-edit-lvl-group button[data-val="4"].active{background:#7dd3fc!important;color:#0c4a6e!important;border-color:#d97706!important;box-shadow:0 0 0 2px #d9770644;}
 /* ── 等級色 (data-val 1–4) ── */
 .sel-btn-group button[data-val="1"]{background:#14532d;color:#86efac;border-color:#166534;}
 .sel-btn-group button[data-val="1"]:hover{background:#166534;color:#4ade80;}
@@ -3814,9 +3853,8 @@ function finishCourtWithScore(cid, sA, sB){
     if(c.nextSlots.some(id=>id!==null)){
       c.playerSlots=[...c.nextSlots];
       c.nextSlots=[null,null,null,null];
-      if(c.playerSlots.every(id=>id!==null)) startCourt(cid);
-      else render();
-    } else { render(); }
+    }
+    render();
     return;
   }
 
@@ -3848,9 +3886,8 @@ function finishCourtWithScore(cid, sA, sB){
   if(c.nextSlots.some(id=>id!==null)){
     c.playerSlots=[...c.nextSlots];
     c.nextSlots=[null,null,null,null];
-    if(c.playerSlots.every(id=>id!==null)) startCourt(cid);
-    else render();
-  } else { render(); }
+  }
+  render();
 }
 
 // ══════════════════════════════
@@ -3872,19 +3909,27 @@ function showAnnounceBanner(courtLabel, names){
   announceBannerTimer = setTimeout(()=>{ el.remove(); announceBannerTimer=null; }, 5000);
 }
 
-function speak(text){
-  if(!('speechSynthesis' in window)) return;
-  window.speechSynthesis.cancel();
-  const utt = new SpeechSynthesisUtterance(text);
-  utt.lang = 'zh-TW';
-  utt.rate = 0.88;
-  utt.pitch = 1;
-  // Try to find a Chinese voice
-  const voices = window.speechSynthesis.getVoices();
-  const zhVoice = voices.find(v=>v.lang.startsWith('zh'));
-  if(zhVoice) utt.voice = zhVoice;
-  window.speechSynthesis.speak(utt);
+function _getZhVoice(){
+  const voices=window.speechSynthesis.getVoices();
+  return voices.find(v=>v.lang.startsWith('zh'))||null;
 }
+// 逐段播放，每段自然停頓
+function speakSequence(parts, onDone){
+  if(!('speechSynthesis' in window)){ if(onDone) setTimeout(onDone,0); return; }
+  window.speechSynthesis.cancel();
+  const zhVoice=_getZhVoice();
+  function next(i){
+    if(i>=parts.length){ if(onDone) setTimeout(onDone,0); return; }
+    const utt=new SpeechSynthesisUtterance(parts[i]);
+    utt.lang='zh-TW'; utt.rate=0.88; utt.pitch=1;
+    if(zhVoice) utt.voice=zhVoice;
+    utt.onend=()=>next(i+1);
+    utt.onerror=()=>next(i+1);
+    window.speechSynthesis.speak(utt);
+  }
+  next(0);
+}
+function speak(text){ speakSequence([text]); }
 
 function callCourt(cid){
   const c = courts.find(c=>c.id===cid);
@@ -3893,7 +3938,8 @@ function callCourt(cid){
   if(names.length===0){ return; }
   const label = `${courtLabel(c)}`;
   showAnnounceBanner(label, names);
-  speak(`請 ${names.join('、')} 到 ${courtLabel(c)}`);
+  // 請、名1、名2、名3、名4、到XXX場
+  speakSequence(['請', ...names, '到 '+label]);
 }
 
 function resetSession(){
@@ -3926,19 +3972,7 @@ function callAllCourts(){
     const {c, names} = queue[i];
     const label = `${courtLabel(c)}`;
     showAnnounceBanner(label, names);
-    if(!('speechSynthesis' in window)){
-      setTimeout(()=>announceNext(i+1), 3000);
-      return;
-    }
-    window.speechSynthesis.cancel();
-    const utt = new SpeechSynthesisUtterance(`請 ${names.join('、')} 到 ${courtLabel(c)}`);
-    utt.lang='zh-TW'; utt.rate=0.88; utt.pitch=1;
-    const voices=window.speechSynthesis.getVoices();
-    const zhVoice=voices.find(v=>v.lang.startsWith('zh'));
-    if(zhVoice) utt.voice=zhVoice;
-    utt.onend=()=>{ setTimeout(()=>announceNext(i+1), 2000); };
-    utt.onerror=()=>{ setTimeout(()=>announceNext(i+1), 2000); };
-    window.speechSynthesis.speak(utt);
+    speakSequence(['請', ...names, '到 '+courtLabel(c)], ()=>{ setTimeout(()=>announceNext(i+1), 1500); });
   }
 
   announceNext(0);
@@ -4833,10 +4867,13 @@ function closeEndDayModal(e){
 // ── 確認結束今天，儲存紀錄到 localStorage ────────────────
 function confirmEndDay(){
   if(!currentUser) return;
-  var today = new Date().toISOString().slice(0,10);
-  var endTime = new Date().toTimeString().slice(0,5);
+  var _now = new Date();
+  var today = _now.toISOString().slice(0,10);
+  var endTime = _now.toTimeString().slice(0,5);
   var startTime = _sessionStartTime || '--';
   var fr = calcFeeRate();
+  // 同一小時內重複按會覆蓋；不同小時則新增
+  var _hourKey = today + '_' + _now.getHours();
 
   // 建立球員費用資料（name, level, gender, payType, paidAmount）
   var playerData = players.map(function(p){
@@ -4862,8 +4899,9 @@ function confirmEndDay(){
     players: playerData,
     courts: courts.length,
     totalRevenue: totalRevenue,
-    matchResults: [],  // 預留給未來比賽結果擴充
-    savedAt: new Date().toISOString()
+    matchResults: [],
+    savedAt: _now.toISOString(),
+    _hourKey: _hourKey
   };
 
   var btn = document.getElementById('btn-end-day-confirm');
@@ -4874,8 +4912,8 @@ function confirmEndDay(){
     // 儲存到 localStorage sessionHistory_{uid}
     var key = 'sessionHistory_' + currentUser.uid;
     var existing = JSON.parse(localStorage.getItem(key) || '[]');
-    // 移除同日期的舊紀錄（覆蓋）
-    existing = existing.filter(function(r){ return r.date !== today; });
+    // 同一小時的覆蓋，不同小時累積（一天可有多筆）
+    existing = existing.filter(function(r){ return r._hourKey !== _hourKey; });
     existing.unshift(record);
     localStorage.setItem(key, JSON.stringify(existing));
     document.getElementById('modal-end-day').classList.remove('open');
@@ -4942,7 +4980,7 @@ function renderHistoryPage(){
     html += '<div class="hist-rec-card">';
     // 可點擊標題列
     html += '<div class="hist-rec-hdr" onclick="toggleHistRec('+idx+')">';
-    html += '<div class="hist-rec-date">'+rec.date+'</div>';
+    html += '<div class="hist-rec-date">'+rec.date+(rec.endTime?' &nbsp;<span style="font-size:0.72rem;color:var(--mut)">'+rec.endTime+'存檔</span>':'')+'</div>';
     html += '<div class="hist-rec-stats">';
     html += '<span>👤 '+(rec.players ? rec.players.length : 0)+' 人</span>';
     html += '<span>🏸 '+(rec.courts||0)+' 面</span>';
