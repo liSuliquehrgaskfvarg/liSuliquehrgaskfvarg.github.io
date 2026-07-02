@@ -741,6 +741,8 @@ header h1{font-size:1.2rem;font-weight:800;}
 .font-size-btn.active{background:var(--blu);color:#fff;border-color:var(--blu);}
 .end-day-big-btn{width:100%;padding:16px;background:linear-gradient(135deg,#2d5a1e,#4a8a30);color:#fff;border:none;border-radius:14px;font-size:1rem;font-weight:800;cursor:pointer;margin-bottom:10px;box-shadow:0 3px 12px rgba(45,90,30,.35);letter-spacing:.02em;-webkit-tap-highlight-color:transparent;}
 .end-day-big-btn:active{opacity:.88;}
+/* Pro lock badge */
+.pro-lock::before{content:'🔒';font-size:0.65rem;margin-left:3px;vertical-align:middle;}
 /* 新手教學 dots */
 .tut-dot{width:7px;height:7px;border-radius:50%;background:var(--bdr);transition:background .2s;}
 .tut-dot.active{background:var(--blu);}
@@ -965,8 +967,8 @@ header h1{font-size:1.2rem;font-weight:800;}
       <span class="nav-label">球員庫</span>
     </button>
     <button class="nav-btn" id="nav-qr" onclick="switchTab('qr')">
-      <span class="nav-icon">📊</span>
-      <span class="nav-label">記錄</span>
+      <span class="nav-icon">QR</span>
+      <span class="nav-label">QRcode</span>
     </button>
     <button class="nav-btn" id="nav-settings" onclick="switchTab('settings')">
       <span class="nav-icon">⚙️</span>
@@ -2098,6 +2100,12 @@ function signInWithGoogle(){
     document.getElementById('login-error').textContent = '登入失敗：' + err.message;
     btn.disabled = false;
     btn.innerHTML = '<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" style="width:22px;height:22px"> 使用 Google 帳號登入';
+  });
+}
+
+function signInAsGuest(){
+  auth.signInAnonymously().catch(function(err){
+    document.getElementById('login-error').textContent = '訪客登入失敗：' + err.message;
   });
 }
 
