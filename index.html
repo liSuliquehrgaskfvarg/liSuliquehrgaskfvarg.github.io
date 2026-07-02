@@ -25,7 +25,7 @@
 * { box-sizing: border-box; margin: 0; padding: 0; touch-action: manipulation; }
 html{font-size:150%;}
 :root {
-  --bg:#eef1e8; --sur:#ffffff; --sur2:#f4f7f0; --bdr:#d4e0ca;
+  --bg:#f0ece3; --sur:#ffffff; --sur2:#f7f4ee; --bdr:#ddd5c4;
   --mut:#8a9e84; --txt:#1a2e1a; --txt2:#4a5e44;
   --blu:#2d5a1e; --grn:#2d5a1e; --red:#dc2626;
   --yel:#d97706; --pur:#2d5a1e; --cyn:#2d7a3e;
@@ -690,9 +690,19 @@ header h1{font-size:1.2rem;font-weight:800;}
 .qr-choice-sub{font-size:0.75rem;color:var(--mut);text-align:center;}
 
 /* ══ SETTINGS TAB ══ */
-.settings-tab-wrap{flex:1;overflow-y:auto;padding:12px 14px 16px;background:var(--bg);}
+.settings-tab-wrap{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 14px 24px;background:var(--bg);}
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.settings-card{background:#ffffff;border-radius:14px;border:1px solid var(--bdr);padding:18px 12px 14px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;-webkit-tap-highlight-color:transparent;box-shadow:0 1px 4px rgba(0,0,0,.05);transition:background .12s;}
+.settings-card:active{background:var(--sur2);}
+.settings-card-icon{font-size:2rem;line-height:1;}
+.settings-card-label{font-size:0.85rem;font-weight:700;color:var(--txt);text-align:center;}
+.settings-end-btn{width:100%;padding:14px;background:#fee2e2;color:#991b1b;border:1.5px solid #fca5a5;border-radius:14px;font-size:0.95rem;font-weight:800;cursor:pointer;margin-bottom:10px;-webkit-tap-highlight-color:transparent;}
+.settings-end-btn:active{background:#fecaca;}
+.settings-signout-row{text-align:center;padding:8px 0;}
+.settings-version{text-align:center;font-size:0.7rem;color:var(--mut);margin-top:6px;}
+/* keep old settings-item for any legacy usage */
 .settings-item{display:flex;align-items:center;gap:14px;padding:14px 16px;background:#ffffff;border-radius:12px;margin-bottom:8px;cursor:pointer;border:1px solid var(--bdr);-webkit-tap-highlight-color:transparent;box-shadow:0 1px 3px rgba(0,0,0,.04);}
-.settings-item:active{background:#f8fafc;}
+.settings-item:active{background:var(--sur2);}
 .settings-icon{font-size:1.3rem;flex-shrink:0;width:30px;text-align:center;}
 .settings-text{flex:1;}
 .settings-label{font-size:0.9rem;font-weight:700;color:var(--txt);}
@@ -789,61 +799,37 @@ header h1{font-size:1.2rem;font-weight:800;}
   <!-- ══ TAB 4：設定 ══ -->
   <div id="tab-settings" class="tab-panel">
     <div class="settings-tab-wrap">
-      <div class="settings-item" id="btn-stats" onclick="isPro()?openStatsModal():showUpgradeHint('戰績紀錄為 Pro 功能')">
-        <div class="settings-icon">🏆</div>
-        <div class="settings-text"><div class="settings-label">戰績紀錄</div><div class="settings-desc">查看球員對戰記錄與統計</div></div>
-        <div class="settings-arrow">›</div>
+      <div class="settings-grid">
+        <div class="settings-card" onclick="toggleBillingPage()">
+          <div class="settings-card-icon">💰</div>
+          <div class="settings-card-label">球員計費</div>
+        </div>
+        <div class="settings-card" onclick="toggleMemberCardPage()">
+          <div class="settings-card-icon">🪪</div>
+          <div class="settings-card-label">月卡狀態</div>
+        </div>
+        <div class="settings-card" onclick="toggleHistoryPage()">
+          <div class="settings-card-icon">📋</div>
+          <div class="settings-card-label">歷史紀錄</div>
+        </div>
+        <div class="settings-card" id="btn-stats" onclick="isPro()?openStatsModal():showUpgradeHint('戰績記錄為 Pro 功能')">
+          <div class="settings-card-icon">🏆</div>
+          <div class="settings-card-label">戰績記錄</div>
+        </div>
+        <div class="settings-card" onclick="openSetupModal()">
+          <div class="settings-card-icon">⚙️</div>
+          <div class="settings-card-label">初始設定</div>
+        </div>
+        <div class="settings-card" onclick="openHelpModal()">
+          <div class="settings-card-icon">❓</div>
+          <div class="settings-card-label">使用說明</div>
+        </div>
       </div>
-      <div class="settings-item" onclick="toggleBillingPage()">
-        <div class="settings-icon">💰</div>
-        <div class="settings-text"><div class="settings-label">計費</div><div class="settings-desc">管理今日費用與付款</div></div>
-        <div class="settings-arrow">›</div>
+      <button class="settings-end-btn" onclick="openEndDayModal()">🏁 結束今天並儲存</button>
+      <div class="settings-signout-row">
+        <button id="btn-signout" style="display:none;background:none;border:none;color:var(--mut);font-size:0.8rem;cursor:pointer;padding:6px 16px;" onclick="signOut()">🚪 登出</button>
       </div>
-      <div class="settings-item" onclick="toggleMemberCardPage()">
-        <div class="settings-icon">🪪</div>
-        <div class="settings-text"><div class="settings-label">月卡管理</div><div class="settings-desc">球員月卡與次數紀錄</div></div>
-        <div class="settings-arrow">›</div>
-      </div>
-      <div class="settings-item" onclick="toggleHistoryPage()">
-        <div class="settings-icon">📋</div>
-        <div class="settings-text"><div class="settings-label">歷史紀錄</div><div class="settings-desc">查看過去每天的排程</div></div>
-        <div class="settings-arrow">›</div>
-      </div>
-      <div class="settings-item" onclick="isPro()?forceSyncSession():showUpgradeHint('同步功能需要 Pro')">
-        <div class="settings-icon">☁️</div>
-        <div class="settings-text"><div class="settings-label">立即同步</div><div class="settings-desc">把場地資料推送到雲端，讓觀看者看到最新狀態</div></div>
-        <div style="font-size:0.75rem;color:var(--blu);font-weight:700;white-space:nowrap">執行</div>
-      </div>
-      <div class="settings-item" onclick="openSetupModal()">
-        <div class="settings-icon">⚙️</div>
-        <div class="settings-text"><div class="settings-label">初始設定</div><div class="settings-desc">設定場地數量與名稱</div></div>
-        <div class="settings-arrow">›</div>
-      </div>
-      <div class="settings-item" onclick="openEndDayModal()">
-        <div class="settings-icon">🏁</div>
-        <div class="settings-text"><div class="settings-label">結束今天</div><div class="settings-desc">儲存今日記錄並結束場次</div></div>
-        <div class="settings-arrow">›</div>
-      </div>
-      <div class="settings-item" onclick="manualCheckUpdate()">
-        <div class="settings-icon">🔄</div>
-        <div class="settings-text"><div id="btn-update" class="settings-label">更新版本</div><div class="settings-desc">檢查並更新至最新版本</div></div>
-        <div class="settings-arrow">›</div>
-      </div>
-      <div class="settings-item" onclick="openHelpModal()">
-        <div class="settings-icon">❓</div>
-        <div class="settings-text"><div class="settings-label">說明</div><div class="settings-desc">使用說明與教學</div></div>
-        <div class="settings-arrow">›</div>
-      </div>
-      <div class="settings-item" onclick="resetSession()">
-        <div class="settings-icon">🗑️</div>
-        <div class="settings-text"><div class="settings-label">清除資料</div><div class="settings-desc">清空今日所有球員與場地</div></div>
-        <div class="settings-arrow">›</div>
-      </div>
-      <div id="btn-signout" class="settings-item danger" style="display:none" onclick="signOut()">
-        <div class="settings-icon">🚪</div>
-        <div class="settings-text"><div class="settings-label">登出</div><div class="settings-desc">登出目前帳號</div></div>
-        <div class="settings-arrow">›</div>
-      </div>
+      <div class="settings-version">羽球排版表 · v2.0</div>
     </div>
   </div>
 
@@ -5101,7 +5087,7 @@ if(!isViewerMode){
       STORAGE_KEY = 'badminton_scheduler_v1_' + user.uid;
       BILLING_KEY = 'billingConfig_' + user.uid;
       document.getElementById('modal-login').style.display = 'none';
-      document.getElementById('btn-signout').style.display = 'flex';
+      document.getElementById('btn-signout').style.display = 'inline-block';
       // 載入 Firestore 球員庫
       await loadUserRoster();
       // 嘗試從 localStorage 還原 session
