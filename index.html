@@ -301,7 +301,8 @@ header h1{font-size:1.2rem;font-weight:800;}
 .empty-ct .ico{font-size:1.7rem;}
 .empty-ct p{font-size:0.73rem;}
 .court-actions{display:flex;gap:5px;padding:7px 11px 9px;flex-shrink:0;}
-.cb{flex:1;border:none;border-radius:7px;padding:6px 3px;font-size:0.7rem;font-weight:700;cursor:pointer;transition:all .15s;}
+.cb{flex:1;border:none;border-radius:7px;padding:6px 3px;font-size:0.7rem;font-weight:700;cursor:pointer;transition:all .15s;background:#2d5a1e;color:#fff;}
+.cb.cc{background:#e2e8f0;color:#475569;}
 .cb:disabled{background:var(--bdr)!important;color:var(--mut)!important;cursor:not-allowed;}
 .cs{background:var(--grn);color:#fff;}.cs:not(:disabled):hover{filter:brightness(1.1);}
 .cf{background:var(--red);color:#fff;}.cf:not(:disabled):hover{filter:brightness(1.1);}
@@ -740,17 +741,9 @@ header h1{font-size:1.2rem;font-weight:800;}
 .font-size-btn.active{background:var(--blu);color:#fff;border-color:var(--blu);}
 .end-day-big-btn{width:100%;padding:16px;background:linear-gradient(135deg,#2d5a1e,#4a8a30);color:#fff;border:none;border-radius:14px;font-size:1rem;font-weight:800;cursor:pointer;margin-bottom:10px;box-shadow:0 3px 12px rgba(45,90,30,.35);letter-spacing:.02em;-webkit-tap-highlight-color:transparent;}
 .end-day-big-btn:active{opacity:.88;}
-/* 新手教學 */
-.tutorial-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:4000;display:flex;align-items:flex-end;justify-content:center;}
-.tutorial-box{background:var(--sur);border-radius:24px 24px 0 0;padding:28px 24px 40px;width:100%;max-width:480px;max-height:80vh;overflow-y:auto;}
-.tutorial-step-dots{display:flex;gap:6px;justify-content:center;margin-bottom:20px;}
-.tutorial-dot{width:8px;height:8px;border-radius:50%;background:var(--bdr);transition:background .2s;}
-.tutorial-dot.active{background:var(--blu);}
-.tutorial-icon{font-size:3rem;text-align:center;margin-bottom:12px;}
-.tutorial-title{font-size:1.1rem;font-weight:800;color:var(--txt);text-align:center;margin-bottom:8px;}
-.tutorial-desc{font-size:0.88rem;color:var(--txt2);text-align:center;line-height:1.6;margin-bottom:24px;}
-.tutorial-next-btn{width:100%;padding:14px;background:var(--blu);color:#fff;border:none;border-radius:12px;font-size:0.95rem;font-weight:800;cursor:pointer;margin-bottom:10px;}
-.tutorial-skip-btn{width:100%;padding:10px;background:none;border:none;color:var(--mut);font-size:0.82rem;cursor:pointer;}
+/* 新手教學 dots */
+.tut-dot{width:7px;height:7px;border-radius:50%;background:var(--bdr);transition:background .2s;}
+.tut-dot.active{background:var(--blu);}
 /* keep old settings-item for any legacy usage */
 .settings-item{display:flex;align-items:center;gap:14px;padding:14px 16px;background:#ffffff;border-radius:12px;margin-bottom:8px;cursor:pointer;border:1px solid var(--bdr);-webkit-tap-highlight-color:transparent;box-shadow:0 1px 3px rgba(0,0,0,.04);}
 .settings-item:active{background:var(--sur2);}
@@ -863,7 +856,7 @@ header h1{font-size:1.2rem;font-weight:800;}
     </div>
     <div class="courts-sec-hdr">
       <span class="courts-sec-title">場地</span>
-      <button class="btn-auto-all" onclick="autoFillAll()">⚡ 全部自動排場</button>
+      <button id="tut-auto-all" class="btn-auto-all" onclick="autoFillAll()">⚡ 全部自動排場</button>
     </div>
     <div id="court-tabs"></div>
     <div class="courts-area" id="courts-area"></div>
@@ -885,7 +878,7 @@ header h1{font-size:1.2rem;font-weight:800;}
     <div class="player-tab-hdr">
       <span class="player-tab-title">所有球員</span>
       <span class="badge" id="player-tab-count">0</span>
-      <button class="btn-aa" onclick="openAddModal()">＋ 加球員</button>
+      <button id="tut-add-player" class="btn-aa" onclick="openAddModal()">＋ 加球員</button>
     </div>
     <div class="player-tab-body">
       <div class="player-list" id="player-tab-list"></div>
@@ -912,17 +905,17 @@ header h1{font-size:1.2rem;font-weight:800;}
   <div id="tab-settings" class="tab-panel">
     <div class="settings-tab-wrap">
       <div class="settings-grid">
-        <div class="settings-card" onclick="toggleBillingPage()">
+        <div class="settings-card" onclick="isPro()?toggleBillingPage():showUpgradeHint('球員計費為 Pro 功能')">
           <div class="settings-card-icon">💰</div>
-          <div class="settings-card-label">球員計費</div>
+          <div class="settings-card-label">球員計費<span class="pro-lock" id="lock-billing"></span></div>
         </div>
-        <div class="settings-card" onclick="toggleMemberCardPage()">
+        <div class="settings-card" onclick="isPro()?toggleMemberCardPage():showUpgradeHint('月卡狀態為 Pro 功能')">
           <div class="settings-card-icon">🪪</div>
-          <div class="settings-card-label">月卡狀態</div>
+          <div class="settings-card-label">月卡狀態<span class="pro-lock" id="lock-mc"></span></div>
         </div>
-        <div class="settings-card" onclick="toggleHistoryPage()">
+        <div class="settings-card" onclick="isPro()?toggleHistoryPage():showUpgradeHint('歷史紀錄為 Pro 功能')">
           <div class="settings-card-icon">📋</div>
-          <div class="settings-card-label">歷史紀錄</div>
+          <div class="settings-card-label">歷史紀錄<span class="pro-lock" id="lock-hist"></span></div>
         </div>
         <div class="settings-card" id="btn-stats" onclick="isPro()?openStatsModal():showUpgradeHint('戰績記錄為 Pro 功能')">
           <div class="settings-card-icon">🏆</div>
@@ -955,7 +948,7 @@ header h1{font-size:1.2rem;font-weight:800;}
         </div>
       </div>
       <!-- 結束今天 - 大按鈕 -->
-      <button class="end-day-big-btn" onclick="openEndDayModal()">🏁 結束今天並儲存紀錄</button>
+      <button id="tut-end-day" class="end-day-big-btn" onclick="openEndDayModal()">🏁 結束今天並儲存紀錄</button>
       <button id="btn-signout" class="settings-end-btn" style="background:#f1f5f9;color:#475569;border-color:#cbd5e1;display:none" onclick="signOut()">🚪 登出</button>
       <div class="settings-version">羽球排版表 · v2.0</div>
     </div>
@@ -983,16 +976,19 @@ header h1{font-size:1.2rem;font-weight:800;}
 
 </div>
 
-<!-- 新手教學 -->
-<div class="tutorial-overlay" id="modal-tutorial" style="display:none">
-  <div class="tutorial-box">
-    <div class="tutorial-step-dots" id="tutorial-dots"></div>
-    <div class="tutorial-icon" id="tutorial-icon"></div>
-    <div class="tutorial-title" id="tutorial-title"></div>
-    <div class="tutorial-desc" id="tutorial-desc"></div>
-    <button class="tutorial-next-btn" id="tutorial-next-btn" onclick="tutorialNext()">下一步</button>
-    <button class="tutorial-skip-btn" onclick="closeTutorial()">略過教學</button>
+<!-- 互動新手教學 -->
+<div id="tut-backdrop" onclick="tutBackdropTap()" style="display:none;position:fixed;inset:0;z-index:3500;"></div>
+<div id="tut-spotlight" style="display:none;position:fixed;z-index:3600;border-radius:14px;pointer-events:none;box-shadow:0 0 0 9999px rgba(0,0,0,.72);transition:top .35s,left .35s,width .35s,height .35s;"></div>
+<div id="tut-tap-zone" style="display:none;position:fixed;z-index:3700;cursor:pointer;border-radius:14px;" onclick="tutTapTarget()"></div>
+<div id="tut-tooltip" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:3800;background:var(--sur);border-radius:22px 22px 0 0;padding:22px 20px 36px;box-shadow:0 -6px 28px rgba(0,0,0,.18);">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+    <div style="display:flex;gap:6px" id="tut-dots"></div>
+    <button onclick="tutEnd()" style="background:none;border:none;color:var(--mut);font-size:0.78rem;cursor:pointer;padding:4px 8px">略過</button>
   </div>
+  <div style="font-size:2.2rem;text-align:center;margin-bottom:8px" id="tut-icon"></div>
+  <div style="font-size:1rem;font-weight:800;color:var(--txt);text-align:center;margin-bottom:6px" id="tut-title"></div>
+  <div style="font-size:0.88rem;color:var(--txt2);line-height:1.65;text-align:center;margin-bottom:20px;white-space:pre-line" id="tut-desc"></div>
+  <button id="tut-next-btn" onclick="tutNext()" style="width:100%;padding:14px;background:var(--blu);color:#fff;border:none;border-radius:12px;font-size:0.95rem;font-weight:800;cursor:pointer;">下一步</button>
 </div>
 
 <!-- Add Player Modal -->
@@ -1519,6 +1515,9 @@ header h1{font-size:1.2rem;font-weight:800;}
     <button id="btn-google-login" onclick="signInWithGoogle()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;color:#333;border:none;border-radius:10px;padding:13px;font-size:0.95rem;font-weight:700;cursor:pointer;margin-bottom:10px">
       <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" style="width:22px;height:22px">
       使用 Google 帳號登入
+    </button>
+    <button onclick="signInAsGuest()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;background:var(--sur2);color:var(--txt2);border:1px solid var(--bdr);border-radius:10px;padding:11px;font-size:0.88rem;font-weight:700;cursor:pointer;margin-bottom:10px">
+      👤 訪客登入（功能受限）
     </button>
     <div id="login-error" style="font-size:0.75rem;color:#f87171;min-height:1.2em;margin-top:8px"></div>
   </div>
@@ -2122,42 +2121,89 @@ function loadFontSize(){
   setFontSize(saved);
 }
 
-// ── 新手教學 ─────────────────────────────────────────
-var TUTORIAL_STEPS = [
-  {icon:'🏸', title:'歡迎使用羽球排版表！', desc:'這個 App 幫你管理今天打球的球員和場地排班。\n讓我花 1 分鐘帶你了解基本操作。'},
-  {icon:'👤', title:'第一步：加入球員', desc:'點底部「球員庫」→ 右上角「＋」加入今天的球員。\n建議先加完所有人再開始排場。'},
-  {icon:'🏟️', title:'第二步：設定場地', desc:'進入「設定」→「初始設定」，設定今天有幾個場地。\n場地設好後就能開始排人了。'},
-  {icon:'⚡', title:'第三步：自動排場', desc:'回到「場地」頁面，按「⚡ 全部自動排場」，\nApp 會自動把候場的球員排進場地。'},
-  {icon:'🏁', title:'打完後記得結束今天', desc:'每次打球結束，到「設定」按「🏁 結束今天並儲存紀錄」，\n資料才會存入歷史紀錄。下次打球前再重新設定場地。'},
+// ── 互動新手教學 ──────────────────────────────────────
+var TUT_STEPS = [
+  { type:'intro', icon:'🏸', title:'歡迎使用羽球排版表！',
+    desc:'讓我帶你快速學會基本操作\n跟著步驟點按鈕，2分鐘上手！', nextBtn:'開始！' },
+  { tab:'players', targetId:'tut-add-player', icon:'👤',
+    title:'第一步：加入球員',
+    desc:'點下面高亮的按鈕\n加入今天來打球的人', nextBtn:'我加好了，繼續 →' },
+  { tab:'courts', targetId:'tut-auto-all', icon:'⚡',
+    title:'第二步：自動排場',
+    desc:'球員加好後\n點這裡讓 App 自動幫你分配場地', nextBtn:'我知道了，繼續 →' },
+  { tab:'settings', targetId:'tut-end-day', icon:'🏁',
+    title:'第三步：結束今天',
+    desc:'打完球後\n一定要點這裡儲存今天的紀錄！', nextBtn:'✅ 了解，開始使用！' },
 ];
 var _tutStep = 0;
 
 function openTutorial(){
   _tutStep = 0;
-  _renderTutStep();
-  document.getElementById('modal-tutorial').style.display = 'flex';
+  _tutShowStep();
 }
-function closeTutorial(){
-  document.getElementById('modal-tutorial').style.display = 'none';
+function tutEnd(){
+  document.getElementById('tut-backdrop').style.display = 'none';
+  document.getElementById('tut-spotlight').style.display = 'none';
+  document.getElementById('tut-tap-zone').style.display = 'none';
+  document.getElementById('tut-tooltip').style.display = 'none';
   localStorage.setItem('tutorialDone','1');
 }
-function tutorialNext(){
+function tutNext(){
   _tutStep++;
-  if(_tutStep >= TUTORIAL_STEPS.length){ closeTutorial(); return; }
-  _renderTutStep();
+  if(_tutStep >= TUT_STEPS.length){ tutEnd(); return; }
+  _tutShowStep();
 }
-function _renderTutStep(){
-  var s = TUTORIAL_STEPS[_tutStep];
-  document.getElementById('tutorial-icon').textContent = s.icon;
-  document.getElementById('tutorial-title').textContent = s.title;
-  document.getElementById('tutorial-desc').style.whiteSpace = 'pre-line';
-  document.getElementById('tutorial-desc').textContent = s.desc;
-  var isLast = _tutStep === TUTORIAL_STEPS.length - 1;
-  document.getElementById('tutorial-next-btn').textContent = isLast ? '✅ 了解，開始使用！' : '下一步 →';
+function tutTapTarget(){
+  // user tapped the highlighted element — advance tutorial then let original action happen
+  tutNext();
+}
+function tutBackdropTap(){ /* block taps outside spotlight */ }
+
+function _tutShowStep(){
+  var s = TUT_STEPS[_tutStep];
+  var isLast = _tutStep === TUT_STEPS.length - 1;
+
   // dots
-  var dots = '';
-  for(var i=0;i<TUTORIAL_STEPS.length;i++) dots += '<div class="tutorial-dot'+(i===_tutStep?' active':'')+'"></div>';
-  document.getElementById('tutorial-dots').innerHTML = dots;
+  var dots='';
+  for(var i=0;i<TUT_STEPS.length;i++) dots+='<div class="tut-dot'+(i===_tutStep?' active':'')+'"></div>';
+  document.getElementById('tut-dots').innerHTML = dots;
+  document.getElementById('tut-icon').textContent = s.icon;
+  document.getElementById('tut-title').textContent = s.title;
+  document.getElementById('tut-desc').textContent = s.desc;
+  document.getElementById('tut-next-btn').textContent = s.nextBtn || (isLast?'✅ 完成！':'下一步 →');
+
+  // Step 0 = intro: no spotlight, just tooltip
+  if(s.type === 'intro'){
+    document.getElementById('tut-backdrop').style.cssText = 'display:block;position:fixed;inset:0;z-index:3500;background:rgba(0,0,0,.6);';
+    document.getElementById('tut-spotlight').style.display = 'none';
+    document.getElementById('tut-tap-zone').style.display = 'none';
+    document.getElementById('tut-tooltip').style.display = 'block';
+    return;
+  }
+
+  // Navigate to correct tab
+  if(s.tab) switchTab(s.tab);
+
+  // Wait a tick for tab to render, then position spotlight
+  setTimeout(function(){
+    var el = document.getElementById(s.targetId);
+    if(!el){ tutNext(); return; }
+    var r = el.getBoundingClientRect();
+    var pad = 8;
+    var sp = document.getElementById('tut-spotlight');
+    sp.style.cssText = 'display:block;position:fixed;z-index:3600;border-radius:14px;pointer-events:none;'
+      +'box-shadow:0 0 0 9999px rgba(0,0,0,.72);transition:top .35s,left .35s,width .35s,height .35s;'
+      +'top:'+(r.top-pad)+'px;left:'+(r.left-pad)+'px;'
+      +'width:'+(r.width+pad*2)+'px;height:'+(r.height+pad*2)+'px;';
+
+    var tz = document.getElementById('tut-tap-zone');
+    tz.style.cssText = 'display:block;position:fixed;z-index:3700;cursor:pointer;border-radius:14px;'
+      +'top:'+(r.top-pad)+'px;left:'+(r.left-pad)+'px;'
+      +'width:'+(r.width+pad*2)+'px;height:'+(r.height+pad*2)+'px;';
+
+    document.getElementById('tut-backdrop').style.cssText = 'display:block;position:fixed;inset:0;z-index:3500;';
+    document.getElementById('tut-tooltip').style.display = 'block';
+  }, 320);
 }
 
 async function deployUpdate(){
@@ -4514,6 +4560,11 @@ function render(){ syncLevelsFromRoster();renderPlayers();renderCourts();renderQ
 
 // ══ 底部導航 Tab 切換 ══
 function switchTab(name){
+  // Pro-only tabs
+  if((name==='players'||name==='qr')&&!isPro()){
+    showUpgradeHint(name==='players'?'球員庫為 Pro 功能':'QR Code 為 Pro 功能');
+    return;
+  }
   ['courts','players','qr','settings'].forEach(function(t){
     var panel=document.getElementById('tab-'+t);
     var btn=document.getElementById('nav-'+t);
@@ -4806,7 +4857,7 @@ function renderCourts(){
       : `<div class="cc-row-btns">
           <button class="cb cs" ${isReady?'':'disabled'} onclick="startCourt(${c.id})">開始</button>
           <button class="cb ca" onclick="autoPickCourt(${c.id})">自動</button>
-          ${!isEmpty?`<button class="cb cc" onclick="clearCourt(${c.id})">清空</button>`:''}
+          ${!isEmpty?`<button class="cb cc" style="background:#e2e8f0;color:#475569" onclick="clearCourt(${c.id})">清空</button>`:''}
           ${!isEmpty?`<button class="cb" style="background:#2d5a1e;color:#fff" onclick="callCourt(${c.id})">叫號</button>`:''}
         </div>`;
 
