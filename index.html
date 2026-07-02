@@ -736,6 +736,21 @@ header h1{font-size:1.2rem;font-weight:800;}
 .settings-end-btn:active{background:#fecaca;}
 .settings-signout-row{text-align:center;padding:8px 0;}
 .settings-version{text-align:center;font-size:0.7rem;color:var(--mut);margin-top:6px;}
+.font-size-btn{flex:1;padding:8px 0;border-radius:8px;border:1.5px solid var(--bdr);background:var(--sur2);color:var(--txt2);font-size:0.85rem;font-weight:700;cursor:pointer;transition:all .15s;}
+.font-size-btn.active{background:var(--blu);color:#fff;border-color:var(--blu);}
+.end-day-big-btn{width:100%;padding:16px;background:linear-gradient(135deg,#2d5a1e,#4a8a30);color:#fff;border:none;border-radius:14px;font-size:1rem;font-weight:800;cursor:pointer;margin-bottom:10px;box-shadow:0 3px 12px rgba(45,90,30,.35);letter-spacing:.02em;-webkit-tap-highlight-color:transparent;}
+.end-day-big-btn:active{opacity:.88;}
+/* 新手教學 */
+.tutorial-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:4000;display:flex;align-items:flex-end;justify-content:center;}
+.tutorial-box{background:var(--sur);border-radius:24px 24px 0 0;padding:28px 24px 40px;width:100%;max-width:480px;max-height:80vh;overflow-y:auto;}
+.tutorial-step-dots{display:flex;gap:6px;justify-content:center;margin-bottom:20px;}
+.tutorial-dot{width:8px;height:8px;border-radius:50%;background:var(--bdr);transition:background .2s;}
+.tutorial-dot.active{background:var(--blu);}
+.tutorial-icon{font-size:3rem;text-align:center;margin-bottom:12px;}
+.tutorial-title{font-size:1.1rem;font-weight:800;color:var(--txt);text-align:center;margin-bottom:8px;}
+.tutorial-desc{font-size:0.88rem;color:var(--txt2);text-align:center;line-height:1.6;margin-bottom:24px;}
+.tutorial-next-btn{width:100%;padding:14px;background:var(--blu);color:#fff;border:none;border-radius:12px;font-size:0.95rem;font-weight:800;cursor:pointer;margin-bottom:10px;}
+.tutorial-skip-btn{width:100%;padding:10px;background:none;border:none;color:var(--mut);font-size:0.82rem;cursor:pointer;}
 /* keep old settings-item for any legacy usage */
 .settings-item{display:flex;align-items:center;gap:14px;padding:14px 16px;background:#ffffff;border-radius:12px;margin-bottom:8px;cursor:pointer;border:1px solid var(--bdr);-webkit-tap-highlight-color:transparent;box-shadow:0 1px 3px rgba(0,0,0,.04);}
 .settings-item:active{background:var(--sur2);}
@@ -921,15 +936,26 @@ header h1{font-size:1.2rem;font-weight:800;}
           <div class="settings-card-icon">❓</div>
           <div class="settings-card-label">使用說明</div>
         </div>
-        <div class="settings-card" onclick="openEndDayModal()">
-          <div class="settings-card-icon">🏁</div>
-          <div class="settings-card-label">結束今天</div>
+        <div class="settings-card" onclick="openTutorial()">
+          <div class="settings-card-icon">🎓</div>
+          <div class="settings-card-label">新手教學</div>
         </div>
         <div class="settings-card" onclick="deployUpdate()">
           <div class="settings-card-icon">🚀</div>
           <div class="settings-card-label">更新</div>
         </div>
       </div>
+      <!-- 字體大小 -->
+      <div style="background:#fff;border-radius:14px;border:1px solid var(--bdr);padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.05)">
+        <div style="font-size:0.78rem;color:var(--mut);font-weight:700;margin-bottom:10px;letter-spacing:.04em">字體大小</div>
+        <div style="display:flex;gap:8px">
+          <button class="font-size-btn" id="fs-small" onclick="setFontSize('small')">小</button>
+          <button class="font-size-btn active" id="fs-medium" onclick="setFontSize('medium')">中</button>
+          <button class="font-size-btn" id="fs-large" onclick="setFontSize('large')">大</button>
+        </div>
+      </div>
+      <!-- 結束今天 - 大按鈕 -->
+      <button class="end-day-big-btn" onclick="openEndDayModal()">🏁 結束今天並儲存紀錄</button>
       <button id="btn-signout" class="settings-end-btn" style="background:#f1f5f9;color:#475569;border-color:#cbd5e1;display:none" onclick="signOut()">🚪 登出</button>
       <div class="settings-version">羽球排版表 · v2.0</div>
     </div>
@@ -950,11 +976,23 @@ header h1{font-size:1.2rem;font-weight:800;}
       <span class="nav-label">記錄</span>
     </button>
     <button class="nav-btn" id="nav-settings" onclick="switchTab('settings')">
-      <span class="nav-icon">···</span>
-      <span class="nav-label">更多</span>
+      <span class="nav-icon">⚙️</span>
+      <span class="nav-label">設定</span>
     </button>
   </nav>
 
+</div>
+
+<!-- 新手教學 -->
+<div class="tutorial-overlay" id="modal-tutorial" style="display:none">
+  <div class="tutorial-box">
+    <div class="tutorial-step-dots" id="tutorial-dots"></div>
+    <div class="tutorial-icon" id="tutorial-icon"></div>
+    <div class="tutorial-title" id="tutorial-title"></div>
+    <div class="tutorial-desc" id="tutorial-desc"></div>
+    <button class="tutorial-next-btn" id="tutorial-next-btn" onclick="tutorialNext()">下一步</button>
+    <button class="tutorial-skip-btn" onclick="closeTutorial()">略過教學</button>
+  </div>
 </div>
 
 <!-- Add Player Modal -->
@@ -2067,6 +2105,59 @@ function signInWithGoogle(){
 function signOut(){
   if(!confirm('確定要登出？')) return;
   auth.signOut();
+}
+
+// ── 字體大小 ─────────────────────────────────────────
+const FONT_SIZES = {small:'130%', medium:'150%', large:'170%'};
+function setFontSize(size){
+  document.documentElement.style.fontSize = FONT_SIZES[size]||'150%';
+  localStorage.setItem('fontSizePref', size);
+  ['small','medium','large'].forEach(function(s){
+    var el = document.getElementById('fs-'+s);
+    if(el) el.classList.toggle('active', s===size);
+  });
+}
+function loadFontSize(){
+  var saved = localStorage.getItem('fontSizePref')||'medium';
+  setFontSize(saved);
+}
+
+// ── 新手教學 ─────────────────────────────────────────
+var TUTORIAL_STEPS = [
+  {icon:'🏸', title:'歡迎使用羽球排版表！', desc:'這個 App 幫你管理今天打球的球員和場地排班。\n讓我花 1 分鐘帶你了解基本操作。'},
+  {icon:'👤', title:'第一步：加入球員', desc:'點底部「球員庫」→ 右上角「＋」加入今天的球員。\n建議先加完所有人再開始排場。'},
+  {icon:'🏟️', title:'第二步：設定場地', desc:'進入「設定」→「初始設定」，設定今天有幾個場地。\n場地設好後就能開始排人了。'},
+  {icon:'⚡', title:'第三步：自動排場', desc:'回到「場地」頁面，按「⚡ 全部自動排場」，\nApp 會自動把候場的球員排進場地。'},
+  {icon:'🏁', title:'打完後記得結束今天', desc:'每次打球結束，到「設定」按「🏁 結束今天並儲存紀錄」，\n資料才會存入歷史紀錄。下次打球前再重新設定場地。'},
+];
+var _tutStep = 0;
+
+function openTutorial(){
+  _tutStep = 0;
+  _renderTutStep();
+  document.getElementById('modal-tutorial').style.display = 'flex';
+}
+function closeTutorial(){
+  document.getElementById('modal-tutorial').style.display = 'none';
+  localStorage.setItem('tutorialDone','1');
+}
+function tutorialNext(){
+  _tutStep++;
+  if(_tutStep >= TUTORIAL_STEPS.length){ closeTutorial(); return; }
+  _renderTutStep();
+}
+function _renderTutStep(){
+  var s = TUTORIAL_STEPS[_tutStep];
+  document.getElementById('tutorial-icon').textContent = s.icon;
+  document.getElementById('tutorial-title').textContent = s.title;
+  document.getElementById('tutorial-desc').style.whiteSpace = 'pre-line';
+  document.getElementById('tutorial-desc').textContent = s.desc;
+  var isLast = _tutStep === TUTORIAL_STEPS.length - 1;
+  document.getElementById('tutorial-next-btn').textContent = isLast ? '✅ 了解，開始使用！' : '下一步 →';
+  // dots
+  var dots = '';
+  for(var i=0;i<TUTORIAL_STEPS.length;i++) dots += '<div class="tutorial-dot'+(i===_tutStep?' active':'')+'"></div>';
+  document.getElementById('tutorial-dots').innerHTML = dots;
 }
 
 async function deployUpdate(){
@@ -5250,6 +5341,7 @@ if(!isViewerMode){
       BILLING_KEY = 'billingConfig_' + user.uid;
       document.getElementById('modal-login').style.display = 'none';
       document.getElementById('btn-signout').style.display = 'block';
+      loadFontSize();
       // 載入 Firestore 球員庫
       await loadUserRoster();
       // 嘗試從 localStorage 還原 session
@@ -5260,6 +5352,8 @@ if(!isViewerMode){
         syncSession(true);
         startAutoSync();
         startJoinListener();
+        // 第一次使用顯示教學
+        if(!localStorage.getItem('tutorialDone')) setTimeout(openTutorial, 600);
       }
     } else {
       currentUser = null;
