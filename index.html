@@ -927,7 +927,7 @@ header h1{font-size:1.2rem;font-weight:800;}
         </div>
         <div class="settings-card" onclick="deployUpdate()">
           <div class="settings-card-icon">🚀</div>
-          <div class="settings-card-label">部署更新</div>
+          <div class="settings-card-label">更新</div>
         </div>
       </div>
       <button id="btn-signout" class="settings-end-btn" style="background:#f1f5f9;color:#475569;border-color:#cbd5e1;display:none" onclick="signOut()">🚪 登出</button>
@@ -2085,9 +2085,9 @@ async function deployUpdate(){
     const data = await res.json();
     if(iconEl) iconEl.textContent = origIcon;
     if(data.status === 'ok'){
-      alert('✅ 部署成功！\nhttps://liSuliquehrgaskfvarg.github.io');
+      alert('✅ 這是最新版本');
     } else {
-      alert('❌ 部署失敗\n' + (data.output||'').slice(0,200));
+      alert('❌ 更新失敗，請稍後再試');
     }
   } catch(e){
     if(iconEl) iconEl.textContent = origIcon;
