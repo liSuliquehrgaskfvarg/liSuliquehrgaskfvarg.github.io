@@ -4802,7 +4802,7 @@ function renderCourts(){
 
     // Action area
     const actionsHtml = isPlay
-      ? `<button class="cc-end-btn" onclick="finishCourt(${c.id})">■ 結束下場</button>`
+      ? `<div style="display:flex;gap:6px"><button class="cc-end-btn" style="flex:1" onclick="finishCourt(${c.id})">■ 結束下場</button><button class="cc-end-btn" style="width:48px;flex-shrink:0;background:#1a3d1a;font-size:1rem" onclick="callCourt(${c.id})">📢</button></div>`
       : `<div class="cc-row-btns">
           <button class="cb cs" ${isReady?'':'disabled'} onclick="startCourt(${c.id})">開始</button>
           <button class="cb ca" onclick="autoPickCourt(${c.id})">自動</button>
