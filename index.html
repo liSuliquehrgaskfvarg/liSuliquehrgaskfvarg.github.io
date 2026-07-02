@@ -2089,14 +2089,25 @@ function renderViewerUI(updatedAt){
 // ── Google 登入 ──────────────────────────────────────────
 function signInWithGoogle(){
   var btn = document.getElementById('btn-google-login');
+  if(btn.disabled) return;
   btn.disabled = true;
   btn.textContent = '登入中...';
   var provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider).catch(function(err){
-    document.getElementById('login-error').textContent = '登入失敗：' + err.message;
-    btn.disabled = false;
-    btn.innerHTML = '<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" style="width:22px;height:22px"> 使用 Google 帳號登入';
-  });
+  // 手機用 redirect（避免 iOS popup 被擋），桌面用 popup
+  var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  if(isMobile){
+    auth.signInWithRedirect(provider).catch(function(err){
+      document.getElementById('login-error').textContent = '登入失敗：' + err.message;
+      btn.disabled = false;
+      btn.innerHTML = '<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" style="width:22px;height:22px"> 使用 Google 帳號登入';
+    });
+  } else {
+    auth.signInWithPopup(provider).catch(function(err){
+      document.getElementById('login-error').textContent = '登入失敗：' + err.message;
+      btn.disabled = false;
+      btn.innerHTML = '<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" style="width:22px;height:22px"> 使用 Google 帳號登入';
+    });
+  }
 }
 
 function signInAsGuest(){
@@ -5437,6 +5448,14 @@ updateSetupNamingUI();
 if(!isViewerMode){
   // 先隱藏 setup modal，等登入後才顯示
   document.getElementById('modal-setup').style.display = 'none';
+
+  // 處理手機 Google redirect 登入結果
+  auth.getRedirectResult().catch(function(err){
+    if(err && err.code !== 'auth/no-current-user'){
+      var el = document.getElementById('login-error');
+      if(el) el.textContent = '登入失敗：' + err.message;
+    }
+  });
 
   auth.onAuthStateChanged(async function(user){
     // 如果用戶已選擇訪客模式，不要讓 Firebase auth 回調覆蓋 guest session
