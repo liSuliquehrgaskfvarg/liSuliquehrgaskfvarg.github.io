@@ -856,9 +856,9 @@ header h1{font-size:1.2rem;font-weight:800;}
     <div style="margin-bottom:6px">
       <div style="font-size:0.72rem;color:var(--txt2);margin-bottom:4px">時段</div>
       <div style="display:flex;align-items:center;gap:6px">
-        <input id="add-time-start" type="time" step="1800" style="flex:1;background:var(--sur);border:1px solid var(--bdr);border-radius:7px;color:var(--txt);padding:5px 7px;font-size:0.85rem;outline:none">
+        <select id="add-time-start" style="flex:1;background:var(--sur);border:1px solid var(--bdr);border-radius:7px;color:var(--txt);padding:5px 7px;font-size:0.85rem;outline:none"></select>
         <span style="color:var(--txt2);font-size:0.85rem">—</span>
-        <input id="add-time-end" type="time" step="1800" style="flex:1;background:var(--sur);border:1px solid var(--bdr);border-radius:7px;color:var(--txt);padding:5px 7px;font-size:0.85rem;outline:none">
+        <select id="add-time-end" style="flex:1;background:var(--sur);border:1px solid var(--bdr);border-radius:7px;color:var(--txt);padding:5px 7px;font-size:0.85rem;outline:none"></select>
       </div>
     </div>
     <div class="m-acts">
@@ -1179,14 +1179,10 @@ header h1{font-size:1.2rem;font-weight:800;}
     <div style="margin-bottom:6px">
       <div style="font-size:0.72rem;color:var(--txt2);margin-bottom:4px">時段</div>
       <div style="display:flex;align-items:center;gap:6px">
-        <input id="roster-add-time-start" type="time" step="1800" style="flex:1;background:var(--sur);border:1px solid var(--bdr);border-radius:7px;color:var(--txt);padding:5px 7px;font-size:0.85rem;outline:none">
+        <select id="roster-add-time-start" style="flex:1;background:var(--sur);border:1px solid var(--bdr);border-radius:7px;color:var(--txt);padding:5px 7px;font-size:0.85rem;outline:none"></select>
         <span style="color:var(--txt2);font-size:0.85rem">—</span>
-        <input id="roster-add-time-end" type="time" step="1800" style="flex:1;background:var(--sur);border:1px solid var(--bdr);border-radius:7px;color:var(--txt);padding:5px 7px;font-size:0.85rem;outline:none">
+        <select id="roster-add-time-end" style="flex:1;background:var(--sur);border:1px solid var(--bdr);border-radius:7px;color:var(--txt);padding:5px 7px;font-size:0.85rem;outline:none"></select>
       </div>
-    </div>
-    <div style="margin-top:8px">
-      <label style="font-size:0.72rem;color:var(--mut);display:block;margin-bottom:3px">付款方式（預設）</label>
-      <select id="roster-inp-paytype" style="width:100%;background:var(--sur2);border:1px solid var(--bdr);border-radius:7px;color:var(--txt);padding:7px 9px;font-size:0.82rem;outline:none;box-sizing:border-box"></select>
     </div>
     <div class="m-acts">
       <button class="mbtn mcancel" onclick="closeRosterAddModal()">取消</button>
@@ -1202,9 +1198,9 @@ header h1{font-size:1.2rem;font-weight:800;}
     <div style="font-size:1rem;font-weight:700;color:var(--txt);margin-bottom:14px;text-align:center" id="raf-name"></div>
     <div style="font-size:0.72rem;color:var(--txt2);margin-bottom:6px">可打時段（選填）</div>
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
-      <input id="raf-start" type="time" step="1800" style="flex:1;background:var(--sur2);border:1px solid var(--bdr);border-radius:7px;color:var(--txt);padding:6px 8px;font-size:0.9rem;outline:none">
+      <select id="raf-start" style="flex:1;background:var(--sur2);border:1px solid var(--bdr);border-radius:7px;color:var(--txt);padding:6px 8px;font-size:0.9rem;outline:none"></select>
       <span style="color:var(--mut)">—</span>
-      <input id="raf-end" type="time" step="1800" style="flex:1;background:var(--sur2);border:1px solid var(--bdr);border-radius:7px;color:var(--txt);padding:6px 8px;font-size:0.9rem;outline:none">
+      <select id="raf-end" style="flex:1;background:var(--sur2);border:1px solid var(--bdr);border-radius:7px;color:var(--txt);padding:6px 8px;font-size:0.9rem;outline:none"></select>
     </div>
     <div style="display:flex;gap:8px">
       <button class="mbtn mcancel" onclick="document.getElementById('modal-raf').classList.remove('open')">取消</button>
@@ -1235,10 +1231,6 @@ header h1{font-size:1.2rem;font-weight:800;}
         <button type="button" class="sel-btn" data-val="M" onclick="selectBtn('roster-edit-gender-group','_editGender','M')">♂ 男</button>
         <button type="button" class="sel-btn" data-val="F" onclick="selectBtn('roster-edit-gender-group','_editGender','F')">♀ 女</button>
       </div>
-    </div>
-    <div style="margin-top:8px">
-      <label style="font-size:0.72rem;color:var(--mut);display:block;margin-bottom:3px">付款方式（預設）</label>
-      <select id="roster-edit-paytype" style="width:100%;background:var(--sur2);border:1px solid var(--bdr);border-radius:7px;color:var(--txt);padding:7px 9px;font-size:0.82rem;outline:none;box-sizing:border-box"></select>
     </div>
     <div class="m-acts">
       <button class="mbtn" style="background:#7f1d1d;color:#fff" onclick="deleteRosterEntry()">🗑 刪除</button>
@@ -2535,12 +2527,9 @@ function openRosterAddModal(){
   _rosterAddLvl = ''; _rosterAddGender = '';
   clearBtnGroup('roster-add-lvl-group','_rosterAddLvl');
   clearBtnGroup('roster-add-gender-group','_rosterAddGender');
-  document.getElementById('roster-inp-paytype').innerHTML = _payTypeOptsHtml('零打');
   document.getElementById('roster-inp-name').value = '';
-  var stEl=document.getElementById('roster-add-time-start');
-  var etEl=document.getElementById('roster-add-time-end');
-  if(stEl) stEl.value=_sessionStartTime||'';
-  if(etEl) etEl.value='';
+  _initTimeSelect('roster-add-time-start', _sessionStartTime||'');
+  _initTimeSelect('roster-add-time-end', '');
   document.getElementById('modal-roster-add').classList.add('open');
   setTimeout(()=>document.getElementById('roster-inp-name').focus(),100);
 }
@@ -2557,8 +2546,7 @@ function addRosterEntry(){
   const st=(document.getElementById('roster-add-time-start')||{}).value||'';
   const et=(document.getElementById('roster-add-time-end')||{}).value||'';
   var _terr3=validateTimeRange(st,et); if(_terr3){alert(_terr3);return;}
-  var pt=document.getElementById('roster-inp-paytype').value||'零打';
-  roster.push({id:rid++, name, level:_rosterAddLvl, gender:_rosterAddGender||'', payType:pt, startTime:st, endTime:et});
+  roster.push({id:rid++, name, level:_rosterAddLvl, gender:_rosterAddGender||'', payType:'', startTime:st, endTime:et});
   nameEl.value=''; _rosterAddLvl=''; _rosterAddGender='';
   document.getElementById('modal-roster-add').classList.remove('open');
   renderLeft();
@@ -2623,7 +2611,6 @@ function openRosterEditModal(rid){
   if(!r) return;
   editingRosterId = rid;
   document.getElementById('roster-edit-name').value = r.name;
-  document.getElementById('roster-edit-paytype').innerHTML = _payTypeOptsHtml(r.payType||'零打');
   // 用按鈕組設定等級與性別
   setBtnGroup('roster-edit-lvl-group','_editLvl', String(LVL(r.level)));
   setBtnGroup('roster-edit-gender-group','_editGender', r.gender||'');
@@ -2650,7 +2637,7 @@ function saveRosterEdit(){
   r.name = name;
   r.level = _editLvl;
   r.gender = _editGender || '';
-  r.payType = document.getElementById('roster-edit-paytype').value || '零打';
+  // payType no longer set in roster edit
   // Also update any active player with the same name
   const ap = players.find(p=>p.name===oldName);
   if(ap){ ap.name = name; ap.level = r.level; }
@@ -2682,8 +2669,8 @@ function addFromRoster(rosterid){
   // Pre-fill name in modal
   var nameEl=document.getElementById('raf-name');
   if(nameEl) nameEl.textContent=re.name+(re.gender==='M'?' ♂':re.gender==='F'?' ♀':'');
-  var s=document.getElementById('raf-start'), e=document.getElementById('raf-end');
-  if(s) s.value=''; if(e) e.value='';
+  _initTimeSelect('raf-start', '');
+  _initTimeSelect('raf-end', '');
   document.getElementById('modal-raf').classList.add('open');
 }
 function _confirmAddFromRoster(){
@@ -3348,6 +3335,27 @@ function _payTypeOptsHtml(cur){
   var c=cur||'零打';
   return _PAY_OPTS.map(function(o){return '<option value="'+o[0]+'"'+(o[0]===c?' selected':'')+'>'+o[1]+'</option>';}).join('');
 }
+// 球員庫用：排除「零打」
+function _rosterPayTypeOptsHtml(cur){
+  var c=cur||'三小卡-平日';
+  return _PAY_OPTS.filter(function(o){return o[0]!=='零打';})
+    .map(function(o){return '<option value="'+o[0]+'"'+(o[0]===c?' selected':'')+'>'+o[1]+'</option>';}).join('');
+}
+// 產生時段下拉選單選項 (06:00~23:30，每30分)
+function _timeSelectOpts(cur){
+  var opts='<option value="">-- 不設定 --</option>';
+  for(var h=6;h<=23;h++){
+    var hh=h<10?'0'+h:h;
+    var v00=hh+':00'; var v30=hh+':30';
+    opts+='<option value="'+v00+'"'+(cur===v00?' selected':'')+'>'+v00+'</option>';
+    if(h<23||true) opts+='<option value="'+v30+'"'+(cur===v30?' selected':'')+'>'+v30+'</option>';
+  }
+  return opts;
+}
+function _initTimeSelect(id, val){
+  var el=document.getElementById(id); if(!el) return;
+  el.innerHTML=_timeSelectOpts(val||'');
+}
 function _payTypeSelectHtml(pid, cur){
   return '<select onchange="setPayType('+pid+',this.value)" onclick="event.stopPropagation()" style="background:var(--sur2);border:1px solid var(--bdr);border-radius:6px;color:var(--txt);font-size:0.68rem;padding:2px 4px;cursor:pointer;max-width:140px">'
     +_payTypeOptsHtml(cur)+'</select>';
@@ -3359,21 +3367,21 @@ function markAllPaid(){
 }
 
 function renderCard3SlotForm(){
-  var tStyle='background:var(--sur2);border:1px solid var(--bdr);border-radius:6px;color:var(--txt);padding:4px 6px;font-size:0.82rem;outline:none;width:88px;box-sizing:border-box';
+  var sStyle='background:var(--sur2);border:1px solid var(--bdr);border-radius:6px;color:var(--txt);padding:4px 6px;font-size:0.82rem;outline:none;flex:1;box-sizing:border-box';
   var wd=billingConfig.card3Slots['三小卡-平日']||{start:'09:00',end:'18:00'};
   var hd=billingConfig.card3Slots['三小卡-假日']||{start:'07:00',end:'22:00'};
   var html='<div style="font-size:0.7rem;color:var(--mut);margin-bottom:10px">設定三小卡可用時段，儲存後即時生效。</div>'
     +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">'
     +'<span style="font-size:0.82rem;font-weight:700;color:var(--txt);width:36px">平日</span>'
-    +'<input type="time" step="1800" id="c3s_wd_s" value="'+wd.start+'" style="'+tStyle+'">'
+    +'<select id="c3s_wd_s" style="'+sStyle+'">'+_timeSelectOpts(wd.start)+'</select>'
     +'<span style="font-size:0.7rem;color:var(--mut)">–</span>'
-    +'<input type="time" step="1800" id="c3s_wd_e" value="'+wd.end+'" style="'+tStyle+'">'
+    +'<select id="c3s_wd_e" style="'+sStyle+'">'+_timeSelectOpts(wd.end)+'</select>'
     +'</div>'
     +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:12px">'
     +'<span style="font-size:0.82rem;font-weight:700;color:var(--txt);width:36px">假日</span>'
-    +'<input type="time" step="1800" id="c3s_hd_s" value="'+hd.start+'" style="'+tStyle+'">'
+    +'<select id="c3s_hd_s" style="'+sStyle+'">'+_timeSelectOpts(hd.start)+'</select>'
     +'<span style="font-size:0.7rem;color:var(--mut)">–</span>'
-    +'<input type="time" step="1800" id="c3s_hd_e" value="'+hd.end+'" style="'+tStyle+'">'
+    +'<select id="c3s_hd_e" style="'+sStyle+'">'+_timeSelectOpts(hd.end)+'</select>'
     +'</div>'
     +'<button onclick="saveCard3Slots()" style="width:100%;background:#0891b2;color:#fff;border:none;border-radius:8px;padding:8px;font-size:0.82rem;font-weight:700;cursor:pointer">💾 儲存時段設定</button>';
   document.getElementById('tc-card3-slots').innerHTML=html;
@@ -3552,10 +3560,8 @@ function openAddModal(){
   _addPlayerLvl=''; _addPlayerGender='';
   clearBtnGroup('add-lvl-group','_addPlayerLvl');
   clearBtnGroup('add-gender-group','_addPlayerGender');
-  var stEl=document.getElementById('add-time-start');
-  var etEl=document.getElementById('add-time-end');
-  if(stEl) stEl.value=_sessionStartTime||'';
-  if(etEl) etEl.value='';
+  _initTimeSelect('add-time-start', _sessionStartTime||'');
+  _initTimeSelect('add-time-end', '');
   document.getElementById('modal-add').classList.add('open');
   setTimeout(()=>document.getElementById('inp-name').focus(),100);
 }
