@@ -5420,6 +5420,8 @@ if(!isViewerMode){
   document.getElementById('modal-setup').style.display = 'none';
 
   auth.onAuthStateChanged(async function(user){
+    // 如果用戶已選擇訪客模式，不要讓 Firebase auth 回調覆蓋 guest session
+    if(_guestMode) return;
     if(user){
       currentUser = user;
       // 讓 localStorage key 依 UID 區分，避免同一瀏覽器多帳號互相污染
