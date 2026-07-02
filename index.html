@@ -153,7 +153,7 @@ header h1{font-size:1.2rem;font-weight:800;}
 .main-area{display:grid;grid-template-columns:220px 1fr;flex:1;overflow:hidden;min-height:0;}
 
 /* LEFT PANEL — always a fixed drawer */
-.left-panel{position:fixed;left:-260px;top:0;bottom:0;width:260px;z-index:495;background:#ffffff;border-right:1.5px solid var(--bdr);display:flex;flex-direction:column;overflow:hidden;transition:left .25s ease;box-shadow:4px 0 24px rgba(0,0,0,.1);}
+.left-panel{position:fixed;left:-260px;top:60px;bottom:0;width:260px;z-index:495;background:#ffffff;border-right:1.5px solid var(--bdr);display:flex;flex-direction:column;overflow:hidden;transition:left .25s ease;box-shadow:4px 0 24px rgba(0,0,0,.1);border-top:1px solid var(--bdr);}
 .left-hdr{display:flex;align-items:center;gap:6px;padding:8px 10px;border-bottom:1px solid var(--bdr);flex-shrink:0;}
 .left-title{font-size:0.72rem;font-weight:700;letter-spacing:.06em;color:var(--mut);text-transform:uppercase;flex:1;}
 .left-filter{width:100%;background:var(--sur2);border:1px solid var(--bdr);border-radius:6px;color:var(--txt);padding:4px 8px;font-size:0.75rem;outline:none;margin:0 10px 6px;}
@@ -423,7 +423,7 @@ header h1{font-size:1.2rem;font-weight:800;}
 ══════════════════════════════ */
 .btn-roster-toggle{display:none;background:var(--sur);border:1px solid var(--bdr);color:var(--txt2);border-radius:7px;padding:5px 10px;font-size:0.72rem;font-weight:700;cursor:pointer;flex-shrink:0;}
 .btn-roster-toggle:hover{background:var(--bdr);}
-.left-overlay-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:490;}
+.left-overlay-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:490;}
 .left-overlay-bg.show{display:block;}
 
 @media (max-width:900px){
@@ -446,46 +446,39 @@ header h1{font-size:1.2rem;font-weight:800;}
   /* Court tabs */
   #court-tabs{padding:4px 8px;gap:5px;flex-shrink:0;}
 
-  /* Courts area: horizontal snap scroll, fixed height */
+  /* Courts area: vertical 2-col grid */
+  #court-tabs{ display:none !important; }
   .courts-area{
-    flex:0 0 38vh;
-    height:38vh;
-    min-height:38vh;
-    overflow-x:scroll;
-    overflow-y:hidden;
-    scroll-snap-type:x mandatory;
-    -webkit-overflow-scrolling:touch;
-    overscroll-behavior-x:contain;
-    display:flex;
-    flex-direction:row;
-    align-items:stretch;
-    gap:0;
-    padding:0;
-  }
-  .courts-area::-webkit-scrollbar{ display:none; }
-  .court-card{
-    flex:0 0 100vw;
-    width:100vw;
-    height:38vh;
-    padding:4px 10px;
-    scroll-snap-align:start;
-    display:flex;flex-direction:column;
-    box-sizing:border-box;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+    padding:8px;
     overflow-y:auto;
+    overflow-x:hidden;
+    -webkit-overflow-scrolling:touch;
+    flex:none;
+  }
+  .court-card{
+    flex:none;
+    width:auto;
+    height:auto;
     min-width:0;
+    padding:4px 6px;
+    box-sizing:border-box;
+    overflow:visible;
   }
 
   /* Queue panel — takes remaining space, scrollable */
+  /* tab-courts scrolls as one vertical page */
+  #tab-courts{overflow-y:auto !important;overflow-x:hidden !important;}
   .queue-area{
-    flex:1;
-    min-height:0;
+    flex:none;
     background:var(--sur);
     border-top:2px solid var(--bdr);
     display:flex;flex-direction:column;
-    overflow:hidden;
   }
   .queue-hdr{cursor:pointer;flex-shrink:0;}
-  .queue-body{overflow-y:auto;flex:1;min-height:0;}
+  .queue-body{overflow-y:visible;flex:none;}
   .player-list{gap:5px;padding:6px;}
   .p-item{width:calc(50% - 4px);}
 
@@ -620,8 +613,8 @@ header h1{font-size:1.2rem;font-weight:800;}
 .hdr-roster-btn:active{background:var(--bdr);}
 .hdr-title-area{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0;}
 .hdr-app-title{font-size:0.9rem;font-weight:800;color:var(--txt);white-space:nowrap;}
-.hdr-counts{display:flex;gap:4px;}
-.hdr-count-pill{background:var(--sur2);border:1px solid var(--bdr);border-radius:999px;padding:2px 7px;font-size:0.68rem;color:var(--txt2);}
+.hdr-counts{display:flex;flex-direction:column;gap:0px;align-items:center;}
+.hdr-count-pill{font-size:0.68rem;color:var(--txt2);white-space:nowrap;line-height:1.4;}
 .hdr-count-pill b{color:var(--blu);font-weight:800;}
 .hdr-action-btns{display:flex;gap:5px;align-items:center;flex-shrink:0;}
 .hdr-action-btn{background:var(--sur2);border:1px solid var(--bdr);color:var(--txt);border-radius:8px;padding:6px 8px;font-size:0.7rem;font-weight:700;cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent;}
@@ -684,7 +677,7 @@ header h1{font-size:1.2rem;font-weight:800;}
   </div>
   <div class="hdr-action-btns">
     <button class="hdr-action-btn purple" onclick="callAllCourts()" title="全場叫號">📢<span class="hdr-btn-lbl"> 全場</span></button>
-    <button class="hdr-action-btn" id="btn-pair" onclick="isPro()?openPairModal():showUpgradeHint('固定搭擋為 Pro 功能')" title="固定搭擋">🔗<span class="hdr-btn-lbl"> 固定</span></button>
+    <button class="hdr-action-btn" id="btn-pair" onclick="isPro()?openPairModal():showUpgradeHint('固定搭擋為 Pro 功能')" title="綁定搭擋">🔗<span class="hdr-btn-lbl"> 綁定</span></button>
   </div>
   <!-- hidden stat refs for renderStats() -->
   <span id="s-play" style="display:none">0</span>
@@ -859,9 +852,9 @@ header h1{font-size:1.2rem;font-weight:800;}
     <div style="margin-bottom:6px">
       <div style="font-size:0.72rem;color:var(--txt2);margin-bottom:4px">時段</div>
       <div style="display:flex;align-items:center;gap:6px">
-        <input id="add-time-start" type="time" style="flex:1;background:var(--sur);border:1px solid var(--bdr);border-radius:7px;color:var(--txt);padding:5px 7px;font-size:0.85rem;outline:none">
+        <input id="add-time-start" type="time" step="1800" style="flex:1;background:var(--sur);border:1px solid var(--bdr);border-radius:7px;color:var(--txt);padding:5px 7px;font-size:0.85rem;outline:none">
         <span style="color:var(--txt2);font-size:0.85rem">—</span>
-        <input id="add-time-end" type="time" style="flex:1;background:var(--sur);border:1px solid var(--bdr);border-radius:7px;color:var(--txt);padding:5px 7px;font-size:0.85rem;outline:none">
+        <input id="add-time-end" type="time" step="1800" style="flex:1;background:var(--sur);border:1px solid var(--bdr);border-radius:7px;color:var(--txt);padding:5px 7px;font-size:0.85rem;outline:none">
       </div>
     </div>
     <div class="m-acts">
@@ -1040,12 +1033,8 @@ header h1{font-size:1.2rem;font-weight:800;}
                 <option value="月方案-3888">💎 月方案 $3888（無限場）</option>
               </optgroup>
               <optgroup label="三小卡">
-                <option value="三小卡-平日-09">🟢 三小卡 平日 09–12</option>
-                <option value="三小卡-平日-12">🟢 三小卡 平日 12–15</option>
-                <option value="三小卡-平日-15">🟢 三小卡 平日 15–18</option>
-                <option value="三小卡-假日-07">🟢 三小卡 假日 07–10</option>
-                <option value="三小卡-假日-10">🟢 三小卡 假日 10–13</option>
-                <option value="三小卡-假日-19">🟢 三小卡 假日 19–22</option>
+                <option value="三小卡-平日">🟢 三小卡 平日</option>
+                <option value="三小卡-假日">🟢 三小卡 假日</option>
               </optgroup>
               <optgroup label="季繳">
                 <option value="季繳-平日">🔵 季繳 平日（3個月）</option>
@@ -1186,9 +1175,9 @@ header h1{font-size:1.2rem;font-weight:800;}
     <div style="margin-bottom:6px">
       <div style="font-size:0.72rem;color:var(--txt2);margin-bottom:4px">時段</div>
       <div style="display:flex;align-items:center;gap:6px">
-        <input id="roster-add-time-start" type="time" style="flex:1;background:var(--sur);border:1px solid var(--bdr);border-radius:7px;color:var(--txt);padding:5px 7px;font-size:0.85rem;outline:none">
+        <input id="roster-add-time-start" type="time" step="1800" style="flex:1;background:var(--sur);border:1px solid var(--bdr);border-radius:7px;color:var(--txt);padding:5px 7px;font-size:0.85rem;outline:none">
         <span style="color:var(--txt2);font-size:0.85rem">—</span>
-        <input id="roster-add-time-end" type="time" style="flex:1;background:var(--sur);border:1px solid var(--bdr);border-radius:7px;color:var(--txt);padding:5px 7px;font-size:0.85rem;outline:none">
+        <input id="roster-add-time-end" type="time" step="1800" style="flex:1;background:var(--sur);border:1px solid var(--bdr);border-radius:7px;color:var(--txt);padding:5px 7px;font-size:0.85rem;outline:none">
       </div>
     </div>
     <div style="margin-top:8px">
@@ -2319,6 +2308,7 @@ function LCLS(level){
 }
 const TIER_NAMES=['新','初','中','高'];
 function tierName(level){ return TIER_NAMES[tierOf(level)]||''; }
+function genderTag(g){ if(g==='M') return '<span style="font-size:0.6rem;color:#2563eb;font-weight:700">♂</span>'; if(g==='F') return '<span style="font-size:0.6rem;color:#db2777;font-weight:700">♀</span>'; return ''; }
 const PARTNER_HISTORY_LEN = 12;
 
 function courtName(c){ return c.name || String(c.id); }
@@ -2783,12 +2773,8 @@ var billingConfig = {
   // 三小卡
   card3Price: 1188,
   card3Slots: {
-    '三小卡-平日-09': { label:'平日 09:00–12:00', start:'09:00', end:'12:00', isWeekday:true  },
-    '三小卡-平日-12': { label:'平日 12:00–15:00', start:'12:00', end:'15:00', isWeekday:true  },
-    '三小卡-平日-15': { label:'平日 15:00–18:00', start:'15:00', end:'18:00', isWeekday:true  },
-    '三小卡-假日-07': { label:'假日 07:00–10:00', start:'07:00', end:'10:00', isWeekday:false },
-    '三小卡-假日-10': { label:'假日 10:00–13:00', start:'10:00', end:'13:00', isWeekday:false },
-    '三小卡-假日-19': { label:'假日 19:00–22:00', start:'19:00', end:'22:00', isWeekday:false },
+    '三小卡-平日': { label:'平日', start:'09:00', end:'18:00', isWeekday:true  },
+    '三小卡-假日': { label:'假日', start:'07:00', end:'22:00', isWeekday:false },
   },
   // 穿線
   stringBase: 250,
@@ -3277,12 +3263,8 @@ function setPayType(id, val){
 }
 var _PAY_OPTS=[
   ['零打','💛 零打'],
-  ['三小卡-平日-09','🟢 三小卡 平日 09–12'],
-  ['三小卡-平日-12','🟢 三小卡 平日 12–15'],
-  ['三小卡-平日-15','🟢 三小卡 平日 15–18'],
-  ['三小卡-假日-07','🟢 三小卡 假日 07–10'],
-  ['三小卡-假日-10','🟢 三小卡 假日 10–13'],
-  ['三小卡-假日-19','🟢 三小卡 假日 19–22'],
+  ['三小卡-平日','🟢 三小卡 平日'],
+  ['三小卡-假日','🟢 三小卡 假日'],
   ['月方案-1088','🟠 月方案 $1088 (5場)'],
   ['月方案-1588','🔴 月方案 $1588 (8場)'],
   ['月方案-3888','💎 月方案 $3888 (∞)'],
@@ -3312,35 +3294,34 @@ function markAllPaid(){
 }
 
 function renderCard3SlotForm(){
-  var slots=billingConfig.card3Slots;
-  var keys=Object.keys(slots);
   var tStyle='background:var(--sur2);border:1px solid var(--bdr);border-radius:6px;color:var(--txt);padding:4px 6px;font-size:0.82rem;outline:none;width:88px;box-sizing:border-box';
-  var html='<div style="font-size:0.7rem;color:var(--mut);margin-bottom:8px">設定每種三小卡的允許使用時間，儲存後即時生效。</div>';
-  keys.forEach(function(key,i){
-    var s=slots[key];
-    var dayLabel=s.isWeekday?'平日':'假日';
-    var shortKey=key.replace('三小卡-平日-','').replace('三小卡-假日-');
-    html+='<div style="display:flex;align-items:center;gap:5px;margin-bottom:8px">'
-      +'<label style="flex:1;font-size:0.73rem;color:var(--txt2)">'+dayLabel+' '+key.replace('三小卡-平日-','').replace('三小卡-假日-','')+'點</label>'
-      +'<input type="time" id="c3s_s_'+i+'" value="'+s.start+'" style="'+tStyle+'">'
-      +'<span style="font-size:0.7rem;color:var(--mut)">–</span>'
-      +'<input type="time" id="c3s_e_'+i+'" value="'+s.end+'" style="'+tStyle+'">'
-      +'</div>';
-  });
-  html+='<button onclick="saveCard3Slots()" style="width:100%;background:#0891b2;color:#fff;border:none;border-radius:8px;padding:8px;font-size:0.82rem;font-weight:700;cursor:pointer;margin-top:2px">💾 儲存時段設定</button>';
+  var wd=billingConfig.card3Slots['三小卡-平日']||{start:'09:00',end:'18:00'};
+  var hd=billingConfig.card3Slots['三小卡-假日']||{start:'07:00',end:'22:00'};
+  var html='<div style="font-size:0.7rem;color:var(--mut);margin-bottom:10px">設定三小卡可用時段，儲存後即時生效。</div>'
+    +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">'
+    +'<span style="font-size:0.82rem;font-weight:700;color:var(--txt);width:36px">平日</span>'
+    +'<input type="time" step="1800" id="c3s_wd_s" value="'+wd.start+'" style="'+tStyle+'">'
+    +'<span style="font-size:0.7rem;color:var(--mut)">–</span>'
+    +'<input type="time" step="1800" id="c3s_wd_e" value="'+wd.end+'" style="'+tStyle+'">'
+    +'</div>'
+    +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:12px">'
+    +'<span style="font-size:0.82rem;font-weight:700;color:var(--txt);width:36px">假日</span>'
+    +'<input type="time" step="1800" id="c3s_hd_s" value="'+hd.start+'" style="'+tStyle+'">'
+    +'<span style="font-size:0.7rem;color:var(--mut)">–</span>'
+    +'<input type="time" step="1800" id="c3s_hd_e" value="'+hd.end+'" style="'+tStyle+'">'
+    +'</div>'
+    +'<button onclick="saveCard3Slots()" style="width:100%;background:#0891b2;color:#fff;border:none;border-radius:8px;padding:8px;font-size:0.82rem;font-weight:700;cursor:pointer">💾 儲存時段設定</button>';
   document.getElementById('tc-card3-slots').innerHTML=html;
 }
 function saveCard3Slots(){
-  var slots=billingConfig.card3Slots, keys=Object.keys(slots), bad=false;
-  keys.forEach(function(key,i){
-    var sv=(document.getElementById('c3s_s_'+i)||{}).value;
-    var ev=(document.getElementById('c3s_e_'+i)||{}).value;
-    if(!sv||!ev) return;
-    if(ev<=sv){ bad=true; return; }
-    slots[key].start=sv; slots[key].end=ev;
-    slots[key].label=(slots[key].isWeekday?'平日':'假日')+' '+sv+'–'+ev;
-  });
-  if(bad){ alert('結束時間必須晚於開始時間'); return; }
+  var wds=(document.getElementById('c3s_wd_s')||{}).value;
+  var wde=(document.getElementById('c3s_wd_e')||{}).value;
+  var hds=(document.getElementById('c3s_hd_s')||{}).value;
+  var hde=(document.getElementById('c3s_hd_e')||{}).value;
+  if(!wds||!wde||!hds||!hde){ alert('請填寫所有時間'); return; }
+  if(wde<=wds||hde<=hds){ alert('結束時間必須晚於開始時間'); return; }
+  billingConfig.card3Slots['三小卡-平日']={ label:'平日', start:wds, end:wde, isWeekday:true };
+  billingConfig.card3Slots['三小卡-假日']={ label:'假日', start:hds, end:hde, isWeekday:false };
   try{ localStorage.setItem(BILLING_KEY,JSON.stringify(billingConfig)); }catch(e){}
   renderBillingModal(); renderCard3SlotForm();
   var btn=document.querySelector('#tc-card3-slots button');
@@ -4227,6 +4208,8 @@ function switchTab(name){
     if(panel){ if(t===name){panel.classList.add('active');}else{panel.classList.remove('active');} }
     if(btn){ if(t===name){btn.classList.add('active');}else{btn.classList.remove('active');} }
   });
+  var hdr=document.querySelector('header');
+  if(hdr) hdr.style.display=(name==='qr'||name==='settings')?'none':'';
   if(name==='players') renderPlayerTab();
 }
 function renderPlayerTab(){
@@ -4282,6 +4265,7 @@ function renderPlayerTab(){
     div.innerHTML=
       '<div class="p-item-top">'
       +'<div class="mn '+LCLS(p.level)+'">'+tierName(p.level)+'</div>'
+      +genderTag(p.gender||'')
       +'<span style="font-size:0.84rem;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+p.name+'</span>'
       +'<span style="font-size:0.7rem;font-weight:800;color:#60a5fa;flex-shrink:0">'+cnt2+'場</span>'
       +'</div>'
@@ -4369,6 +4353,7 @@ function renderPlayers(){
       div.innerHTML=`
         <div class="p-item-top">
           <div class="mn ${LCLS(p.level)}">${tierName(p.level)}</div>
+          ${genderTag(p.gender||'')}
           <span style="font-size:0.84rem;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.name}</span>
           <span style="font-size:0.7rem;font-weight:800;color:#60a5fa;flex-shrink:0">${cnt}場</span>
         </div>
@@ -4433,6 +4418,7 @@ function renderCourts(){
         return `<div class="slot-box filled team${t}${!isPlay?' slot-pickable':''}" ${!isPlay?`onclick="placeInSlot(${c.id},${pos})" title="點擊拿起球員"`:''}>
           <div style="display:flex;align-items:center;gap:8px;pointer-events:none">
             <div class="mn ${LCLS(p.level)}">${tierName(p.level)}</div>
+            ${genderTag(p.gender||'')}
             <span class="slot-player-name">${p.name}${isFP?' 💜':''}</span>
           </div>
         </div>`;
@@ -4693,6 +4679,13 @@ function getShareLink(){
   });
 }
 
+function _rosterPanelAdjustTop(){
+  var hdr=document.querySelector('header');
+  var panel=document.getElementById('left-panel');
+  if(!panel) return;
+  var topPx=hdr?hdr.getBoundingClientRect().bottom:0;
+  panel.style.top=topPx+'px';
+}
 function toggleRosterDrawer(){
   const panel=document.getElementById('left-panel');
   const overlay=document.getElementById('roster-overlay');
@@ -4700,12 +4693,10 @@ function toggleRosterDrawer(){
   const isOpen=panel.classList.contains('mobile-open');
   if(isOpen){
     panel.classList.remove('mobile-open'); overlay.classList.remove('show');
-    // 若計費/月卡頁仍開著，把 layout 恢復隱藏
     if(_billPageOpen||_mcPageOpen){layout.style.display='none';layout.style.height='';layout.style.overflow='';}
   } else {
-    // display:none 的父元素會讓 position:fixed 子元素也消失，
-    // 改成 height:0+overflow:hidden，讓 fixed 面板得以出現但不佔空間
     if(layout.style.display==='none'){layout.style.display='flex';layout.style.height='0';layout.style.overflow='hidden';}
+    _rosterPanelAdjustTop();
     panel.classList.add('mobile-open'); overlay.classList.add('show');
   }
 }
