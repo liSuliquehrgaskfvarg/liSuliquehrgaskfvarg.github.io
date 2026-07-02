@@ -743,10 +743,7 @@ header h1{font-size:1.2rem;font-weight:800;}
 .end-day-big-btn:active{opacity:.88;}
 /* Pro lock badge */
 .pro-lock::before{content:'🔒';font-size:0.65rem;margin-left:3px;vertical-align:middle;}
-/* Locked card style (Pro only features) */
-.settings-card.locked{background:#f5f0e8;border-color:#e0d9cc;cursor:default;}
-.settings-card.locked .settings-card-icon{opacity:0.4;filter:grayscale(0.6);}
-.settings-card.locked .settings-card-label{color:#aaa;}
+/* Locked cards look the same as normal cards */
 /* 新手教學 dots */
 .tut-dot{width:7px;height:7px;border-radius:50%;background:var(--bdr);transition:background .2s;}
 .tut-dot.active{background:var(--blu);}
@@ -986,7 +983,7 @@ header h1{font-size:1.2rem;font-weight:800;}
 <div id="tut-backdrop" onclick="tutBackdropTap()" style="display:none;position:fixed;inset:0;z-index:3500;"></div>
 <div id="tut-spotlight" style="display:none;position:fixed;z-index:3600;border-radius:14px;pointer-events:none;box-shadow:0 0 0 9999px rgba(0,0,0,.72);transition:top .35s,left .35s,width .35s,height .35s;"></div>
 <div id="tut-tap-zone" style="display:none;position:fixed;z-index:3700;cursor:pointer;border-radius:14px;" onclick="tutTapTarget()"></div>
-<div id="tut-tooltip" style="display:none;position:fixed;bottom:160px;left:0;right:0;z-index:3800;background:var(--sur);border-radius:22px;padding:22px 20px 36px;box-shadow:0 -6px 28px rgba(0,0,0,.18);margin:0 8px;">
+<div id="tut-tooltip" style="display:none;position:fixed;top:20px;left:0;right:0;z-index:3800;background:var(--sur);border-radius:22px;padding:22px 20px 28px;box-shadow:0 6px 28px rgba(0,0,0,.18);margin:0 8px;">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
     <div style="display:flex;gap:6px" id="tut-dots"></div>
     <button onclick="tutEnd()" style="background:none;border:none;color:var(--mut);font-size:0.78rem;cursor:pointer;padding:4px 8px">略過</button>
@@ -1686,13 +1683,6 @@ function updateProUI(){
     const el=document.getElementById(id);
     if(el) el.style.opacity = isPro()?'1':'0.45';
   });
-  // Pro-only settings cards: apply locked style when not Pro
-  ['btn-stats','card-billing','card-mc','card-hist'].forEach(function(id){
-    const el=document.getElementById(id);
-    if(!el) return;
-    if(isPro()){ el.classList.remove('locked'); }
-    else { el.classList.add('locked'); }
-  });
 }
 
 function showUpgradeHint(msg){
@@ -2217,7 +2207,6 @@ function _tutShowStep(){
     document.getElementById('tut-tap-zone').style.display = 'none';
     var tt = document.getElementById('tut-tooltip');
     tt.style.display = 'block';
-    tt.style.bottom = '';
     return;
   }
 
@@ -2247,7 +2236,6 @@ function _tutShowStep(){
       document.getElementById('tut-backdrop').style.cssText = 'display:block;position:fixed;inset:0;z-index:3500;';
       var tooltip = document.getElementById('tut-tooltip');
       tooltip.style.display = 'block';
-      tooltip.style.bottom = s.extraUp ? '300px' : '';
     }, 200);
   }, 320);
 }
