@@ -112,10 +112,10 @@ header h1{font-size:1.2rem;font-weight:800;}
 .bill-tool-hdr:hover{background:var(--sur2);}
 .bill-tool-card>div:last-child{padding:0 14px 14px;}
 @media(max-width:768px){
-  .bill-page-grid{grid-template-columns:1fr;padding:8px;gap:10px;overflow-y:auto;height:auto;}
-  .bill-col-left{min-height:0;height:auto;}
+  .bill-page-grid{grid-template-columns:1fr;padding:8px;gap:10px;overflow:visible;height:auto;flex:none;}
+  .bill-col-left{overflow:visible;height:auto;flex:none;}
   #bill-body{overflow-y:visible;flex:none;height:auto;}
-  .bill-col-right{overflow-y:visible;}
+  .bill-col-right{overflow-y:visible;flex:none;}
 }
 .bill-rate-box{background:var(--sur2);border:1px solid var(--bdr);border-radius:10px;padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
 .bill-section{margin-bottom:10px;}
@@ -910,7 +910,7 @@ header h1{font-size:1.2rem;font-weight:800;}
 </div>
 
 <!-- Billing Page (full-screen, toggled by header button) -->
-<div id="billing-page" style="display:none;flex:1;overflow:hidden;flex-direction:column">
+<div id="billing-page" style="display:none;flex:1;overflow-y:auto;overflow-x:hidden;flex-direction:column;-webkit-overflow-scrolling:touch">
   <div class="page-back-bar">
     <button class="page-back-btn" onclick="toggleBillingPage()">‹ 返回</button>
     <span class="page-back-title">💰 計費</span>
@@ -1317,47 +1317,37 @@ header h1{font-size:1.2rem;font-weight:800;}
 
       <div style="font-size:0.7rem;color:var(--mut);margin-bottom:10px;text-align:center">↕ 可上下滑動查看全部說明</div>
 
-      <div style="color:#60a5fa;font-weight:700;margin-bottom:4px">球員庫</div>
-      <div style="margin-bottom:12px">常用球員的名單。點 <b style="color:var(--txt)">＋</b> 加入本場候場，點 <b style="color:var(--txt)">✏️</b> 編輯等級。</div>
+      <div style="color:var(--blu);font-weight:700;margin-bottom:4px">🏸 場地 Tab</div>
+      <div style="margin-bottom:12px">左右滑動切換場地。每個場地有上下兩隊（粉色A隊、綠色B隊）。先從候場名單點選球員，再點場地空位即可手動指派。候場名單在場地下方，往下滑可看到。</div>
 
-      <div style="color:#60a5fa;font-weight:700;margin-bottom:4px">加球員</div>
-      <div style="margin-bottom:12px">新增今天來打球的球員，輸入名字和等級後加入候場名單。</div>
+      <div style="color:var(--blu);font-weight:700;margin-bottom:4px">場地按鈕</div>
+      <div style="margin-bottom:6px"><b style="color:var(--txt)">開始</b> — 4位球員就位後按下，開始計時。</div>
+      <div style="margin-bottom:6px"><b style="color:var(--txt)">下場</b> — 比賽結束，球員進入休息冷卻。</div>
+      <div style="margin-bottom:6px"><b style="color:var(--txt)">自動</b> — 系統從候場名單自動挑選最適合的球員（依等級平衡、場次平均、避免重複搭檔、男女平衡）。</div>
+      <div style="margin-bottom:12px"><b style="color:var(--txt)">叫號</b> — 語音廣播該場地上場球員名字。</div>
 
-      <div style="color:#60a5fa;font-weight:700;margin-bottom:4px">固定搭檔</div>
-      <div style="margin-bottom:12px">設定兩位球員為固定搭檔，自動排場時這兩位會被安排在同一隊。</div>
+      <div style="color:var(--blu);font-weight:700;margin-bottom:4px">👤 球員 Tab</div>
+      <div style="margin-bottom:12px">顯示所有球員（上場中、下一場、候場、休息），按 <b style="color:var(--txt)">＋ 加球員</b> 新增今天的球員。♂ 藍、♀ 粉標示性別。</div>
 
-      <div style="color:#60a5fa;font-weight:700;margin-bottom:4px">全場叫號</div>
-      <div style="margin-bottom:12px">語音廣播目前所有場地上場球員的名字。</div>
+      <div style="color:var(--blu);font-weight:700;margin-bottom:4px">📋 球員庫（左上角按鈕）</div>
+      <div style="margin-bottom:12px">常客名單。按 <b style="color:var(--txt)">＋</b> 可加入本場（可同時設定可打時段）。按 <b style="color:var(--txt)">✏️</b> 編輯資料。球員庫資料會同步到雲端，下次開啟自動載入。</div>
 
-      <div style="color:#60a5fa;font-weight:700;margin-bottom:4px">戰績紀錄</div>
-      <div style="margin-bottom:12px">查看今天所有已完成的比賽紀錄（需在初始設定開啟計分模式）。</div>
+      <div style="color:var(--blu);font-weight:700;margin-bottom:4px">📢 全場 / 🔗 綁定</div>
+      <div style="margin-bottom:6px"><b style="color:var(--txt)">全場</b> — 語音廣播所有場地目前上場球員。</div>
+      <div style="margin-bottom:12px"><b style="color:var(--txt)">綁定</b> — 設定固定搭檔，自動排場時兩人永遠同隊。</div>
 
-      <div style="color:#60a5fa;font-weight:700;margin-bottom:4px">初始設定</div>
-      <div style="margin-bottom:12px">設定今天場地數量與命名方式（數字／字母／自訂）。可開啟計分模式，下場後輸入比分，自動記入戰績紀錄。</div>
+      <div style="border-top:1px solid var(--bdr);padding-top:12px;color:var(--blu);font-weight:700;margin-bottom:4px">📱 QR碼 Tab</div>
+      <div style="margin-bottom:6px"><b style="color:var(--txt)">觀看者 QR</b> — 旁觀者掃描，即時看到場地狀況，不能操作。</div>
+      <div style="margin-bottom:12px"><b style="color:var(--txt)">加入者 QR</b> — 讓球員掃描自助報到，填完資料由主辦人確認後進入候場。上場時手機跳出全螢幕通知並震動。</div>
 
-      <div style="color:#60a5fa;font-weight:700;margin-bottom:4px">清除</div>
-      <div style="margin-bottom:12px">清空所有場地和出賽紀錄，重新開始。球員庫名單保留。</div>
-
-      <div style="color:#60a5fa;font-weight:700;margin-bottom:4px">更新</div>
-      <div style="margin-bottom:16px">若有最新版本，按鈕會亮起，按一下即可更新。</div>
-
-      <div style="border-top:1px solid var(--bdr);padding-top:12px;color:#4ade80;font-weight:700;margin-bottom:4px">QR碼（觀看者）</div>
-      <div style="margin-bottom:12px">給旁觀者掃描，可即時看到場地狀況和候場名單，不能操作。球員顏色對應等級：綠＝新、黃綠＝初、粉＝中、黃＝高。</div>
-
-      <div style="color:#4ade80;font-weight:700;margin-bottom:4px">加入QR（球員自助報到）</div>
-      <div style="margin-bottom:12px">主辦人按「加入QR」產生 QR Code，讓球員自己掃描報名。球員填入姓名、等級、可打時間後送出，主辦人收到通知可同意或拒絕。同意後球員手機自動切換成觀看模式，上場時會跳出全螢幕通知並震動。</div>
-
-      <div style="color:#4ade80;font-weight:700;margin-bottom:4px">同步</div>
-      <div style="margin-bottom:16px">手動強制同步場地資料到雲端，讓觀看者可以看到最新狀態。正常情況下每 1 秒自動同步一次。</div>
-
-      <div style="border-top:1px solid var(--bdr);padding-top:12px;color:#60a5fa;font-weight:700;margin-bottom:4px">場地操作</div>
-      <div style="margin-bottom:6px"><b style="color:var(--txt)">開始</b> — 4位球員就位後按開始，正式開始比賽並計時。</div>
-      <div style="margin-bottom:6px"><b style="color:var(--txt)">下場</b> — 比賽結束，球員離場，進入休息冷卻。</div>
-      <div style="margin-bottom:12px"><b style="color:var(--txt)">自動</b> — 系統自動從候場名單挑選最適合的球員（依等級平衡、場次平均、避免重複搭檔）。</div>
-
-      <div style="border-top:1px solid var(--bdr);padding-top:12px;color:#60a5fa;font-weight:700;margin-bottom:4px">候場名單操作</div>
-      <div style="margin-bottom:6px">點選球員卡片 → 再點場地空位，即可手動指定上場位置。</div>
-      <div style="padding-bottom:8px">球員卡片右上角的數字為今天已上場場次。有可打時間的球員會顯示時間區間。</div>
+      <div style="border-top:1px solid var(--bdr);padding-top:12px;color:var(--blu);font-weight:700;margin-bottom:4px">⚙️ 設定 Tab</div>
+      <div style="margin-bottom:6px"><b style="color:var(--txt)">戰績紀錄</b> — 查看今天所有比賽結果（需在初始設定開啟計分模式）。</div>
+      <div style="margin-bottom:6px"><b style="color:var(--txt)">計費</b> — 管理今日費用：零打標記付款、月方案扣次、三小卡時段驗證。</div>
+      <div style="margin-bottom:6px"><b style="color:var(--txt)">月卡管理</b> — 登記球員月卡、查看有效期與剩餘場次。與計費頁即時同步。</div>
+      <div style="margin-bottom:6px"><b style="color:var(--txt)">初始設定</b> — 設定場地數量與命名方式，可開啟計分模式。</div>
+      <div style="margin-bottom:6px"><b style="color:var(--txt)">結束今天</b> — 儲存今日記錄並清空場次，準備下次使用。</div>
+      <div style="margin-bottom:6px"><b style="color:var(--txt)">立即同步</b> — 手動推送資料到雲端，讓觀看者看到最新狀態（正常每 1 秒自動同步）。</div>
+      <div style="padding-bottom:8px"><b style="color:var(--txt)">清除資料</b> — 清空今日所有球員與場地，球員庫保留。</div>
     </div>
     <button class="mbtn mcancel" style="width:100%;margin-top:12px" onclick="closeHelpModal()">關閉</button>
   </div>
@@ -2330,6 +2320,14 @@ function LCLS(level){
 }
 const TIER_NAMES=['新','初','中','高'];
 function tierName(level){ return TIER_NAMES[tierOf(level)]||''; }
+function validateTimeRange(st, et){
+  if(!st && !et) return null; // 都空白 → OK
+  var checkHalf=function(t){ if(!t) return true; var m=parseInt(t.split(':')[1]||'0'); return m===0||m===30; };
+  if(st && !checkHalf(st)) return '時間必須是整點或半點（例如 9:00 或 9:30）';
+  if(et && !checkHalf(et)) return '時間必須是整點或半點（例如 9:00 或 9:30）';
+  if(st && et && et<=st) return '結束時間必須晚於開始時間';
+  return null;
+}
 function genderTag(g){ if(g==='M') return '<span style="font-size:0.6rem;color:#2563eb;font-weight:700">♂</span>'; if(g==='F') return '<span style="font-size:0.6rem;color:#db2777;font-weight:700">♀</span>'; return ''; }
 const PARTNER_HISTORY_LEN = 12;
 
@@ -2558,6 +2556,7 @@ function addRosterEntry(){
   if(roster.find(r=>r.name===name)){alert(`「${name}」已在球員庫中`);return;}
   const st=(document.getElementById('roster-add-time-start')||{}).value||'';
   const et=(document.getElementById('roster-add-time-end')||{}).value||'';
+  var _terr3=validateTimeRange(st,et); if(_terr3){alert(_terr3);return;}
   var pt=document.getElementById('roster-inp-paytype').value||'零打';
   roster.push({id:rid++, name, level:_rosterAddLvl, gender:_rosterAddGender||'', payType:pt, startTime:st, endTime:et});
   nameEl.value=''; _rosterAddLvl=''; _rosterAddGender='';
@@ -2691,6 +2690,7 @@ function _confirmAddFromRoster(){
   var re=roster.find(r=>r.id===_rosterAddId); if(!re) return;
   var st=(document.getElementById('raf-start')||{}).value||'';
   var et=(document.getElementById('raf-end')||{}).value||'';
+  var _terr=validateTimeRange(st,et); if(_terr){alert(_terr);return;}
   var rePt=re.payType||'零打';
   var rePkg=_pkgInfo(rePt);
   var newP={id:nid++,name:re.name,level:re.level,gender:re.gender||'',status:'waiting',offTime:null,playCount:0,partnerHistory:[],payType:rePt,sessionPaid:false,availableTime:'',startTime:st,endTime:et};
@@ -2943,11 +2943,13 @@ function registerCard(){
   document.getElementById('mc-inp-note').value='';
   document.getElementById('mc-sess-row').style.display='none';
   renderMemberCards();
+  if(_billPageOpen) renderBillingModal();
 }
 function deleteCardRecord(id){
   if(!confirm('確定刪除這筆記錄？')) return;
   cardRecords=cardRecords.filter(function(r){return r.id!==id;});
   saveCardRecords(); renderMemberCards();
+  if(_billPageOpen) renderBillingModal();
 }
 function renderMemberCards(){
   // Populate player datalist
@@ -3503,6 +3505,7 @@ function deductSession(pid){
     }
   }
   saveCardRecords(); saveData(); renderBillingModal();
+  if(_mcPageOpen) renderMemberCards();
 }
 
 // ── Add player modal helper ──
@@ -3647,6 +3650,7 @@ function addPlayer(){
   if(!isPro() && players.length >= 16){ showUpgradeHint('免費版最多 16 位球員'); return; }
   const st=(document.getElementById('add-time-start')||{}).value||'';
   const et=(document.getElementById('add-time-end')||{}).value||'';
+  var _terr2=validateTimeRange(st,et); if(_terr2){alert(_terr2);return;}
   const availTime=(st&&et)?st+' – '+et:(st||'');
   players.push({id:nid++,name,level:_addPlayerLvl,gender:_addPlayerGender||'',status:'waiting',offTime:null,playCount:0,partnerHistory:[],
     payType:'零打',sessionPaid:false,startTime:st,endTime:et,availableTime:availTime});
@@ -4609,7 +4613,7 @@ function renderStats(){
   set('s-play',pid.size);
   set('s-wait',players.filter(p=>p.status==='waiting').length);
   set('s-cool',players.filter(p=>p.status==='cooling').length);
-  set('s-courts',`${courts.filter(c=>c.status==='playing').length}/${courts.length}`);
+  set('s-courts',courts.length);
 }
 
 
@@ -5053,7 +5057,7 @@ if(!isViewerMode){
       STORAGE_KEY = 'badminton_scheduler_v1_' + user.uid;
       BILLING_KEY = 'billingConfig_' + user.uid;
       document.getElementById('modal-login').style.display = 'none';
-      document.getElementById('btn-signout').style.display = 'block';
+      document.getElementById('btn-signout').style.display = 'flex';
       // 載入 Firestore 球員庫
       await loadUserRoster();
       // 嘗試從 localStorage 還原 session
