@@ -530,6 +530,42 @@ header h1{font-size:1.2rem;font-weight:800;}
 }
 
 /* ══════════════════════════════
+   DESKTOP OVERRIDES (>900px)
+══════════════════════════════ */
+@media (min-width:901px){
+  /* Header: 球員/場地 counts 移到標題同行右側 */
+  .hdr-title-area{flex-direction:row;align-items:center;gap:10px;}
+  .hdr-counts{flex-direction:row;gap:10px;align-items:center;}
+  .hdr-count-pill{font-size:0.8rem;}
+
+  /* Courts: 不左右滑，填滿寬度，撐高 */
+  #tab-courts{display:flex;flex-direction:column;overflow:hidden;}
+  .courts-area{
+    overflow-x:hidden !important;
+    overflow-y:hidden !important;
+    align-items:stretch !important;  /* cards stretch to full height */
+    flex-wrap:nowrap !important;
+    flex:1 !important;
+    gap:10px !important;
+    padding:10px 12px !important;
+  }
+  .court-card{
+    flex:1 1 0 !important;
+    min-width:160px !important;
+    max-width:none !important;
+    flex:0 0 auto !important;  /* 先 reset，再用 1 */
+    flex:1 1 0 !important;
+  }
+  /* Queue: fixed height on desktop */
+  .queue-area{
+    flex:0 0 auto !important;
+    max-height:220px;
+    min-height:unset !important;
+  }
+  .queue-body{overflow-y:auto !important;}
+}
+
+/* ══════════════════════════════
    HISTORY PAGE
 ══════════════════════════════ */
 .hist-page-wrap{padding:16px;flex:1;overflow-y:auto;max-width:860px;margin:0 auto;width:100%;box-sizing:border-box;}
