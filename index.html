@@ -542,22 +542,24 @@ header h1{font-size:1.2rem;font-weight:800;}
   .hdr-count-pill{font-size:0.8rem;}
 
   /* Courts: 不左右滑，填滿寬度，撐高 */
-  #tab-courts{display:flex;flex-direction:column;overflow:hidden;}
+  #tab-courts{display:flex !important;flex-direction:column !important;overflow:hidden;flex:1;min-height:0;}
   .courts-area{
-    overflow-x:hidden !important;
+    display:flex !important;
+    flex-direction:row !important;
+    overflow-x:auto !important;
     overflow-y:hidden !important;
     align-items:stretch !important;  /* cards stretch to full height */
     flex-wrap:nowrap !important;
-    flex:1 !important;
+    flex:1 1 0 !important;
+    min-height:200px !important;
     gap:10px !important;
     padding:10px 12px !important;
   }
   .court-card{
     flex:1 1 0 !important;
-    min-width:160px !important;
+    min-width:180px !important;
     max-width:none !important;
-    flex:0 0 auto !important;  /* 先 reset，再用 1 */
-    flex:1 1 0 !important;
+    height:auto !important;
   }
   /* Queue: fixed height on desktop */
   .queue-area{
@@ -2087,18 +2089,28 @@ function renderViewerUI(updatedAt){
 }
 
 // ── Google 登入 ──────────────────────────────────────────
+var _isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 function signInWithGoogle(){
   var btn = document.getElementById('btn-google-login');
   if(btn.disabled) return;
   btn.disabled = true;
   btn.innerHTML = '登入中...';
   var provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider).catch(function(err){
-    btn.disabled = false;
-    btn.innerHTML = '<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" style="width:22px;height:22px"> 使用 Google 帳號登入';
-    if(err.code === 'auth/cancelled-popup-request' || err.code === 'auth/popup-closed-by-user') return;
-    document.getElementById('login-error').textContent = '登入失敗：' + err.message;
-  });
+  if(_isMobile){
+    // 手機用 redirect，避免 iOS popup 被擋
+    auth.signInWithRedirect(provider).catch(function(err){
+      btn.disabled = false;
+      btn.innerHTML = '<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" style="width:22px;height:22px"> 使用 Google 帳號登入';
+      document.getElementById('login-error').textContent = '登入失敗：' + err.message;
+    });
+  } else {
+    auth.signInWithPopup(provider).catch(function(err){
+      btn.disabled = false;
+      btn.innerHTML = '<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" style="width:22px;height:22px"> 使用 Google 帳號登入';
+      if(err.code === 'auth/cancelled-popup-request' || err.code === 'auth/popup-closed-by-user') return;
+      document.getElementById('login-error').textContent = '登入失敗：' + err.message;
+    });
+  }
 }
 
 function signInAsGuest(){
