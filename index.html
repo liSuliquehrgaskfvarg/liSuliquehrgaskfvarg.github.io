@@ -1515,7 +1515,17 @@ header h1{font-size:1.2rem;font-weight:800;}
   <div class="modal" style="width:320px;text-align:center">
     <div style="font-size:2.5rem;margin-bottom:8px">🏸</div>
     <h3 style="font-size:1.2rem;margin-bottom:6px">羽球排版表</h3>
-    <p style="font-size:0.78rem;color:var(--txt2);margin-bottom:24px">登入後擁有你的專屬球員庫</p>
+    <p style="font-size:0.78rem;color:var(--txt2);margin-bottom:16px">登入後擁有你的專屬球員庫</p>
+
+    <!-- iOS PWA 提示（主畫面 App 模式下 Google OAuth 被系統封鎖） -->
+    <div id="pwa-login-notice" style="display:none;background:#fef3c7;border:1px solid #f59e0b;border-radius:10px;padding:12px 14px;margin-bottom:14px;text-align:left">
+      <div style="font-size:0.82rem;font-weight:700;color:#92400e;margin-bottom:6px">⚠️ 主畫面 App 無法使用 Google 登入</div>
+      <div style="font-size:0.75rem;color:#78350f;line-height:1.5">iOS 系統限制，請改用 Safari 開啟後登入。</div>
+      <button onclick="window.open(location.href,'_blank')" style="width:100%;margin-top:10px;background:#2563eb;color:#fff;border:none;border-radius:8px;padding:10px;font-size:0.88rem;font-weight:700;cursor:pointer">
+        在 Safari 中開啟 →
+      </button>
+    </div>
+
     <button id="btn-google-login" onclick="signInWithGoogle()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;color:#333;border:1px solid var(--bdr);border-radius:10px;padding:12px;font-size:0.95rem;font-weight:700;cursor:pointer;margin-bottom:10px">
       <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" style="width:22px;height:22px">
       使用 Google 帳號登入
@@ -2090,35 +2100,43 @@ function renderViewerUI(updatedAt){
 }
 
 // ── Google 登入 ──────────────────────────────────────────
-// 使用 LOCAL persistence 確保 iOS Safari 跨分頁可傳遞 auth state（避免 "missing initial state" 錯誤）
-async function signInWithGoogle(){
-  _guestMode = false; // 確保 Google 登入不被 guest guard 攔截
+// iOS PWA（主畫面 App）：Google 封鎖了 WKWebView 的 OAuth，顯示提示。
+// iOS Safari（非 PWA）：popup 被封鎖，改用 signInWithRedirect。
+// Desktop / Android：使用 popup。
+var _isiOSPWA = (window.navigator.standalone === true);
+var _isiOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+(function(){
+  if(_isiOSPWA){
+    var notice = document.getElementById('pwa-login-notice');
+    var googleBtn = document.getElementById('btn-google-login');
+    if(notice) notice.style.display = 'block';
+    if(googleBtn) googleBtn.style.display = 'none';
+  }
+})();
+
+var _googleLoginImg = '<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" style="width:22px;height:22px"> 使用 Google 帳號登入';
+
+function signInWithGoogle(){
   var btn = document.getElementById('btn-google-login');
-  if(btn.disabled) return;
+  if(!btn || btn.disabled) return;
   btn.disabled = true;
-  var provider = new firebase.auth.GoogleAuthProvider();
   btn.innerHTML = '登入中...';
-  _signingIn = true; // 標記登入進行中
-
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-  const isMobile = isIOS || /Android/i.test(navigator.userAgent);
-
-  try {
-    await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-    if (isMobile) {
-      await auth.signInWithRedirect(provider);
-      // redirect 後頁面會離開，不會執行到這裡
-    } else {
-      await auth.signInWithPopup(provider);
-      _signingIn = false;
-    }
-  } catch(err) {
-    _signingIn = false;
-    console.error('[Auth] signIn error:', err.code, err.message, err);
-    btn.disabled = false;
-    btn.innerHTML = '<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" style="width:22px;height:22px"> 使用 Google 帳號登入';
-    document.getElementById('login-error').textContent = '登入失敗 [' + err.code + ']：' + err.message;
+  var provider = new firebase.auth.GoogleAuthProvider();
+  if(_isiOS && !_isiOSPWA){
+    // Mobile Safari：popup 被系統封鎖，改用 redirect
+    auth.signInWithRedirect(provider).catch(function(err){
+      btn.disabled = false;
+      btn.innerHTML = _googleLoginImg;
+      document.getElementById('login-error').textContent = '登入失敗：' + err.message;
+    });
+  } else {
+    // Desktop / Android：使用 popup
+    auth.signInWithPopup(provider).catch(function(err){
+      btn.disabled = false;
+      btn.innerHTML = _googleLoginImg;
+      if(err.code === 'auth/cancelled-popup-request' || err.code === 'auth/popup-closed-by-user') return;
+      document.getElementById('login-error').textContent = '登入失敗：' + err.message;
+    });
   }
 }
 
@@ -5468,9 +5486,15 @@ if(!isViewerMode){
       _signingIn = false;
     }
   }).catch(function(err) {
-    if (err.code !== 'auth/no-auth-event') {
+    if (err && err.code && err.code !== 'auth/no-auth-event') {
       console.error('[Auth] redirect result error:', err);
       _signingIn = false;
+      setTimeout(function(){
+        var loginErr = document.getElementById('login-error');
+        var btn = document.getElementById('btn-google-login');
+        if(loginErr) loginErr.textContent = '登入失敗：' + err.message;
+        if(btn){ btn.disabled = false; btn.innerHTML = _googleLoginImg; }
+      }, 300);
     }
   });
 
