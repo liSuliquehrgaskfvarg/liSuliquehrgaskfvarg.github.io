@@ -2103,19 +2103,21 @@ function signInWithGoogle(){
     // PWA 模式：在 app 內做 redirect，Google 完成後會重新開啟 app
     btn.innerHTML = '跳轉 Google 登入中...';
     auth.signInWithRedirect(provider).catch(function(err){
+      console.error('[Auth] signInWithRedirect error:', err.code, err.message, err);
       btn.disabled = false;
       btn.innerHTML = '<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" style="width:22px;height:22px"> 使用 Google 帳號登入';
-      document.getElementById('login-error').textContent = '登入失敗：' + err.message;
+      document.getElementById('login-error').textContent = '登入失敗 [' + err.code + ']：' + err.message;
     });
   } else {
     btn.innerHTML = '登入中...';
     _signingIn = true; // 標記 popup 登入進行中
     auth.signInWithPopup(provider).catch(function(err){
       _signingIn = false; // popup 結束（取消或失敗）
+      console.error('[Auth] signInWithPopup error:', err.code, err.message, err);
       btn.disabled = false;
       btn.innerHTML = '<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" style="width:22px;height:22px"> 使用 Google 帳號登入';
-      if(err.code === 'auth/cancelled-popup-request' || err.code === 'auth/popup-closed-by-user') return;
-      document.getElementById('login-error').textContent = '登入失敗：' + err.message;
+      // 不再靜默吞掉 cancel 錯誤，一律顯示（方便 debug）
+      document.getElementById('login-error').textContent = '登入失敗 [' + err.code + ']：' + err.message;
     });
   }
 }
@@ -5462,12 +5464,17 @@ if(!isViewerMode){
   // 處理 iOS PWA redirect 登入結果
   // （PWA 模式 signInWithRedirect 完成後，app 重新開啟時需呼叫此函式）
   auth.getRedirectResult().then(function(result){
-    // 成功：onAuthStateChanged 會接手處理
+    if(result && result.user){
+      console.log('[Auth] getRedirectResult: user=', result.user.email);
+    } else {
+      console.log('[Auth] getRedirectResult: no redirect result (normal for non-redirect login)');
+    }
   }).catch(function(err){
+    console.error('[Auth] getRedirectResult error:', err.code, err.message, err);
     if(err && err.code && err.code !== 'auth/no-current-user'){
       setTimeout(function(){
         var loginErr = document.getElementById('login-error');
-        if(loginErr) loginErr.textContent = '登入失敗：' + err.message;
+        if(loginErr) loginErr.textContent = '登入失敗 [' + err.code + ']：' + err.message;
         var btn = document.getElementById('btn-google-login');
         if(btn){ btn.disabled = false; btn.innerHTML = '<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" style="width:22px;height:22px"> 使用 Google 帳號登入'; }
       }, 300);
@@ -5475,10 +5482,12 @@ if(!isViewerMode){
   });
 
   auth.onAuthStateChanged(async function(user){
+    console.log('[Auth] onAuthStateChanged: user=', user ? user.email : 'null', '| _signingIn=', _signingIn, '| _guestMode=', _guestMode);
     // 如果用戶已選擇訪客模式，且沒有真實登入的 user（或只是 anonymous），才跳過
     if(_guestMode && (!user || user.isAnonymous)) return;
-    if(user){
-      _signingIn = false; // 登入成功，清除 flag
+    if(user && !user.isAnonymous){
+      // 真實登入成功（Google 帳號），直接 proceed，不管任何 flag
+      _signingIn = false;
       currentUser = user;
       // 讓 localStorage key 依 UID 區分，避免同一瀏覽器多帳號互相污染
       STORAGE_KEY = 'badminton_scheduler_v1_' + user.uid;
