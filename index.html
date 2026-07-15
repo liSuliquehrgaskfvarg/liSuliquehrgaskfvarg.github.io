@@ -2090,36 +2090,24 @@ function renderViewerUI(updatedAt){
 }
 
 // ── Google 登入 ──────────────────────────────────────────
-// iOS PWA（主畫面）：popup 會跳出 app 到外部 Safari，結果傳不回來，改用 redirect。
-// 一般 Safari / 桌面：用 popup 避免頁面跳轉。
-var _isiOSPWA = (window.navigator.standalone === true);
+// 使用 LOCAL persistence 確保 iOS Safari 跨分頁可傳遞 auth state（避免 "missing initial state" 錯誤）
 function signInWithGoogle(){
   _guestMode = false; // 確保 Google 登入不被 guest guard 攔截
   var btn = document.getElementById('btn-google-login');
   if(btn.disabled) return;
   btn.disabled = true;
   var provider = new firebase.auth.GoogleAuthProvider();
-  if(_isiOSPWA){
-    // PWA 模式：在 app 內做 redirect，Google 完成後會重新開啟 app
-    btn.innerHTML = '跳轉 Google 登入中...';
-    auth.signInWithRedirect(provider).catch(function(err){
-      console.error('[Auth] signInWithRedirect error:', err.code, err.message, err);
-      btn.disabled = false;
-      btn.innerHTML = '<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" style="width:22px;height:22px"> 使用 Google 帳號登入';
-      document.getElementById('login-error').textContent = '登入失敗 [' + err.code + ']：' + err.message;
-    });
-  } else {
-    btn.innerHTML = '登入中...';
-    _signingIn = true; // 標記 popup 登入進行中
-    auth.signInWithPopup(provider).catch(function(err){
+  btn.innerHTML = '登入中...';
+  _signingIn = true; // 標記 popup 登入進行中
+  auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+    .then(function(){ return auth.signInWithPopup(provider); })
+    .catch(function(err){
       _signingIn = false; // popup 結束（取消或失敗）
       console.error('[Auth] signInWithPopup error:', err.code, err.message, err);
       btn.disabled = false;
       btn.innerHTML = '<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" style="width:22px;height:22px"> 使用 Google 帳號登入';
-      // 不再靜默吞掉 cancel 錯誤，一律顯示（方便 debug）
       document.getElementById('login-error').textContent = '登入失敗 [' + err.code + ']：' + err.message;
     });
-  }
 }
 
 function signInAsGuest(){
@@ -5461,25 +5449,7 @@ if(!isViewerMode){
   // 先隱藏 setup modal，等登入後才顯示
   document.getElementById('modal-setup').style.display = 'none';
 
-  // 處理 iOS PWA redirect 登入結果
-  // （PWA 模式 signInWithRedirect 完成後，app 重新開啟時需呼叫此函式）
-  auth.getRedirectResult().then(function(result){
-    if(result && result.user){
-      console.log('[Auth] getRedirectResult: user=', result.user.email);
-    } else {
-      console.log('[Auth] getRedirectResult: no redirect result (normal for non-redirect login)');
-    }
-  }).catch(function(err){
-    console.error('[Auth] getRedirectResult error:', err.code, err.message, err);
-    if(err && err.code && err.code !== 'auth/no-current-user'){
-      setTimeout(function(){
-        var loginErr = document.getElementById('login-error');
-        if(loginErr) loginErr.textContent = '登入失敗 [' + err.code + ']：' + err.message;
-        var btn = document.getElementById('btn-google-login');
-        if(btn){ btn.disabled = false; btn.innerHTML = '<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" style="width:22px;height:22px"> 使用 Google 帳號登入'; }
-      }, 300);
-    }
-  });
+  // signInWithRedirect 已移除，改用 signInWithPopup（避免 Safari storage partitioning 問題）
 
   auth.onAuthStateChanged(async function(user){
     console.log('[Auth] onAuthStateChanged: user=', user ? user.email : 'null', '| _signingIn=', _signingIn, '| _guestMode=', _guestMode);
