@@ -956,7 +956,7 @@ header h1{font-size:1.2rem;font-weight:800;}
       </div>
       <!-- 結束今天 - 大按鈕 -->
       <button id="tut-end-day" class="end-day-big-btn" onclick="openEndDayModal()">🏁 結束今天並儲存紀錄</button>
-      <button id="btn-signout" class="settings-end-btn" style="background:#f1f5f9;color:#475569;border-color:#cbd5e1;display:none" onclick="signOut()">🚪 登出</button>
+      <button class="settings-end-btn" style="background:#fef2f2;color:#dc2626;border-color:#fca5a5" onclick="if(confirm('清除所有本機資料？（球員庫和設定都會消失）')){ localStorage.clear(); location.reload(); }">🗑️ 清除資料</button>
       <div class="settings-version">羽球排版表 · v2.0</div>
     </div>
   </div>
@@ -1510,32 +1510,7 @@ header h1{font-size:1.2rem;font-weight:800;}
   </div>
 </div>
 
-<!-- Login Modal -->
-<div class="overlay" id="modal-login" style="display:flex;z-index:3000;background:rgba(0,0,0,.95)">
-  <div class="modal" style="width:320px;text-align:center">
-    <div style="font-size:2.5rem;margin-bottom:8px">🏸</div>
-    <h3 style="font-size:1.2rem;margin-bottom:6px">羽球排版表</h3>
-    <p style="font-size:0.78rem;color:var(--txt2);margin-bottom:16px">登入後擁有你的專屬球員庫</p>
-
-    <!-- iOS PWA 提示（主畫面 App 模式下 Google OAuth 被系統封鎖） -->
-    <div id="pwa-login-notice" style="display:none;background:#fef3c7;border:1px solid #f59e0b;border-radius:10px;padding:12px 14px;margin-bottom:14px;text-align:left">
-      <div style="font-size:0.82rem;font-weight:700;color:#92400e;margin-bottom:6px">⚠️ 主畫面 App 無法使用 Google 登入</div>
-      <div style="font-size:0.75rem;color:#78350f;line-height:1.5">iOS 系統限制，請改用 Safari 開啟後登入。</div>
-      <button onclick="window.open(location.href,'_blank')" style="width:100%;margin-top:10px;background:#2563eb;color:#fff;border:none;border-radius:8px;padding:10px;font-size:0.88rem;font-weight:700;cursor:pointer">
-        在 Safari 中開啟 →
-      </button>
-    </div>
-
-    <button id="btn-google-login" onclick="signInWithGoogle()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;color:#333;border:1px solid var(--bdr);border-radius:10px;padding:12px;font-size:0.95rem;font-weight:700;cursor:pointer;margin-bottom:10px">
-      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" style="width:22px;height:22px">
-      使用 Google 帳號登入
-    </button>
-    <button onclick="signInAsGuest()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;background:var(--sur2);color:var(--txt2);border:1px solid var(--bdr);border-radius:10px;padding:11px;font-size:0.88rem;font-weight:700;cursor:pointer;margin-bottom:10px">
-      👤 訪客登入（功能受限）
-    </button>
-    <div id="login-error" style="font-size:0.75rem;color:#f87171;min-height:1.2em;margin-top:8px"></div>
-  </div>
-</div>
+<!-- (Login removed — all features unlocked by default) -->
 
 <!-- Join QR Code Modal -->
 <div class="overlay" id="modal-join-qr" onclick="if(event.target.id==='modal-join-qr')document.getElementById('modal-join-qr').style.display='none'" style="display:none">
@@ -1681,11 +1656,10 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 
 let currentUser = null;
-let _userPro = false; // 從 Firestore 載入
-let _guestMode = false; // 訪客本地模式（不需 Firebase）
-let _signingIn = false; // Google popup 登入進行中，避免 onAuthStateChanged(null) 跳回登入頁
+let _userPro = true;  // 全部功能開放，不需登入
+let _guestMode = false;
 
-function isPro(){ return _userPro && !_guestMode; }
+function isPro(){ return true; }
 
 function updateProUI(){
   // QR碼、固定搭檔按鈕只有 Pro 才能用
@@ -2099,79 +2073,7 @@ function renderViewerUI(updatedAt){
   if(typeof checkMyCourtNotify === 'function') checkMyCourtNotify();
 }
 
-// ── Google 登入 ──────────────────────────────────────────
-// iOS PWA（主畫面 App）：Google 封鎖了 WKWebView 的 OAuth，顯示提示。
-// iOS Safari（非 PWA）：popup 被封鎖，改用 signInWithRedirect。
-// Desktop / Android：使用 popup。
-var _isiOSPWA = (window.navigator.standalone === true);
-var _isiOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-(function(){
-  if(_isiOSPWA){
-    var notice = document.getElementById('pwa-login-notice');
-    var googleBtn = document.getElementById('btn-google-login');
-    if(notice) notice.style.display = 'block';
-    if(googleBtn) googleBtn.style.display = 'none';
-  }
-})();
-
-var _googleLoginImg = '<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" style="width:22px;height:22px"> 使用 Google 帳號登入';
-
-function signInWithGoogle(){
-  var btn = document.getElementById('btn-google-login');
-  if(!btn || btn.disabled) return;
-  btn.disabled = true;
-  btn.innerHTML = '登入中...';
-  var provider = new firebase.auth.GoogleAuthProvider();
-  if(_isiOS && !_isiOSPWA){
-    // Mobile Safari：popup 被系統封鎖，改用 redirect
-    auth.signInWithRedirect(provider).catch(function(err){
-      btn.disabled = false;
-      btn.innerHTML = _googleLoginImg;
-      document.getElementById('login-error').textContent = '登入失敗：' + err.message;
-    });
-  } else {
-    // Desktop / Android：使用 popup
-    auth.signInWithPopup(provider).catch(function(err){
-      btn.disabled = false;
-      btn.innerHTML = _googleLoginImg;
-      if(err.code === 'auth/cancelled-popup-request' || err.code === 'auth/popup-closed-by-user') return;
-      document.getElementById('login-error').textContent = '登入失敗：' + err.message;
-    });
-  }
-}
-
-function signInAsGuest(){
-  _guestMode = true;
-  _userPro = false;
-  // 用固定的 guest key，資料存在本機 localStorage
-  STORAGE_KEY = 'badminton_scheduler_v1_guest';
-  BILLING_KEY = 'billingConfig_guest';
-  document.getElementById('modal-login').style.display = 'none';
-  document.getElementById('btn-signout').style.display = 'block';
-  loadFontSize();
-  updateProUI();
-  if(!loadData()){
-    document.getElementById('modal-setup').style.display = 'flex';
-  } else {
-    render();
-    if(!localStorage.getItem('tutorialDone')) setTimeout(openTutorial, 600);
-  }
-}
-
-function signOut(){
-  if(_guestMode){
-    if(!confirm('登出後訪客資料不會保留，確定要登出？')) return;
-    _guestMode = false;
-    currentUser = null;
-    document.getElementById('btn-signout').style.display = 'none';
-    document.getElementById('modal-login').style.display = 'flex';
-    var loginBtn = document.getElementById('btn-google-login');
-    if(loginBtn){ loginBtn.disabled = false; }
-  } else {
-    if(!confirm('確定要登出？')) return;
-    auth.signOut();
-  }
-}
+// ── 無登入模式：所有功能直接開放 ──────────────────────────
 
 // ── 字體大小 ─────────────────────────────────────────
 // 平板/桌面用較小的基準，手機用較大的
@@ -2333,10 +2235,10 @@ async function deployUpdate(){
 
 // ── Firestore 球員庫 ──────────────────────────────────────
 async function loadUserRoster(){
-  if(!currentUser) return;
+  if(!window._uid || !_uid()) return;
   try {
-    var doc = await db.collection('users').doc(currentUser.uid).get();
-    if(doc.exists){ _userPro = !!doc.data().isPro; updateProUI(); }
+    var doc = await db.collection('users').doc(_uid()).get();
+    // _userPro 固定為 true，不被 Firestore 覆蓋
     if(doc.exists && doc.data().cardRecords){ loadCardRecords(doc.data()); }
     if(doc.exists && doc.data().roster && doc.data().roster.length > 0){
       roster = doc.data().roster;
@@ -2366,11 +2268,11 @@ async function loadUserRoster(){
 }
 
 async function saveUserRoster(){
-  if(!currentUser || isViewerMode) return;
+  if(isViewerMode || !window._uid || !_uid()) return;
   try {
-    await db.collection('users').doc(currentUser.uid).set({
+    await db.collection('users').doc(_uid()).set({
       roster: roster, rid: rid,
-      displayName: currentUser.displayName || '',
+      displayName: '',
       email: currentUser.email || ''
     }, { merge: true });
   } catch(e){ console.warn('saveUserRoster error:', e); }
@@ -2409,7 +2311,7 @@ function syncSession(immediate){
       }; }),
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     };
-    db.collection('users').doc(currentUser.uid).set({ session: sessionData }, { merge: true })
+    db.collection('users').doc(_uid()).set({ session: sessionData }, { merge: true })
       .then(function(){ console.log('syncSession OK'); })
       .catch(function(e){ console.warn('syncSession error:', e.code, e.message); });
   }, delay);
@@ -2422,7 +2324,7 @@ function startJoinListener(){
   if(_joinListenerActive) return;
   _joinListenerActive = true;
   db.collection('joinRequests')
-    .where('organizerUid','==',currentUser.uid)
+    .where('organizerUid','==',_uid())
     .where('status','==','pending')
     .onSnapshot(function(snap){
       snap.docChanges().forEach(function(change){
@@ -2468,8 +2370,7 @@ function rejectJoin(docId){
 }
 
 function showJoinQR(){
-  if(!currentUser){ alert('請先登入'); return; }
-  var url = location.origin + location.pathname + '?join=' + currentUser.uid;
+  var url = location.origin + location.pathname + '?join=' + _uid();
   document.getElementById('join-qr-url').textContent = url;
   document.getElementById('join-qr-container').innerHTML = '';
   try { new QRCode(document.getElementById('join-qr-container'), {text:url, width:200, height:200, colorDark:'#000', colorLight:'#fff'}); }
@@ -2483,7 +2384,6 @@ function copyJoinUrl(){
 }
 
 async function forceSyncSession(){
-  if(!currentUser){ alert('請先登入'); return; }
   var sessionData = {
     courts: courts.map(function(c){ return {
       id: c.id||0, name: c.name||String(c.id||''), status: c.status||'empty',
@@ -2499,7 +2399,7 @@ async function forceSyncSession(){
   };
   const btn = document.getElementById('btn-sync');
   try {
-    await db.collection('users').doc(currentUser.uid).set({ session: sessionData }, { merge: true });
+    await db.collection('users').doc(_uid()).set({ session: sessionData }, { merge: true });
     showToast('✅ 成功同步！');
   } catch(e) {
     showToast('❌ 同步失敗：' + e.code);
@@ -2507,8 +2407,7 @@ async function forceSyncSession(){
 }
 
 function showQRCode(){
-  if(!currentUser){ alert('請先登入'); return; }
-  var url = location.origin + location.pathname + '?view=' + currentUser.uid;
+  var url = location.origin + location.pathname + '?view=' + _uid();
   document.getElementById('qr-url').textContent = url;
   document.getElementById('qr-container').innerHTML = '';
   try {
@@ -3241,7 +3140,7 @@ var MC_KEY = 'badminton_cardRecords_v1';
 function saveCardRecords(){
   try{ localStorage.setItem(MC_KEY, JSON.stringify(cardRecords)); }catch(e){}
   if(typeof currentUser!=='undefined'&&currentUser){
-    db.collection('users').doc(currentUser.uid).set({cardRecords:cardRecords},{merge:true})
+    db.collection('users').doc(_uid()).set({cardRecords:cardRecords},{merge:true})
       .catch(function(e){console.warn('saveCardRecords error:',e);});
   }
 }
@@ -5227,7 +5126,6 @@ function calcTodayRevenue(){
 
 // ── 開啟「結束今天」確認 modal ──────────────────────────
 function openEndDayModal(){
-  if(!currentUser){ alert('請先登入'); return; }
   if(!courts.length){ alert('尚未設定場地'); return; }
   var today = new Date().toISOString().slice(0,10);
   var fr = calcFeeRate();
@@ -5295,7 +5193,7 @@ function confirmEndDay(){
 
   try {
     // 儲存到 localStorage sessionHistory_{uid}
-    var key = 'sessionHistory_' + currentUser.uid;
+    var key = 'sessionHistory_' + _uid();
     var existing = JSON.parse(localStorage.getItem(key) || '[]');
     // 同一小時的覆蓋，不同小時累積（一天可有多筆）
     existing = existing.filter(function(r){ return r._hourKey !== _hourKey; });
@@ -5346,8 +5244,7 @@ function toggleHistoryPage(){
 
 // ── 從 localStorage 載入歷史紀錄 ──
 function loadHistoryRecords(){
-  if(!currentUser) return;
-  var key = 'sessionHistory_' + currentUser.uid;
+  var key = 'sessionHistory_' + _uid();
   var data = JSON.parse(localStorage.getItem(key) || '[]');
   _historyRecords = data;
   renderHistoryPage();
@@ -5476,70 +5373,37 @@ document.addEventListener('keydown',e=>{
 updateSetupNamingUI();
 
 if(!isViewerMode){
-  // 先隱藏 setup modal，等登入後才顯示
+  // 無登入模式：匿名連線 Firestore（用於同步），直接啟動 App
   document.getElementById('modal-setup').style.display = 'none';
 
-  // 處理 signInWithRedirect 的回傳結果（iOS/mobile 登入後返回頁面時觸發）
-  auth.getRedirectResult().then(function(result) {
-    if (result && result.user) {
-      // 登入成功，onAuthStateChanged 會接手處理
-      _signingIn = false;
-    }
-  }).catch(function(err) {
-    if (err && err.code && err.code !== 'auth/no-auth-event') {
-      console.error('[Auth] redirect result error:', err);
-      _signingIn = false;
-      setTimeout(function(){
-        var loginErr = document.getElementById('login-error');
-        var btn = document.getElementById('btn-google-login');
-        if(loginErr) loginErr.textContent = '登入失敗：' + err.message;
-        if(btn){ btn.disabled = false; btn.innerHTML = _googleLoginImg; }
-      }, 300);
-    }
-  });
+  // 本機穩定 ID（同裝置保持一致，用於 Firestore 同步）
+  var _localId = localStorage.getItem('_localId');
+  if(!_localId){ _localId = Math.random().toString(36).substr(2,12); localStorage.setItem('_localId', _localId); }
+  STORAGE_KEY = 'badminton_scheduler_v1_' + _localId;
+  BILLING_KEY = 'billingConfig_' + _localId;
+  window._uid = function(){ return (currentUser && _uid()) || _localId; };
 
-  auth.onAuthStateChanged(async function(user){
-    console.log('[Auth] onAuthStateChanged: user=', user ? user.email : 'null', '| _signingIn=', _signingIn, '| _guestMode=', _guestMode);
-    // 如果用戶已選擇訪客模式，且沒有真實登入的 user（或只是 anonymous），才跳過
-    if(_guestMode && (!user || user.isAnonymous)) return;
-    if(user && !user.isAnonymous){
-      // 真實登入成功（Google 帳號），直接 proceed，不管任何 flag
-      _signingIn = false;
-      currentUser = user;
-      // 讓 localStorage key 依 UID 區分，避免同一瀏覽器多帳號互相污染
-      STORAGE_KEY = 'badminton_scheduler_v1_' + user.uid;
-      BILLING_KEY = 'billingConfig_' + user.uid;
-      document.getElementById('modal-login').style.display = 'none';
-      document.getElementById('btn-signout').style.display = 'block';
-      loadFontSize();
-      // 載入 Firestore 球員庫
-      await loadUserRoster();
-      // 嘗試從 localStorage 還原 session
-      if(!loadData()){
-        document.getElementById('modal-setup').style.display = 'flex';
-      } else {
-        render();
-        syncSession(true);
-        startAutoSync();
-        startJoinListener();
-        // 第一次使用顯示教學
-        if(!localStorage.getItem('tutorialDone')) setTimeout(openTutorial, 600);
-      }
+  function _initApp(){
+    updateProUI();
+    loadFontSize();
+    loadUserRoster();
+    if(!loadData()){
+      document.getElementById('modal-setup').style.display = 'flex';
     } else {
-      // 若 Google popup 登入進行中（_signingIn），忽略這次 null 觸發，避免跳回登入頁
-      if(_signingIn) return;
-      currentUser = null;
-      document.getElementById('btn-signout').style.display = 'none';
-      document.getElementById('modal-login').style.display = 'flex';
-      // 重置登入按鈕，避免登出後按鈕卡在 disabled 狀態
-      var loginBtn = document.getElementById('btn-google-login');
-      if(loginBtn){
-        loginBtn.disabled = false;
-        loginBtn.innerHTML = '<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" style="width:22px;height:22px"> 使用 Google 帳號登入';
-      }
-      var loginErr = document.getElementById('login-error');
-      if(loginErr) loginErr.textContent = '';
+      render();
+      syncSession(true);
+      startAutoSync();
+      startJoinListener();
+      if(!localStorage.getItem('tutorialDone')) setTimeout(openTutorial, 600);
     }
+  }
+
+  // 嘗試匿名登入（讓 Firestore 同步功能繼續工作）；失敗也照常啟動
+  auth.signInAnonymously().then(function(result){
+    currentUser = result.user;
+    _initApp();
+  }).catch(function(){
+    _initApp(); // Firebase 無法連線也能正常使用
   });
 }
 
