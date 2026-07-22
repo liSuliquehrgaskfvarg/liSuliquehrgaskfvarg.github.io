@@ -1670,10 +1670,11 @@ let _guestMode = false;
 function isPro(){ return true; }
 
 function updateProUI(){
-  // QR碼、固定搭檔按鈕只有 Pro 才能用
+  // 全部 Pro，隱藏所有鎖頭
+  document.querySelectorAll('.pro-lock').forEach(function(el){ el.style.display='none'; });
   ['btn-qr','btn-pair','btn-sync'].forEach(function(id){
     const el=document.getElementById(id);
-    if(el) el.style.opacity = isPro()?'1':'0.45';
+    if(el) el.style.opacity='1';
   });
 }
 
