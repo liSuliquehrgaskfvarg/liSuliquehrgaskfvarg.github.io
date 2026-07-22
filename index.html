@@ -1651,9 +1651,17 @@ const firebaseConfig = {
   appId: "1:739239566870:web:aa7632f3a69ee526b05f37",
   measurementId: "G-K2PQB442SK"
 };
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
+var auth, db;
+try {
+  firebase.initializeApp(firebaseConfig);
+  auth = firebase.auth();
+  db = firebase.firestore();
+} catch(e) {
+  console.warn('Firebase 初始化失敗，使用純本機模式', e);
+  // 假物件，讓後續呼叫不會報錯
+  auth = { signInAnonymously: function(){ return Promise.reject('no-firebase'); } };
+  db = { collection: function(){ return { doc: function(){ return { get: function(){ return Promise.reject('no-firebase'); }, set: function(){ return Promise.reject('no-firebase'); }, onSnapshot: function(){ return function(){}; } }; }, where: function(){ return { onSnapshot: function(){ return function(){}; } }; } }; } };
+}
 
 let currentUser = null;
 let _userPro = true;  // 全部功能開放，不需登入
@@ -1689,7 +1697,7 @@ const isJoinMode = !!_joinUID;
 if(isViewerMode){
   document.addEventListener('DOMContentLoaded', function(){
     document.getElementById('viewer-overlay').style.display = 'block';
-    document.getElementById('modal-login').style.display = 'none';
+    var _ml=document.getElementById('modal-login'); if(_ml) _ml.style.display='none';
     document.getElementById('modal-setup').style.display = 'none';
     var statusEl = document.getElementById('viewer-status');
     statusEl.style.display = 'block';
@@ -1755,7 +1763,7 @@ var _myJoinDocId = null;
 if(isJoinMode){
   document.addEventListener('DOMContentLoaded', function(){
     document.getElementById('join-overlay').style.display = 'block';
-    document.getElementById('modal-login').style.display = 'none';
+    var _ml=document.getElementById('modal-login'); if(_ml) _ml.style.display='none';
     document.getElementById('modal-setup').style.display = 'none';
     // 填入每半小時選項
     var slots = [];
@@ -5399,12 +5407,16 @@ if(!isViewerMode){
   }
 
   // 嘗試匿名登入（讓 Firestore 同步功能繼續工作）；失敗也照常啟動
-  auth.signInAnonymously().then(function(result){
-    currentUser = result.user;
+  try {
+    auth.signInAnonymously().then(function(result){
+      currentUser = result && result.user || null;
+      _initApp();
+    }).catch(function(){
+      _initApp();
+    });
+  } catch(e) {
     _initApp();
-  }).catch(function(){
-    _initApp(); // Firebase 無法連線也能正常使用
-  });
+  }
 }
 
 // ── 候場名單收合（手機）────────────────────────────
