@@ -541,24 +541,25 @@ header h1{font-size:1.2rem;font-weight:800;}
   .hdr-counts{flex-direction:row;gap:10px;align-items:center;}
   .hdr-count-pill{font-size:0.8rem;}
 
-  /* Courts: 不左右滑，填滿寬度，撐高（只有 active 才顯示） */
+  /* Courts: 不左右滑，填滿寬度（只有 active 才顯示） */
   #tab-courts.active{display:flex !important;flex-direction:column !important;overflow:hidden;flex:1;min-height:0;}
   .courts-area{
     display:flex !important;
     flex-direction:row !important;
     overflow-x:auto !important;
-    overflow-y:hidden !important;
-    align-items:stretch !important;  /* cards stretch to full height */
+    overflow-y:auto !important;       /* auto 避免內容被截斷 */
+    align-items:flex-start !important; /* 不強制拉高，保持自然高度 */
     flex-wrap:nowrap !important;
     flex:1 1 0 !important;
     min-height:200px !important;
     gap:10px !important;
     padding:10px 12px !important;
+    align-content:flex-start !important;
   }
   .court-card{
     flex:1 1 0 !important;
-    min-width:180px !important;
-    max-width:none !important;
+    min-width:220px !important;
+    max-width:420px !important;      /* 避免過寬 */
     height:auto !important;
   }
   /* Queue: fixed height on desktop */
