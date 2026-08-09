@@ -3026,17 +3026,26 @@ function closeRosterAddModal(e){
 }
 // ── 球員庫 匯出 / 匯入 ──────────────────────────────────
 function exportRoster(){
-  if(roster.length === 0){ showToast('球員庫是空的'); return; }
-  var data = roster.map(function(r){ return {name:r.name, level:r.level, gender:r.gender, payType:r.payType||'', startTime:r.startTime||'', endTime:r.endTime||''}; });
-  var blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  // 優先用記憶體，若為空則從 localStorage 補救
+  var r = roster;
+  if(!r || r.length === 0){
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if(raw){ var d = JSON.parse(raw); if(d && d.roster && d.roster.length > 0) r = d.roster; }
+    } catch(e){}
+  }
+  if(!r || r.length === 0){ showToast('球員庫是空的'); return; }
+  var data = r.map(function(p){ return {name:p.name, level:p.level, gender:p.gender, payType:p.payType||'', startTime:p.startTime||'', endTime:p.endTime||''}; });
+  var json = JSON.stringify(data, null, 2);
+  var blob = new Blob([json], {type:'application/json'});
   var url = URL.createObjectURL(blob);
   var a = document.createElement('a');
   a.href = url;
-  a.download = '球員庫_' + new Date().toISOString().slice(0,10) + '.json';
+  a.download = 'roster_' + new Date().toISOString().slice(0,10) + '.json';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
   showToast('✅ 球員庫已匯出！');
 }
 
