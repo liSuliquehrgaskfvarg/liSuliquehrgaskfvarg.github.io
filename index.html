@@ -977,20 +977,6 @@ header h1{font-size:1.2rem;font-weight:800;}
           <button class="font-size-btn" id="fs-large" onclick="setFontSize('large')">大</button>
         </div>
       </div>
-      <!-- 保留紀錄 -->
-      <div style="background:#fff;border-radius:14px;border:1px solid var(--bdr);padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.05)">
-        <div style="font-size:0.78rem;color:var(--mut);font-weight:700;margin-bottom:10px;letter-spacing:.04em">紀錄設定</div>
-        <div class="toggle-row">
-          <div>
-            <div style="font-size:0.88rem;font-weight:700;color:var(--txt)">保留紀錄</div>
-            <div style="font-size:0.7rem;color:var(--mut);margin-top:2px">結束今天時儲存歷史打球紀錄</div>
-          </div>
-          <label class="toggle-switch">
-            <input type="checkbox" id="toggle-keep-history" onchange="setKeepHistory(this.checked)">
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-      </div>
       <!-- 匯出資料 -->
       <div style="background:#fff;border-radius:14px;border:1px solid var(--bdr);padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.05)">
         <div style="font-size:0.78rem;color:var(--mut);font-weight:700;margin-bottom:10px;letter-spacing:.04em">資料管理</div>
@@ -5362,15 +5348,6 @@ function confirmEndDay(){
   btn.disabled = true;
   btn.textContent = '儲存中...';
 
-  // 如果「保留紀錄」關閉，直接結束不儲存歷史
-  if(localStorage.getItem('keepHistory') === '0'){
-    document.getElementById('modal-end-day').classList.remove('open');
-    btn.disabled = false;
-    btn.innerHTML = '<i class="bi bi-check-circle-fill"></i> 確認儲存';
-    showToast('✅ 今天已結束（未儲存歷史紀錄）');
-    return;
-  }
-
   try {
     // 儲存到 localStorage sessionHistory_{uid}
     var key = 'sessionHistory_' + _uid();
@@ -5386,17 +5363,6 @@ function confirmEndDay(){
   }
   btn.disabled = false;
   btn.innerHTML = '<i class="bi bi-check-circle-fill"></i> 確認儲存';
-}
-
-// ── 保留紀錄 toggle ───────────────────────────────────
-function setKeepHistory(v){
-  localStorage.setItem('keepHistory', v ? '1' : '0');
-}
-function loadKeepHistorySetting(){
-  var el = document.getElementById('toggle-keep-history');
-  if(!el) return;
-  var val = localStorage.getItem('keepHistory');
-  el.checked = (val === null || val === '1');
 }
 
 // ── 匯出資料 ───────────────────────────────────────────
@@ -5598,7 +5564,6 @@ if(!isViewerMode){
   function _initApp(){
     updateProUI();
     loadFontSize();
-    loadKeepHistorySetting();
     loadUserRoster();
     if(!loadData()){
       document.getElementById('modal-setup').style.display = 'flex';
