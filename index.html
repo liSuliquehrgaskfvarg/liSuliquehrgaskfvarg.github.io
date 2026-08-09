@@ -997,7 +997,7 @@ header h1{font-size:1.2rem;font-weight:800;}
   <!-- ══ TAB 5：球員庫 ══ -->
   <div id="tab-roster" class="tab-panel">
     <div class="player-tab-hdr">
-      <span class="player-tab-title"><i class="bi bi-people-fill"></i> 球員庫</span>
+      <span class="player-tab-title"><i class="bi bi-clipboard2-data-fill"></i> 球員庫</span>
       <span class="badge" id="roster-tab-count">0</span>
       <button class="btn-aa" onclick="openRosterAddModal()"><i class="bi bi-plus-lg"></i> 新增</button>
     </div>
@@ -1018,7 +1018,7 @@ header h1{font-size:1.2rem;font-weight:800;}
       <span class="nav-label">候場名單</span>
     </button>
     <button class="nav-btn" id="nav-roster" onclick="switchTab('roster')">
-      <span class="nav-icon"><i class="bi bi-people-fill"></i></span>
+      <span class="nav-icon"><i class="bi bi-clipboard2-data-fill"></i></span>
       <span class="nav-label">球員庫</span>
     </button>
     <button class="nav-btn" id="nav-qr" onclick="switchTab('qr')">
@@ -1345,7 +1345,7 @@ header h1{font-size:1.2rem;font-weight:800;}
         <span class="end-day-info-val" id="end-day-date">—</span>
       </div>
       <div class="end-day-info-row">
-        <span class="end-day-info-label"><i class="bi bi-people-fill"></i> 出席球員</span>
+        <span class="end-day-info-label"><i class="bi bi-clipboard2-data-fill"></i> 出席球員</span>
         <span class="end-day-info-val" id="end-day-players">—</span>
       </div>
       <div class="end-day-info-row">
@@ -1537,10 +1537,10 @@ header h1{font-size:1.2rem;font-weight:800;}
       <div style="margin-bottom:6px"><b style="color:var(--txt)">自動</b> — 系統從候場名單自動挑選最適合的球員（依等級平衡、場次平均、避免重複搭檔、男女平衡）。</div>
       <div style="margin-bottom:12px"><b style="color:var(--txt)">叫號</b> — 語音廣播該場地上場球員名字。</div>
 
-      <div style="color:var(--blu);font-weight:700;margin-bottom:4px"><i class="bi bi-people-fill"></i> 球員 Tab</div>
+      <div style="color:var(--blu);font-weight:700;margin-bottom:4px"><i class="bi bi-clipboard2-data-fill"></i> 球員 Tab</div>
       <div style="margin-bottom:12px">顯示所有球員（上場中、下一場、候場、休息），按 <b style="color:var(--txt)">＋ 加球員</b> 新增今天的球員。♂ 藍、♀ 粉標示性別。</div>
 
-      <div style="color:var(--blu);font-weight:700;margin-bottom:4px"><i class="bi bi-people-fill"></i> 球員庫（左上角按鈕）</div>
+      <div style="color:var(--blu);font-weight:700;margin-bottom:4px"><i class="bi bi-clipboard2-data-fill"></i> 球員庫（左上角按鈕）</div>
       <div style="margin-bottom:12px">常客名單。按 <b style="color:var(--txt)">＋</b> 可加入本場（可同時設定可打時段）。按 <b style="color:var(--txt)">✏️</b> 編輯資料。球員庫資料會同步到雲端，下次開啟自動載入。</div>
 
       <div style="color:var(--blu);font-weight:700;margin-bottom:4px"><i class="bi bi-megaphone-fill"></i> 全場 / <i class="bi bi-link-45deg"></i> 綁定</div>
@@ -2214,7 +2214,7 @@ window.addEventListener('resize', function(){
 var TUT_STEPS = [
   { type:'intro', icon:'bi-feather2', title:'歡迎使用羽球排版表！',
     desc:'讓我帶你快速學會基本操作\n跟著步驟點按鈕，2分鐘上手！', nextBtn:'開始！' },
-  { tab:'players', targetId:'tut-add-player', icon:'bi-people-fill',
+  { tab:'players', targetId:'tut-add-player', icon:'bi-clipboard2-data-fill',
     title:'第一步：加入球員',
     desc:'點高亮的按鈕\n加入今天來打球的人', nextBtn:'我加好了，繼續 →' },
   { tab:'courts', targetId:'tut-queue-area', icon:'bi-person-running', extraUp: true,
@@ -5680,7 +5680,7 @@ function renderHistoryPage(){
     html += '<div class="hist-rec-hdr" onclick="toggleHistRec('+idx+')">';
     html += '<div class="hist-rec-date">'+rec.date+(rec.endTime?' &nbsp;<span style="font-size:0.72rem;color:var(--mut)">'+rec.endTime+'存檔</span>':'')+'</div>';
     html += '<div class="hist-rec-stats">';
-    html += '<span><i class="bi bi-people-fill"></i> '+(rec.players ? rec.players.length : 0)+' 人</span>';
+    html += '<span><i class="bi bi-clipboard2-data-fill"></i> '+(rec.players ? rec.players.length : 0)+' 人</span>';
     html += '<span><i class="bi bi-grid-fill"></i> '+(rec.courts||0)+' 面</span>';
     html += '<span style="color:#fcd34d;font-weight:800">NT$ '+(rec.totalRevenue||0)+'</span>';
     if(rec.startTime && rec.startTime !== '--'){
