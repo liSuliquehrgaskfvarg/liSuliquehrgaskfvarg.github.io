@@ -2360,23 +2360,33 @@ function syncSession(immediate){
 
 // ── QR Code ──────────────────────────────────────────────
 // ── Join Requests (主辦人端) ─────────────────────────────
+var _handledJoinIds = new Set(); // 已處理（同意/拒絕）的 docId，防止 Firestore 回滾重新顯示
+
 function startJoinListener(){
   if(isJoinMode || isViewerMode || !window._uid || !_uid()) return;
   if(_joinListenerActive) return;
   _joinListenerActive = true;
-  db.collection('joinRequests')
-    .where('organizerUid','==',_uid())
-    .where('status','==','pending')
-    .onSnapshot(function(snap){
-      snap.docChanges().forEach(function(change){
-        if(change.type==='added') showJoinNotify(change.doc);
-      });
-    });
+  try {
+    db.collection('joinRequests')
+      .where('organizerUid','==',_uid())
+      .where('status','==','pending')
+      .onSnapshot(function(snap){
+        snap.docChanges().forEach(function(change){
+          if(change.type==='added' && !_handledJoinIds.has(change.doc.id)){
+            showJoinNotify(change.doc);
+          }
+        });
+      }, function(err){ console.warn('joinListener error:', err.code||err); });
+  } catch(e){ console.warn('startJoinListener failed:', e); }
 }
 
 function showJoinNotify(doc){
+  if(_handledJoinIds.has(doc.id)) return;
   const d = doc.data();
   const stack = document.getElementById('join-notify-stack');
+  if(!stack) return;
+  // 若已有同 ID 卡片則不重複
+  if(document.getElementById('jreq-'+doc.id)) return;
   const card = document.createElement('div');
   card.id = 'jreq-'+doc.id;
   card.style.cssText = 'background:#1e293b;border:2px solid #4ade80;border-radius:12px;padding:12px 14px;box-shadow:0 4px 20px rgba(0,0,0,.6);animation:fadeIn .3s ease';
@@ -2392,6 +2402,7 @@ function showJoinNotify(doc){
 }
 
 function approveJoin(docId, name, level, timeRange, startTime, endTime){
+  _handledJoinIds.add(docId); // 先標記，防止回滾重顯
   if(players.find(p=>p.name===name)){
     alert(`「${name}」已在名單中`);
     rejectJoin(docId); return;
@@ -2405,6 +2416,7 @@ function approveJoin(docId, name, level, timeRange, startTime, endTime){
 }
 
 function rejectJoin(docId){
+  _handledJoinIds.add(docId); // 先標記，防止回滾重顯
   try { if(typeof db!=='undefined'&&db) db.collection('joinRequests').doc(docId).update({status:'rejected'}).catch(()=>{}); } catch(e){}
   const card = document.getElementById('jreq-'+docId);
   if(card) card.remove();
