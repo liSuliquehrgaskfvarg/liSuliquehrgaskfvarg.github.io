@@ -849,6 +849,8 @@ header h1{font-size:1.2rem;font-weight:800;}
   <div class="left-hdr">
     <span class="left-title">球員庫</span>
     <span class="badge" id="roster-count">0</span>
+    <button class="btn-pair-cfg" style="background:#0f766e;padding:3px 7px;font-size:0.7rem" onclick="exportRoster()" title="匯出球員庫"><i class="bi bi-box-arrow-up"></i></button>
+    <button class="btn-pair-cfg" style="background:#7c3aed;padding:3px 7px;font-size:0.7rem" onclick="openRosterImportModal()" title="匯入球員庫"><i class="bi bi-box-arrow-in-down"></i></button>
     <button class="btn-pair-cfg" style="background:var(--grn);padding:3px 8px;font-size:0.7rem" onclick="openRosterAddModal()"><i class="bi bi-plus-lg"></i></button>
   </div>
   <input class="left-filter" id="roster-filter" type="text" placeholder="搜尋球員..." oninput="renderLeft()">
@@ -1355,6 +1357,20 @@ header h1{font-size:1.2rem;font-weight:800;}
     <div class="m-acts">
       <button class="mbtn mcancel" onclick="closeRosterAddModal()">取消</button>
       <button class="mbtn mok" onclick="addRosterEntry()"><i class="bi bi-plus-lg"></i> 加入</button>
+    </div>
+  </div>
+</div>
+
+<!-- Roster Import Modal -->
+<div class="overlay" id="modal-roster-import" onclick="if(event.target.id==='modal-roster-import')closeRosterImportModal()">
+  <div class="modal" style="width:320px">
+    <h3><i class="bi bi-box-arrow-in-down"></i> 匯入球員庫</h3>
+    <p style="font-size:0.75rem;color:var(--txt2);margin-bottom:10px">把從其他裝置複製的匯出文字貼在下方</p>
+    <textarea id="roster-import-inp" rows="5" placeholder="貼上匯出文字..." style="width:100%;box-sizing:border-box;background:var(--sur);border:1.5px solid var(--bdr);border-radius:8px;color:var(--txt);padding:9px;font-size:0.8rem;resize:vertical;outline:none;font-family:monospace"></textarea>
+    <div style="font-size:0.68rem;color:var(--mut);margin:6px 0 12px">⚠ 同名球員不會重複加入</div>
+    <div class="m-acts">
+      <button class="mbtn mcancel" onclick="closeRosterImportModal()">取消</button>
+      <button class="mbtn mok" onclick="confirmImportRoster()"><i class="bi bi-check-lg"></i> 匯入</button>
     </div>
   </div>
 </div>
@@ -2850,6 +2866,55 @@ function closeRosterAddModal(e){
   if(e&&e.target.id!=='modal-roster-add') return;
   document.getElementById('modal-roster-add').classList.remove('open');
 }
+// ── 球員庫 匯出 / 匯入 ──────────────────────────────────
+function exportRoster(){
+  if(roster.length === 0){ showToast('球員庫是空的'); return; }
+  const data = 'ROSTER:' + btoa(unescape(encodeURIComponent(JSON.stringify(roster))));
+  navigator.clipboard.writeText(data).then(()=>{
+    showToast('✅ 已複製！傳到 LINE 給自己，換裝置時貼回來匯入');
+  }).catch(()=>{
+    prompt('複製這段文字，傳到 LINE 給自己：', data);
+  });
+}
+
+function openRosterImportModal(){
+  document.getElementById('modal-roster-import').classList.add('open');
+  setTimeout(()=>{ var el=document.getElementById('roster-import-inp'); if(el) el.focus(); }, 100);
+}
+function closeRosterImportModal(){
+  document.getElementById('modal-roster-import').classList.remove('open');
+  document.getElementById('roster-import-inp').value = '';
+}
+
+function confirmImportRoster(){
+  const text = document.getElementById('roster-import-inp').value.trim();
+  if(!text){ alert('請貼上匯出的文字'); return; }
+  try {
+    let imported;
+    if(text.startsWith('ROSTER:')){
+      imported = JSON.parse(decodeURIComponent(escape(atob(text.slice(7)))));
+    } else {
+      // 也接受直接貼 JSON 陣列
+      imported = JSON.parse(text);
+    }
+    if(!Array.isArray(imported) || imported.length === 0) throw new Error('格式錯誤');
+    var added = 0;
+    imported.forEach(function(r){
+      if(!r.name) return;
+      if(roster.find(function(x){ return x.name === r.name; })) return;
+      roster.push({id:rid++, name:r.name, level:r.level||'3', gender:r.gender||'', payType:r.payType||'', startTime:r.startTime||'', endTime:r.endTime||''});
+      added++;
+    });
+    closeRosterImportModal();
+    saveData();
+    saveUserRoster();
+    renderLeft();
+    showToast('✅ 匯入完成，新增 ' + added + ' 位 / 共 ' + roster.length + ' 位球員');
+  } catch(e){
+    alert('格式錯誤，請確認貼上的是正確的匯出文字');
+  }
+}
+
 function addRosterEntry(){
   const nameEl=document.getElementById('roster-inp-name');
   const name=nameEl.value.trim();
@@ -2863,6 +2928,7 @@ function addRosterEntry(){
   nameEl.value=''; _rosterAddLvl=''; _rosterAddGender='';
   document.getElementById('modal-roster-add').classList.remove('open');
   renderLeft();
+  saveData();
   saveUserRoster();
 }
 
@@ -2957,6 +3023,7 @@ function saveRosterEdit(){
   document.getElementById('modal-roster-edit').classList.remove('open');
   editingRosterId = null;
   renderLeft();
+  saveData();
   saveUserRoster();
   if(ap) render();
 }
@@ -2969,6 +3036,7 @@ function deleteRosterEntry(){
   document.getElementById('modal-roster-edit').classList.remove('open');
   editingRosterId = null;
   renderLeft();
+  saveData();
   saveUserRoster();
 }
 
@@ -5487,6 +5555,12 @@ function toggleQueuePanel(){
   }, {passive: true});
 })();
 
+</script>
+
+<script>
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('/sw.js').catch(()=>{});
+}
 </script>
 </body>
 </html>
