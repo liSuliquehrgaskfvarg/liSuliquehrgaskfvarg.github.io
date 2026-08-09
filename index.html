@@ -4478,15 +4478,16 @@ function finishCourtWithScore(cid, sA, sB){
   const teamA=[c.playerSlots[0],c.playerSlots[1]].map(id=>players.find(p=>p.id===id)).filter(Boolean);
   const teamB=[c.playerSlots[2],c.playerSlots[3]].map(id=>players.find(p=>p.id===id)).filter(Boolean);
 
-  // 記錄戰績
-  if(scoreMode && ok){
-    matchHistory.push({
+  // 記錄戰績（有沒有計分都記）
+  if(teamA.length > 0 || teamB.length > 0){
+    var matchEntry = {
       teamA: teamA.map(p=>({name:p.name, level:p.level})),
       teamB: teamB.map(p=>({name:p.name, level:p.level})),
-      scoreA: sA, scoreB: sB,
       courtName: courtName(c),
       time: new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'})
-    });
+    };
+    if(scoreMode && ok){ matchEntry.scoreA = sA; matchEntry.scoreB = sB; }
+    matchHistory.push(matchEntry);
   }
 
   c.playerSlots.forEach(id=>{
@@ -5396,29 +5397,24 @@ function openStatsModal(){
   const modal = document.getElementById('modal-stats');
   const body = document.getElementById('stats-body');
   const sub = document.getElementById('stats-subtitle');
-  if(!scoreMode){
-    sub.textContent = '';
-    body.innerHTML = '<div style="text-align:center;padding:30px;color:var(--mut);font-size:0.85rem">需要等設定計分後開始使用</div>';
-    modal.style.display='flex';
-    return;
-  }
   sub.textContent = `共 ${matchHistory.length} 場`;
   if(matchHistory.length===0){
-    body.innerHTML='<div style="text-align:center;padding:30px;color:var(--mut);font-size:0.85rem">尚無戰績紀錄</div>';
+    body.innerHTML='<div style="text-align:center;padding:30px;color:var(--mut);font-size:0.85rem">尚無紀錄</div>';
   } else {
     body.innerHTML = matchHistory.map((m, i)=>{
       const idx = i + 1;
       const nameA = m.teamA.map(p=>p.name).join(' ');
       const nameB = m.teamB.map(p=>p.name).join(' ');
-      const win = m.scoreA > m.scoreB ? '← A勝' : m.scoreB > m.scoreA ? 'B勝 →' : '';
-      const winColor = m.scoreA > m.scoreB ? '#4ade80' : '#f87171';
+      const hasScore = typeof m.scoreA === 'number' && typeof m.scoreB === 'number';
+      const aWin = hasScore && m.scoreA > m.scoreB;
+      const bWin = hasScore && m.scoreB > m.scoreA;
       return `<div class="match-row">
         <div class="match-num">第 ${idx} 場・${m.courtName}${courtSuffix(m.courtName)}・${m.time}</div>
         <div class="match-teams">
-          <span style="color:${m.scoreA>m.scoreB?'#4ade80':m.scoreA<m.scoreB?'var(--txt2)':'var(--txt)'};font-weight:${m.scoreA>m.scoreB?700:400}">${nameA}</span>
+          <span style="color:${aWin?'#4ade80':bWin?'var(--txt2)':'var(--txt)'};font-weight:${aWin?700:400}">${nameA}</span>
           <span style="color:var(--mut)">vs</span>
-          <span style="color:${m.scoreB>m.scoreA?'#4ade80':m.scoreB<m.scoreA?'var(--txt2)':'var(--txt)'};font-weight:${m.scoreB>m.scoreA?700:400}">${nameB}</span>
-          <span class="match-score">${m.scoreA}:${m.scoreB}</span>
+          <span style="color:${bWin?'#4ade80':aWin?'var(--txt2)':'var(--txt)'};font-weight:${bWin?700:400}">${nameB}</span>
+          ${hasScore?`<span class="match-score">${m.scoreA}:${m.scoreB}</span>`:''}
         </div>
       </div>`;
     }).join('');
