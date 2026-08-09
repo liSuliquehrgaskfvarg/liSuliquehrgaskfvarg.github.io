@@ -2398,6 +2398,26 @@ function startJoinListener(){
   } catch(e){ console.warn('startJoinListener failed:', e); }
 }
 
+function _updateJoinBadge(){
+  var stack = document.getElementById('join-notify-stack');
+  var btn = document.getElementById('nav-courts');
+  if(!btn) return;
+  var count = stack ? stack.children.length : 0;
+  var badge = document.getElementById('_jn-badge');
+  if(count > 0){
+    if(!badge){
+      badge = document.createElement('span');
+      badge.id = '_jn-badge';
+      badge.style.cssText = 'position:absolute;top:4px;right:calc(50% - 16px);background:#ef4444;color:#fff;border-radius:9px;font-size:0.58rem;font-weight:900;min-width:15px;height:15px;display:flex;align-items:center;justify-content:center;padding:0 3px;line-height:1;pointer-events:none;';
+      btn.style.position = 'relative';
+      btn.appendChild(badge);
+    }
+    badge.textContent = count > 9 ? '9+' : String(count);
+  } else {
+    if(badge) badge.remove();
+  }
+}
+
 function showJoinNotify(doc){
   if(_handledJoinIds.has(doc.id)) return;
   const d = doc.data();
@@ -2417,6 +2437,9 @@ function showJoinNotify(doc){
       <button onclick="rejectJoin('${doc.id}')" style="flex:1;background:#7f1d1d;border:none;border-radius:7px;padding:7px;color:#fca5a5;font-size:0.85rem;font-weight:700;cursor:pointer"><i class="bi bi-x-lg"></i> 拒絕</button>
     </div>`;
   stack.appendChild(card);
+  _updateJoinBadge();
+  // 手機震動提示（若支援）
+  try{ if(navigator.vibrate) navigator.vibrate([150, 80, 150]); }catch(e){}
 }
 
 function approveJoin(docId, name, level, timeRange, startTime, endTime){
@@ -2430,6 +2453,7 @@ function approveJoin(docId, name, level, timeRange, startTime, endTime){
   try { if(typeof db!=='undefined'&&db) db.collection('joinRequests').doc(docId).update({status:'approved'}).catch(()=>{}); } catch(e){}
   const card = document.getElementById('jreq-'+docId);
   if(card) card.remove();
+  _updateJoinBadge();
   render(); syncSession(true);
 }
 
@@ -2438,6 +2462,7 @@ function rejectJoin(docId){
   try { if(typeof db!=='undefined'&&db) db.collection('joinRequests').doc(docId).update({status:'rejected'}).catch(()=>{}); } catch(e){}
   const card = document.getElementById('jreq-'+docId);
   if(card) card.remove();
+  _updateJoinBadge();
 }
 
 function showJoinQR(){
