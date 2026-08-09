@@ -5557,7 +5557,7 @@ function confirmEndDay(){
     players: playerData,
     courts: courts.length,
     totalRevenue: totalRevenue,
-    matchResults: [],
+    matchResults: matchHistory.slice(),
     savedAt: _now.toISOString(),
     _hourKey: _hourKey
   };
@@ -5688,6 +5688,9 @@ function renderHistoryPage(){
     html += '<div class="hist-rec-stats">';
     html += '<span><i class="bi bi-clipboard2-data-fill"></i> '+(rec.players ? rec.players.length : 0)+' 人</span>';
     html += '<span><i class="bi bi-grid-fill"></i> '+(rec.courts||0)+' 面</span>';
+    if(rec.matchResults && rec.matchResults.length){
+      html += '<span><i class="bi bi-trophy-fill"></i> '+rec.matchResults.length+' 場</span>';
+    }
     html += '<span style="color:#fcd34d;font-weight:800">NT$ '+(rec.totalRevenue||0)+'</span>';
     if(rec.startTime && rec.startTime !== '--'){
       html += '<span style="color:var(--mut)">'+rec.startTime+'–'+(rec.endTime||'')+'</span>';
@@ -5716,6 +5719,44 @@ function renderHistoryPage(){
     } else {
       html += '<div style="color:var(--mut);font-size:0.8rem">無球員資料</div>';
     }
+    // ── 對戰紀錄 ──
+    if(rec.matchResults && rec.matchResults.length){
+      html += '<div style="font-size:0.72rem;color:var(--mut);margin:10px 0 6px;font-weight:700;letter-spacing:.04em">對戰紀錄（共 '+rec.matchResults.length+' 場）</div>';
+      rec.matchResults.forEach(function(m, mi){
+        var nameA = (m.teamA||[]).map(function(p){return p.name;}).join(' ＆ ');
+        var nameB = (m.teamB||[]).map(function(p){return p.name;}).join(' ＆ ');
+        var hasScore = (typeof m.scoreA === 'number' && typeof m.scoreB === 'number');
+        var aWin = hasScore && m.scoreA > m.scoreB;
+        var bWin = hasScore && m.scoreB > m.scoreA;
+        html += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;background:var(--sur2);border-radius:8px;padding:7px 10px;font-size:0.8rem;flex-wrap:wrap;">';
+        html += '<span style="font-size:0.65rem;color:var(--mut);flex-shrink:0">第'+(mi+1)+'場</span>';
+        html += '<span style="font-weight:'+(aWin?700:400)+';color:'+(aWin?'#4ade80':bWin?'var(--mut)':'var(--txt)')+'">'+nameA+'</span>';
+        html += '<span style="color:var(--bdr);font-size:0.72rem;flex-shrink:0">vs</span>';
+        html += '<span style="font-weight:'+(bWin?700:400)+';color:'+(bWin?'#4ade80':aWin?'var(--mut)':'var(--txt)')+'">'+nameB+'</span>';
+        if(hasScore){
+          html += '<span style="margin-left:auto;font-weight:900;color:#6abf5a;flex-shrink:0">'+m.scoreA+':'+m.scoreB+'</span>';
+        }
+        html += '</div>';
+      });
+
+      // ── 各球員出場次數 ──
+      var gameCount = {};
+      rec.matchResults.forEach(function(m){
+        (m.teamA||[]).forEach(function(p){ gameCount[p.name] = (gameCount[p.name]||0)+1; });
+        (m.teamB||[]).forEach(function(p){ gameCount[p.name] = (gameCount[p.name]||0)+1; });
+      });
+      var sorted = Object.keys(gameCount).sort(function(a,b){ return gameCount[b]-gameCount[a]; });
+      if(sorted.length){
+        html += '<div style="font-size:0.72rem;color:var(--mut);margin:10px 0 6px;font-weight:700;letter-spacing:.04em">各球員出場場次</div>';
+        html += '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:4px">';
+        sorted.forEach(function(name){
+          html += '<span style="background:var(--sur);border:1px solid var(--bdr);border-radius:999px;padding:3px 10px;font-size:0.78rem;font-weight:600">';
+          html += name + ' <span style="color:#6abf5a;font-weight:800">'+gameCount[name]+'場</span></span>';
+        });
+        html += '</div>';
+      }
+    }
+
     html += '</div>'; // hist-detail
     html += '</div>'; // hist-rec-card
   });
