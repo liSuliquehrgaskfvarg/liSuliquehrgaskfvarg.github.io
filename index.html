@@ -768,6 +768,14 @@ header h1{font-size:1.2rem;font-weight:800;}
 /* 新手教學 dots */
 .tut-dot{width:7px;height:7px;border-radius:50%;background:var(--bdr);transition:background .2s;}
 .tut-dot.active{background:var(--blu);}
+/* Toggle switch */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.toggle-switch{position:relative;width:46px;height:26px;flex-shrink:0;}
+.toggle-switch input{opacity:0;width:0;height:0;position:absolute;}
+.toggle-slider{position:absolute;inset:0;background:#d1d5db;border-radius:999px;cursor:pointer;transition:background .2s;}
+.toggle-slider:before{content:'';position:absolute;width:20px;height:20px;left:3px;top:3px;background:#fff;border-radius:50%;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+.toggle-switch input:checked+.toggle-slider{background:var(--grn);}
+.toggle-switch input:checked+.toggle-slider:before{transform:translateX(20px);}
 /* keep old settings-item for any legacy usage */
 .settings-item{display:flex;align-items:center;gap:14px;padding:14px 16px;background:#ffffff;border-radius:12px;margin-bottom:8px;cursor:pointer;border:1px solid var(--bdr);-webkit-tap-highlight-color:transparent;box-shadow:0 1px 3px rgba(0,0,0,.04);}
 .settings-item:active{background:var(--sur2);}
@@ -959,10 +967,6 @@ header h1{font-size:1.2rem;font-weight:800;}
           <div class="settings-card-icon"><i class="bi bi-mortarboard-fill"></i></div>
           <div class="settings-card-label">新手教學</div>
         </div>
-        <div class="settings-card" onclick="deployUpdate()">
-          <div class="settings-card-icon"><i class="bi bi-cloud-arrow-up-fill"></i></div>
-          <div class="settings-card-label">更新</div>
-        </div>
       </div>
       <!-- 字體大小 -->
       <div style="background:#fff;border-radius:14px;border:1px solid var(--bdr);padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.05)">
@@ -972,6 +976,25 @@ header h1{font-size:1.2rem;font-weight:800;}
           <button class="font-size-btn active" id="fs-medium" onclick="setFontSize('medium')">中</button>
           <button class="font-size-btn" id="fs-large" onclick="setFontSize('large')">大</button>
         </div>
+      </div>
+      <!-- 保留紀錄 -->
+      <div style="background:#fff;border-radius:14px;border:1px solid var(--bdr);padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.05)">
+        <div style="font-size:0.78rem;color:var(--mut);font-weight:700;margin-bottom:10px;letter-spacing:.04em">紀錄設定</div>
+        <div class="toggle-row">
+          <div>
+            <div style="font-size:0.88rem;font-weight:700;color:var(--txt)">保留紀錄</div>
+            <div style="font-size:0.7rem;color:var(--mut);margin-top:2px">結束今天時儲存歷史打球紀錄</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggle-keep-history" onchange="setKeepHistory(this.checked)">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+      <!-- 匯出資料 -->
+      <div style="background:#fff;border-radius:14px;border:1px solid var(--bdr);padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.05)">
+        <div style="font-size:0.78rem;color:var(--mut);font-weight:700;margin-bottom:10px;letter-spacing:.04em">資料管理</div>
+        <button onclick="exportData()" style="width:100%;background:var(--sur2);color:var(--txt);border:1px solid var(--bdr);border-radius:9px;padding:10px;font-size:0.85rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px"><i class="bi bi-download"></i> 匯出資料</button>
       </div>
       <!-- 結束今天 - 大按鈕 -->
       <button id="tut-end-day" class="end-day-big-btn" onclick="openEndDayModal()"><i class="bi bi-flag-fill"></i> 結束今天並儲存紀錄</button>
@@ -5339,6 +5362,15 @@ function confirmEndDay(){
   btn.disabled = true;
   btn.textContent = '儲存中...';
 
+  // 如果「保留紀錄」關閉，直接結束不儲存歷史
+  if(localStorage.getItem('keepHistory') === '0'){
+    document.getElementById('modal-end-day').classList.remove('open');
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-check-circle-fill"></i> 確認儲存';
+    showToast('✅ 今天已結束（未儲存歷史紀錄）');
+    return;
+  }
+
   try {
     // 儲存到 localStorage sessionHistory_{uid}
     var key = 'sessionHistory_' + _uid();
@@ -5354,6 +5386,38 @@ function confirmEndDay(){
   }
   btn.disabled = false;
   btn.innerHTML = '<i class="bi bi-check-circle-fill"></i> 確認儲存';
+}
+
+// ── 保留紀錄 toggle ───────────────────────────────────
+function setKeepHistory(v){
+  localStorage.setItem('keepHistory', v ? '1' : '0');
+}
+function loadKeepHistorySetting(){
+  var el = document.getElementById('toggle-keep-history');
+  if(!el) return;
+  var val = localStorage.getItem('keepHistory');
+  el.checked = (val === null || val === '1');
+}
+
+// ── 匯出資料 ───────────────────────────────────────────
+function exportData(){
+  var data = {};
+  for(var i = 0; i < localStorage.length; i++){
+    var k = localStorage.key(i);
+    try { data[k] = JSON.parse(localStorage.getItem(k)); }
+    catch(e){ data[k] = localStorage.getItem(k); }
+  }
+  var dateStr = new Date().toISOString().slice(0,10);
+  var blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = '羽球紀錄_' + dateStr + '.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('✅ 資料已匯出！');
 }
 
 // ── 通用 Toast 提示 ───────────────────────────────────
@@ -5534,6 +5598,7 @@ if(!isViewerMode){
   function _initApp(){
     updateProUI();
     loadFontSize();
+    loadKeepHistorySetting();
     loadUserRoster();
     if(!loadData()){
       document.getElementById('modal-setup').style.display = 'flex';
