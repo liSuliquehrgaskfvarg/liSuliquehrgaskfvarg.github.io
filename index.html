@@ -967,6 +967,10 @@ header h1{font-size:1.2rem;font-weight:800;}
           <div class="settings-card-icon"><i class="bi bi-mortarboard-fill"></i></div>
           <div class="settings-card-label">新手教學</div>
         </div>
+        <div class="settings-card" onclick="exportData()">
+          <div class="settings-card-icon"><i class="bi bi-download"></i></div>
+          <div class="settings-card-label">匯出資料</div>
+        </div>
       </div>
       <!-- 字體大小 -->
       <div style="background:#fff;border-radius:14px;border:1px solid var(--bdr);padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.05)">
@@ -976,11 +980,6 @@ header h1{font-size:1.2rem;font-weight:800;}
           <button class="font-size-btn active" id="fs-medium" onclick="setFontSize('medium')">中</button>
           <button class="font-size-btn" id="fs-large" onclick="setFontSize('large')">大</button>
         </div>
-      </div>
-      <!-- 匯出資料 -->
-      <div style="background:#fff;border-radius:14px;border:1px solid var(--bdr);padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.05)">
-        <div style="font-size:0.78rem;color:var(--mut);font-weight:700;margin-bottom:10px;letter-spacing:.04em">資料管理</div>
-        <button onclick="exportData()" style="width:100%;background:var(--sur2);color:var(--txt);border:1px solid var(--bdr);border-radius:9px;padding:10px;font-size:0.85rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px"><i class="bi bi-download"></i> 匯出資料</button>
       </div>
       <!-- 結束今天 - 大按鈕 -->
       <button id="tut-end-day" class="end-day-big-btn" onclick="openEndDayModal()"><i class="bi bi-flag-fill"></i> 結束今天並儲存紀錄</button>
