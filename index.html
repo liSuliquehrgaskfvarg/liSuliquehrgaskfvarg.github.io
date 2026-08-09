@@ -2382,14 +2382,14 @@ function approveJoin(docId, name, level, timeRange, startTime, endTime){
   }
   if(!isPro() && players.length >= 16){ showUpgradeHint('免費版最多 16 位球員'); return; }
   players.push({id:nid++, name, level, status:'waiting', offTime:null, playCount:0, partnerHistory:[], availableTime:timeRange, startTime:startTime||'', endTime:endTime||'', payType:'零打', sessionPaid:false});
-  db.collection('joinRequests').doc(docId).update({status:'approved'}).catch(()=>{});
+  try { if(typeof db!=='undefined'&&db) db.collection('joinRequests').doc(docId).update({status:'approved'}).catch(()=>{}); } catch(e){}
   const card = document.getElementById('jreq-'+docId);
   if(card) card.remove();
   render(); syncSession(true);
 }
 
 function rejectJoin(docId){
-  db.collection('joinRequests').doc(docId).update({status:'rejected'}).catch(()=>{});
+  try { if(typeof db!=='undefined'&&db) db.collection('joinRequests').doc(docId).update({status:'rejected'}).catch(()=>{}); } catch(e){}
   const card = document.getElementById('jreq-'+docId);
   if(card) card.remove();
 }
