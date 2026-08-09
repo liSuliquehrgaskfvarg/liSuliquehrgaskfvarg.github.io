@@ -3065,6 +3065,7 @@ function confirmImportRoster(){
     saveData();
     saveUserRoster();
     renderLeft();
+    renderRosterTab();
     showToast('✅ 匯入完成，新增 ' + added + ' 位 / 共 ' + roster.length + ' 位球員');
   } catch(e){
     alert('格式錯誤，請確認貼上的是正確的匯出文字');
@@ -3081,6 +3082,7 @@ function addRosterEntry(){
   nameEl.value=''; _rosterAddLvl=''; _rosterAddGender='';
   document.getElementById('modal-roster-add').classList.remove('open');
   renderLeft();
+  renderRosterTab();
   saveData();
   saveUserRoster();
 }
@@ -3176,6 +3178,7 @@ function saveRosterEdit(){
   document.getElementById('modal-roster-edit').classList.remove('open');
   editingRosterId = null;
   renderLeft();
+  renderRosterTab();
   saveData();
   saveUserRoster();
   if(ap) render();
@@ -3189,6 +3192,7 @@ function deleteRosterEntry(){
   document.getElementById('modal-roster-edit').classList.remove('open');
   editingRosterId = null;
   renderLeft();
+  renderRosterTab();
   saveData();
   saveUserRoster();
 }
