@@ -3026,26 +3026,30 @@ function closeRosterAddModal(e){
 }
 // ── 球員庫 匯出 / 匯入 ──────────────────────────────────
 function exportRoster(){
-  // 優先用記憶體，若為空則從 localStorage 補救
-  var r = roster;
-  if(!r || r.length === 0){
+  // 與 exportData() 相同機制：掃所有 localStorage key，找球員庫資料
+  var r = (roster && roster.length > 0) ? roster : [];
+  if(r.length === 0){
     try {
-      var raw = localStorage.getItem(STORAGE_KEY);
-      if(raw){ var d = JSON.parse(raw); if(d && d.roster && d.roster.length > 0) r = d.roster; }
+      for(var i = 0; i < localStorage.length; i++){
+        var k = localStorage.key(i);
+        if(k && k.indexOf('badminton_scheduler_v1') === 0){
+          var d = JSON.parse(localStorage.getItem(k) || '{}');
+          if(d.roster && d.roster.length > 0){ r = d.roster; break; }
+        }
+      }
     } catch(e){}
   }
-  if(!r || r.length === 0){ showToast('球員庫是空的'); return; }
-  var data = r.map(function(p){ return {name:p.name, level:p.level, gender:p.gender, payType:p.payType||'', startTime:p.startTime||'', endTime:p.endTime||''}; });
-  var json = JSON.stringify(data, null, 2);
-  var blob = new Blob([json], {type:'application/json'});
+  if(r.length === 0){ showToast('球員庫是空的'); return; }
+  var dateStr = new Date().toISOString().slice(0,10);
+  var blob = new Blob([JSON.stringify(r, null, 2)], {type:'application/json'});
   var url = URL.createObjectURL(blob);
   var a = document.createElement('a');
   a.href = url;
-  a.download = 'roster_' + new Date().toISOString().slice(0,10) + '.json';
+  a.download = 'roster_' + dateStr + '.json';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-  setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+  URL.revokeObjectURL(url);
   showToast('✅ 球員庫已匯出！');
 }
 
