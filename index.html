@@ -971,6 +971,11 @@ header h1{font-size:1.2rem;font-weight:800;}
           <div class="settings-card-icon"><i class="bi bi-download"></i></div>
           <div class="settings-card-label">匯出資料</div>
         </div>
+        <div class="settings-card" onclick="importData()">
+          <div class="settings-card-icon"><i class="bi bi-upload"></i></div>
+          <div class="settings-card-label">匯入資料</div>
+        </div>
+        <input type="file" id="import-file-input" accept=".json" style="display:none" onchange="handleImportFile(this)">
       </div>
       <!-- 字體大小 -->
       <div style="background:#fff;border-radius:14px;border:1px solid var(--bdr);padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.05)">
@@ -5362,6 +5367,32 @@ function confirmEndDay(){
   }
   btn.disabled = false;
   btn.innerHTML = '<i class="bi bi-check-circle-fill"></i> 確認儲存';
+}
+
+// ── 匯入資料 ───────────────────────────────────────────
+function importData(){
+  if(!confirm('匯入會覆蓋現有資料，確定嗎？')) return;
+  document.getElementById('import-file-input').click();
+}
+function handleImportFile(input){
+  var file = input.files[0];
+  if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e){
+    try {
+      var data = JSON.parse(e.target.result);
+      Object.keys(data).forEach(function(k){
+        var v = data[k];
+        localStorage.setItem(k, typeof v === 'string' ? v : JSON.stringify(v));
+      });
+      showToast('✅ 資料已匯入，重新載入中…');
+      setTimeout(function(){ location.reload(); }, 1200);
+    } catch(err){
+      alert('檔案格式錯誤，請選擇正確的匯出 JSON 檔');
+    }
+    input.value = '';
+  };
+  reader.readAsText(file);
 }
 
 // ── 匯出資料 ───────────────────────────────────────────
