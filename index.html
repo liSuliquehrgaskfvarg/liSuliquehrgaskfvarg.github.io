@@ -955,6 +955,10 @@ header h1{font-size:1.2rem;font-weight:800;}
           <div class="settings-card-icon"><i class="bi bi-trophy-fill"></i></div>
           <div class="settings-card-label">戰績記錄</div>
         </div>
+        <div class="settings-card" onclick="openJoinTimeModal()">
+          <div class="settings-card-icon"><i class="bi bi-clock-fill"></i></div>
+          <div class="settings-card-label">加入時間</div>
+        </div>
         <div class="settings-card" onclick="openSetupModal()">
           <div class="settings-card-icon"><i class="bi bi-sliders"></i></div>
           <div class="settings-card-label">初始設定</div>
@@ -1589,7 +1593,8 @@ header h1{font-size:1.2rem;font-weight:800;}
 <!-- Join Overlay (for ?join=UID mode) -->
 <div id="join-overlay" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:5000;overflow-y:auto;padding:24px 16px">
   <div style="max-width:400px;margin:0 auto">
-    <div style="background:var(--sur);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:14px">
+    <div id="join-time-block-msg" style="display:none;background:var(--sur);border-radius:14px;padding:28px 20px;text-align:center;font-size:1rem;font-weight:700;color:var(--txt2);line-height:1.8;margin-bottom:12px"></div>
+    <div id="join-form-card" style="background:var(--sur);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:14px">
       <div>
         <label style="font-size:0.78rem;color:var(--mut);font-weight:600;display:block;margin-bottom:5px">姓名</label>
         <input id="join-name" type="text" placeholder="請輸入姓名" autocomplete="off"
@@ -1624,6 +1629,30 @@ header h1{font-size:1.2rem;font-weight:800;}
         送出申請
       </button>
       <div id="join-msg" style="text-align:center;font-size:0.85rem;min-height:20px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Join Time Settings Modal -->
+<div class="overlay" id="modal-join-time" onclick="if(event.target.id==='modal-join-time')closeJoinTimeModal()" style="display:none">
+  <div class="modal" style="width:320px;position:relative">
+    <button onclick="closeJoinTimeModal()" style="position:absolute;top:10px;right:14px;background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--mut)">✕</button>
+    <h3 style="margin-bottom:4px"><i class="bi bi-clock-fill"></i> 加入時間設定</h3>
+    <p style="font-size:0.73rem;color:var(--mut);margin-bottom:16px">設定球員可加入的時間區間。留空代表不限制。</p>
+    <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:12px">
+      <div>
+        <label style="font-size:0.75rem;color:var(--txt2);display:block;margin-bottom:5px">開始時間</label>
+        <input type="time" id="join-time-open-start" style="width:100%;background:var(--sur2);border:1.5px solid var(--bdr);border-radius:8px;padding:9px 12px;color:var(--txt);font-size:1rem;outline:none;box-sizing:border-box">
+      </div>
+      <div>
+        <label style="font-size:0.75rem;color:var(--txt2);display:block;margin-bottom:5px">結束時間</label>
+        <input type="time" id="join-time-open-end" style="width:100%;background:var(--sur2);border:1.5px solid var(--bdr);border-radius:8px;padding:9px 12px;color:var(--txt);font-size:1rem;outline:none;box-sizing:border-box">
+      </div>
+    </div>
+    <p style="font-size:0.7rem;color:var(--mut);margin-bottom:14px">留空 = 不限制，任何時間均可加入</p>
+    <div style="display:flex;gap:8px">
+      <button class="mbtn mcancel" style="flex:1" onclick="clearJoinTime()">清除限制</button>
+      <button class="mbtn mok" style="flex:1" onclick="saveJoinTime()">儲存</button>
     </div>
   </div>
 </div>
@@ -1846,6 +1875,26 @@ if(isJoinMode){
         endSel.selectedIndex = Math.min(slots.length-1, idx+2);
       }
     });
+    // ── 檢查主辦方設定的加入時間限制 ──
+    db.collection('users').doc(_joinUID).get().then(function(doc){
+      var data = doc.exists ? doc.data() : {};
+      var jStart = data.joinTimeStart || '';
+      var jEnd   = data.joinTimeEnd   || '';
+      if(!jStart || !jEnd){ return; } // 不限制
+      var now3 = new Date();
+      var cur = String(now3.getHours()).padStart(2,'0') + ':' + String(now3.getMinutes()).padStart(2,'0');
+      var formCard = document.getElementById('join-form-card');
+      var blockMsg = document.getElementById('join-time-block-msg');
+      if(cur < jStart){
+        blockMsg.innerHTML = '<i class="bi bi-clock" style="font-size:2rem;display:block;margin-bottom:10px"></i>加入時間為 ' + jStart + '–' + jEnd + '<br>目前尚未開放';
+        blockMsg.style.display = 'block';
+        formCard.style.display = 'none';
+      } else if(cur >= jEnd){
+        blockMsg.innerHTML = '<i class="bi bi-clock" style="font-size:2rem;display:block;margin-bottom:10px"></i>加入時間已結束<br><span style="font-size:0.82rem;font-weight:400;color:var(--mut)">開放時間：' + jStart + '–' + jEnd + '</span>';
+        blockMsg.style.display = 'block';
+        formCard.style.display = 'none';
+      }
+    }).catch(function(){ /* 讀取失敗不限制 */ });
   });
 }
 
@@ -2476,6 +2525,41 @@ function rejectJoin(docId){
   const card = document.getElementById('jreq-'+docId);
   if(card) card.remove();
   _updateJoinBadge();
+}
+
+// ── 加入時間設定 ──────────────────────────────────────────
+function openJoinTimeModal(){
+  if(!window._uid || !_uid()){ alert('請先登入'); return; }
+  db.collection('users').doc(_uid()).get().then(function(doc){
+    var data = doc.exists ? doc.data() : {};
+    document.getElementById('join-time-open-start').value = data.joinTimeStart || '';
+    document.getElementById('join-time-open-end').value   = data.joinTimeEnd   || '';
+    document.getElementById('modal-join-time').style.display = 'flex';
+  }).catch(function(){
+    document.getElementById('join-time-open-start').value = '';
+    document.getElementById('join-time-open-end').value   = '';
+    document.getElementById('modal-join-time').style.display = 'flex';
+  });
+}
+function closeJoinTimeModal(){
+  document.getElementById('modal-join-time').style.display = 'none';
+}
+async function saveJoinTime(){
+  var start = document.getElementById('join-time-open-start').value;
+  var end   = document.getElementById('join-time-open-end').value;
+  if(start && end && end <= start){ alert('結束時間必須晚於開始時間'); return; }
+  try {
+    await db.collection('users').doc(_uid()).set({ joinTimeStart: start, joinTimeEnd: end }, { merge: true });
+    closeJoinTimeModal();
+    showToast('加入時間已儲存 ✅');
+  } catch(e){ alert('儲存失敗：' + e.message); }
+}
+async function clearJoinTime(){
+  try {
+    await db.collection('users').doc(_uid()).set({ joinTimeStart: '', joinTimeEnd: '' }, { merge: true });
+    closeJoinTimeModal();
+    showToast('加入時間限制已清除');
+  } catch(e){ alert('清除失敗：' + e.message); }
 }
 
 function showJoinQR(){
