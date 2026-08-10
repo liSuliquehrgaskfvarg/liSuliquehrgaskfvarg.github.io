@@ -1930,7 +1930,7 @@ if(isJoinMode){
       }
     });
     // ── 檢查主辦方設定的加入時間限制 ──
-    db.collection('users').doc(_joinUID).get().then(function(doc){
+    db.collection('joinRequests').doc('_sess_' + _joinUID).get().then(function(doc){
       var data = doc.exists ? doc.data() : {};
       var jStart = data.joinTimeStart || '';
       var jEnd   = data.joinTimeEnd   || '';
@@ -2035,8 +2035,8 @@ function switchJoinToViewer(){
   }
   var statusEl = document.getElementById('viewer-status');
   statusEl.style.display = 'block';
-  // 監聽場地資料
-  db.collection('users').doc(_joinUID).onSnapshot(function(doc){
+  // 監聽場地資料（joinRequests/_sess_{uid}）
+  db.collection('joinRequests').doc('_sess_' + _joinUID).onSnapshot(function(doc){
     statusEl.style.display = 'none';
     if(!doc.exists || !doc.data().session){ return; }
     var s = doc.data().session;
@@ -2056,7 +2056,7 @@ function switchJoinToViewer(){
       showDismissedAlert(_myPlayerName);
       _myPlayerName = null; _myPlayerApproved = false; _lastCourtNotified = null;
     }
-    renderViewerUI(doc.data().session.updatedAt);
+    renderViewerUI(s.updatedAt);
     checkMyCourtNotify();
   }, function(err){ statusEl.textContent='❌ 連線失敗'; });
 }
@@ -2408,9 +2408,7 @@ async function deployUpdate(){
 async function loadUserRoster(){
   if(!window._uid || !_uid()) return;
   try {
-    var doc = await db.collection('users').doc(_uid()).get();
-    // _userPro 固定為 true，不被 Firestore 覆蓋
-    if(doc.exists && doc.data().cardRecords){ loadCardRecords(doc.data()); }
+    var doc = await db.collection('joinRequests').doc('_roster_' + _uid()).get();
     if(doc.exists && doc.data().roster && doc.data().roster.length > 0){
       roster = doc.data().roster;
       rid = roster.reduce(function(m,r){return Math.max(m,r.id);}, 0) + 1;
@@ -2441,10 +2439,8 @@ async function loadUserRoster(){
 async function saveUserRoster(){
   if(isViewerMode || !window._uid || !_uid()) return;
   try {
-    await db.collection('users').doc(_uid()).set({
-      roster: roster, rid: rid,
-      displayName: '',
-      email: currentUser.email || ''
+    await db.collection('joinRequests').doc('_roster_' + _uid()).set({
+      roster: roster, rid: rid
     }, { merge: true });
   } catch(e){ console.warn('saveUserRoster error:', e); }
 }
@@ -2614,7 +2610,7 @@ function rejectJoin(docId){
 // ── 加入時間設定 ──────────────────────────────────────────
 function openJoinTimeModal(){
   if(!window._uid || !_uid()){ alert('請先登入'); return; }
-  db.collection('users').doc(_uid()).get().then(function(doc){
+  db.collection('joinRequests').doc('_sess_' + _uid()).get().then(function(doc){
     var data = doc.exists ? doc.data() : {};
     document.getElementById('join-time-open-start').value = data.joinTimeStart || '';
     document.getElementById('join-time-open-end').value   = data.joinTimeEnd   || '';
@@ -2633,14 +2629,14 @@ async function saveJoinTime(){
   var end   = document.getElementById('join-time-open-end').value;
   if(start && end && end <= start){ alert('結束時間必須晚於開始時間'); return; }
   try {
-    await db.collection('users').doc(_uid()).set({ joinTimeStart: start, joinTimeEnd: end }, { merge: true });
+    await db.collection('joinRequests').doc('_sess_' + _uid()).set({ joinTimeStart: start, joinTimeEnd: end }, { merge: true });
     closeJoinTimeModal();
     showToast('加入時間已儲存 ✅');
   } catch(e){ alert('儲存失敗：' + e.message); }
 }
 async function clearJoinTime(){
   try {
-    await db.collection('users').doc(_uid()).set({ joinTimeStart: '', joinTimeEnd: '' }, { merge: true });
+    await db.collection('joinRequests').doc('_sess_' + _uid()).set({ joinTimeStart: '', joinTimeEnd: '' }, { merge: true });
     closeJoinTimeModal();
     showToast('加入時間限制已清除');
   } catch(e){ alert('清除失敗：' + e.message); }
@@ -2676,7 +2672,7 @@ async function forceSyncSession(){
   };
   const btn = document.getElementById('btn-sync');
   try {
-    await db.collection('users').doc(_uid()).set({ session: sessionData }, { merge: true });
+    await db.collection('joinRequests').doc('_sess_' + _uid()).set({ _type:'session', session: sessionData }, { merge: true });
     showToast('✅ 成功同步！');
   } catch(e) {
     showToast('❌ 同步失敗：' + e.code);
@@ -3585,8 +3581,9 @@ var MC_KEY = 'badminton_cardRecords_v1';
 
 function saveCardRecords(){
   try{ localStorage.setItem(MC_KEY, JSON.stringify(cardRecords)); }catch(e){}
-  if(typeof currentUser!=='undefined'&&currentUser){
-    db.collection('users').doc(_uid()).set({cardRecords:cardRecords},{merge:true})
+  // cardRecords Firestore 備份（選用，不影響主功能）
+  if(window._uid && _uid()){
+    db.collection('joinRequests').doc('_cards_' + _uid()).set({cardRecords:cardRecords},{merge:true})
       .catch(function(e){console.warn('saveCardRecords error:',e);});
   }
 }
