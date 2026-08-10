@@ -481,6 +481,7 @@ header h1{font-size:1.2rem;font-weight:800;}
     padding:6px 10px;
     box-sizing:border-box;
     scroll-snap-align:start;
+    scroll-snap-stop:always;
     overflow-y:visible;
   }
 
@@ -1697,6 +1698,49 @@ header h1{font-size:1.2rem;font-weight:800;}
 
 <!-- Join Request Notification -->
 <div id="join-notify-stack" style="position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:8000;display:flex;flex-direction:column;gap:8px;width:calc(100vw - 32px);max-width:360px"></div>
+
+<!-- Export Select Modal -->
+<div class="overlay" id="modal-export-select" onclick="closeExportSelectModal(event)">
+  <div class="modal" style="width:330px">
+    <button onclick="closeExportSelectModal()" style="position:absolute;top:10px;right:14px;background:none;border:none;font-size:1.1rem;cursor:pointer;color:var(--mut)"><i class="bi bi-x-lg"></i></button>
+    <h3 style="margin-bottom:4px"><i class="bi bi-box-arrow-up"></i> 選擇匯出內容</h3>
+    <p style="font-size:0.72rem;color:var(--mut);margin-bottom:14px">勾選要匯出的項目，下載成 JSON 檔案</p>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+      <label style="display:flex;align-items:flex-start;gap:10px;background:var(--sur2);border-radius:10px;padding:12px;cursor:pointer">
+        <input type="checkbox" id="exp-cb-roster" checked style="width:16px;height:16px;margin-top:2px;accent-color:var(--blu);cursor:pointer;flex-shrink:0">
+        <div>
+          <div style="font-weight:700;font-size:0.88rem"><i class="bi bi-person-lines-fill" style="color:var(--blu)"></i> 球員庫</div>
+          <div style="font-size:0.7rem;color:var(--mut);margin-top:2px">所有球員的基本資料（等級、費用類型）</div>
+        </div>
+      </label>
+      <label style="display:flex;align-items:flex-start;gap:10px;background:var(--sur2);border-radius:10px;padding:12px;cursor:pointer">
+        <input type="checkbox" id="exp-cb-players" checked style="width:16px;height:16px;margin-top:2px;accent-color:var(--blu);cursor:pointer;flex-shrink:0">
+        <div>
+          <div style="font-weight:700;font-size:0.88rem"><i class="bi bi-grid-fill" style="color:#f59e0b"></i> 目前場次</div>
+          <div style="font-size:0.7rem;color:var(--mut);margin-top:2px">目前所有球員、場地配置、排隊名單</div>
+        </div>
+      </label>
+      <label style="display:flex;align-items:flex-start;gap:10px;background:var(--sur2);border-radius:10px;padding:12px;cursor:pointer">
+        <input type="checkbox" id="exp-cb-billing" style="width:16px;height:16px;margin-top:2px;accent-color:var(--blu);cursor:pointer;flex-shrink:0">
+        <div>
+          <div style="font-weight:700;font-size:0.88rem"><i class="bi bi-cash-coin" style="color:#22c55e"></i> 帳單設定</div>
+          <div style="font-size:0.7rem;color:var(--mut);margin-top:2px">場費、月方案等費率設定</div>
+        </div>
+      </label>
+      <label style="display:flex;align-items:flex-start;gap:10px;background:var(--sur2);border-radius:10px;padding:12px;cursor:pointer">
+        <input type="checkbox" id="exp-cb-history" style="width:16px;height:16px;margin-top:2px;accent-color:var(--blu);cursor:pointer;flex-shrink:0">
+        <div>
+          <div style="font-weight:700;font-size:0.88rem"><i class="bi bi-clock-history" style="color:#a78bfa"></i> 歷史紀錄</div>
+          <div style="font-size:0.7rem;color:var(--mut);margin-top:2px">過去場次的統計與結算紀錄</div>
+        </div>
+      </label>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="mbtn mcancel" style="flex:0 0 auto;padding:8px 14px" onclick="_exportToggleAll()">全選/全不選</button>
+      <button class="mbtn mok" style="flex:1" onclick="_doSelectiveExport()"><i class="bi bi-download"></i> 確認匯出</button>
+    </div>
+  </div>
+</div>
 
 <!-- Score Input Modal -->
 <div class="overlay" id="modal-score" onclick="closeScoreModal(event)">
@@ -4875,6 +4919,8 @@ function loadData(){
     if(roster.length === 0) rid = d.rid || 1;
     nid        = d.nid  || 1;
     namingStyle= d.namingStyle || 'number';
+    // 跨場次：cooling 狀態不延續，等第一場打完再重新計休息時間
+    players.forEach(function(p){ if(p.status==='cooling'){ p.status='waiting'; p.offTime=null; } });
     // 若有現有 session 資料，記錄今天開始時間（從 localStorage 還原時設定）
     if(!_sessionStartTime && courts.length > 0){
       _sessionStartTime = new Date().toTimeString().slice(0,5);
@@ -4901,6 +4947,8 @@ function importData(){
         rid        = d.rid  || 1;
         nid        = d.nid  || 1;
         namingStyle= d.namingStyle || 'number';
+        // 匯入時清除 cooling 狀態，等第一場再計休息
+        players.forEach(function(p){ if(p.status==='cooling'){ p.status='waiting'; p.offTime=null; } });
         ensureFixedRoster();
         saveData();
         document.getElementById('modal-setup').style.display = 'none';
@@ -5605,25 +5653,66 @@ function handleImportFile(input){
   reader.readAsText(file);
 }
 
-// ── 匯出資料 ───────────────────────────────────────────
+// ── 匯出資料（開啟選擇 modal）──────────────────────────
 function exportData(){
-  var data = {};
-  for(var i = 0; i < localStorage.length; i++){
-    var k = localStorage.key(i);
-    try { data[k] = JSON.parse(localStorage.getItem(k)); }
-    catch(e){ data[k] = localStorage.getItem(k); }
+  document.getElementById('modal-export-select').classList.add('open');
+}
+function closeExportSelectModal(e){
+  if(e && e.target !== document.getElementById('modal-export-select')) return;
+  document.getElementById('modal-export-select').classList.remove('open');
+}
+
+var _exportAllState = false;
+function _exportToggleAll(){
+  _exportAllState = !_exportAllState;
+  ['roster','players','billing','history'].forEach(function(k){
+    var cb = document.getElementById('exp-cb-'+k);
+    if(cb) cb.checked = _exportAllState;
+  });
+}
+
+function _doSelectiveExport(){
+  var inc = {};
+  ['roster','players','billing','history'].forEach(function(k){
+    var cb = document.getElementById('exp-cb-'+k);
+    inc[k] = cb && cb.checked;
+  });
+  if(!inc.roster && !inc.players && !inc.billing && !inc.history){
+    alert('請至少勾選一項'); return;
   }
+  var data = {_exported: new Date().toISOString(), _version: 'v1'};
+  if(inc.roster){
+    data.roster = roster;
+    data.rid = rid;
+  }
+  if(inc.players){
+    data.players = players;
+    data.courts = courts;
+    data.fixedPairs = fixedPairs;
+    data.nid = nid;
+    data.namingStyle = namingStyle;
+  }
+  if(inc.billing){
+    try { data.billing = JSON.parse(localStorage.getItem(BILLING_KEY)); } catch(e){ data.billing = null; }
+  }
+  if(inc.history){
+    try { data.history = JSON.parse(localStorage.getItem('sessionHistory_'+_uid()) || '[]'); } catch(e){ data.history = []; }
+  }
+  var parts = [];
+  if(inc.roster)  parts.push('球員庫');
+  if(inc.players) parts.push('場次');
+  if(inc.billing) parts.push('帳單');
+  if(inc.history) parts.push('歷史');
   var dateStr = new Date().toISOString().slice(0,10);
   var blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
   var url = URL.createObjectURL(blob);
   var a = document.createElement('a');
   a.href = url;
-  a.download = '羽球紀錄_' + dateStr + '.json';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  a.download = '羽球_' + parts.join('_') + '_' + dateStr + '.json';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
   URL.revokeObjectURL(url);
-  showToast('✅ 資料已匯出！');
+  document.getElementById('modal-export-select').classList.remove('open');
+  showToast('✅ 已匯出：' + parts.join('、'));
 }
 
 // ── 通用 Toast 提示 ───────────────────────────────────
