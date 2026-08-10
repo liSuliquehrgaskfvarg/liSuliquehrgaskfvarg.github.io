@@ -2451,6 +2451,34 @@ async function saveUserRoster(){
 
 // ── Firestore Session 同步（供觀看者用）─────────────────
 var _syncTimer = null;
+// ── 同步狀態指示點 ──────────────────────────────────────
+function _setSyncDot(state, errCode){
+  var dot = document.getElementById('_sync-dot');
+  if(!dot){
+    dot = document.createElement('span');
+    dot.id = '_sync-dot';
+    dot.title = '';
+    dot.style.cssText = 'display:inline-block;width:8px;height:8px;border-radius:50%;margin-left:6px;vertical-align:middle;flex-shrink:0;cursor:default;';
+    var h1 = document.querySelector('header h1');
+    if(h1) h1.parentNode.insertBefore(dot, h1.nextSibling);
+  }
+  if(state === 'ok'){
+    dot.style.background = '#22c55e';
+    dot.title = '觀看者連線正常';
+  } else {
+    dot.style.background = '#ef4444';
+    var hint = errCode === 'permission-denied'
+      ? '同步失敗（Firestore 權限不足）\n請在 Firebase Console 開放 users collection 讀寫權限'
+      : '同步失敗：' + (errCode || '未知');
+    dot.title = hint;
+    // 僅在第一次失敗時彈出提示（避免重複）
+    if(!dot._warned){
+      dot._warned = true;
+      showToast('⚠️ 觀看者同步失敗，球員可能看不到場地');
+    }
+  }
+}
+
 var _syncInterval = null;
 function startAutoSync(){
   if(_syncInterval) return;
@@ -2483,8 +2511,8 @@ function syncSession(immediate){
       updatedAt: (typeof firebase !== 'undefined' && firebase.firestore) ? firebase.firestore.FieldValue.serverTimestamp() : Date.now()
     };
     db.collection('users').doc(_uid()).set({ session: sessionData }, { merge: true })
-      .then(function(){ console.log('syncSession OK'); })
-      .catch(function(e){ console.warn('syncSession error:', e.code, e.message); });
+      .then(function(){ _setSyncDot('ok'); })
+      .catch(function(e){ console.warn('syncSession error:', e.code, e.message); _setSyncDot('err', e.code); });
   }, delay);
 }
 
@@ -5929,7 +5957,7 @@ if(!isViewerMode){
   if(!_localId){ _localId = Math.random().toString(36).substr(2,12); localStorage.setItem('_localId', _localId); }
   STORAGE_KEY = 'badminton_scheduler_v1_' + _localId;
   BILLING_KEY = 'billingConfig_' + _localId;
-  window._uid = function(){ return (currentUser && _uid()) || _localId; };
+  window._uid = function(){ return _localId; }; // 固定用 _localId，避免遞迴 bug
 
   function _initApp(){
     updateProUI();
