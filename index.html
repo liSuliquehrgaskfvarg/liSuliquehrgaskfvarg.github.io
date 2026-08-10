@@ -17,6 +17,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <!-- Bootstrap Icons -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 <!-- Material Symbols Outlined -->
@@ -1780,16 +1781,18 @@ const firebaseConfig = {
   appId: "1:739239566870:web:aa7632f3a69ee526b05f37",
   measurementId: "G-K2PQB442SK"
 };
-var auth, db;
+var auth, db, rtdb;
 try {
   firebase.initializeApp(firebaseConfig);
   auth = firebase.auth();
   db = firebase.firestore();
+  rtdb = firebase.database();
 } catch(e) {
   console.warn('Firebase 初始化失敗，使用純本機模式', e);
   // 假物件，讓後續呼叫不會報錯
   auth = { signInAnonymously: function(){ return Promise.reject('no-firebase'); } };
-  db = { collection: function(){ return { doc: function(){ return { get: function(){ return Promise.reject('no-firebase'); }, set: function(){ return Promise.reject('no-firebase'); }, onSnapshot: function(){ return function(){}; } }; }, where: function(){ return { onSnapshot: function(){ return function(){}; } }; } }; } };
+  db = { collection: function(){ return { doc: function(){ return { get: function(){ return Promise.reject('no-firebase'); }, set: function(){ return Promise.reject('no-firebase'); }, onSnapshot: function(){ return function(){}; } }; }, where: function(){ return { onSnapshot: function(){ return function(){}; } }; }, add: function(){ return Promise.reject('no-firebase'); } }; } };
+  rtdb = { ref: function(){ return { set: function(){ return Promise.reject('no-firebase'); }, on: function(){}, off: function(){} }; } };
 }
 
 let currentUser = null;
@@ -1831,27 +1834,27 @@ if(isViewerMode){
     document.getElementById('modal-setup').style.display = 'none';
     var statusEl = document.getElementById('viewer-status');
     statusEl.style.display = 'block';
-    // 監聽 Firestore session（同路徑：joinRequests/_sess_{uid}）
-    db.collection('joinRequests').doc('_sess_' + _viewUID).onSnapshot(function(doc){
+    // 用 Realtime Database 監聽 session
+    rtdb.ref('sessions/' + _viewUID).on('value', function(snap){
       statusEl.style.display = 'none';
-      if(!doc.exists){
-        document.getElementById('viewer-empty').textContent = '找不到此場次';
-        document.getElementById('viewer-empty').style.display = 'block'; return;
-      }
-      var data = doc.data();
-      if(!data.session){
+      if(!snap.exists()){
         document.getElementById('viewer-empty').textContent = '等待主持人開始比賽...';
         document.getElementById('viewer-empty').style.display = 'block'; return;
       }
       document.getElementById('viewer-empty').style.display = 'none';
-      var s = data.session;
+      var s = snap.val();
       courts = s.courts || [];
       players = s.players || [];
-      // 清除 slots 裡已不存在的球員 ID（避免主辦刪人後閃爍）
+      // null 元素補齊（RTDB 會省略 null）
+      courts.forEach(function(c){
+        c.playerSlots = (c.playerSlots||[null,null,null,null]).map(function(x){return x===undefined?null:x;});
+        c.nextSlots = (c.nextSlots||[null,null,null,null]).map(function(x){return x===undefined?null:x;});
+      });
+      // 清除 slots 裡已不存在的球員 ID
       var validIds = new Set(players.map(function(p){return p.id;}));
       courts.forEach(function(c){
-        c.playerSlots = (c.playerSlots||[null,null,null,null]).map(function(id){return validIds.has(id)?id:null;});
-        c.nextSlots = (c.nextSlots||[null,null,null,null]).map(function(id){return validIds.has(id)?id:null;});
+        c.playerSlots = c.playerSlots.map(function(id){return id!==null&&validIds.has(id)?id:null;});
+        c.nextSlots = c.nextSlots.map(function(id){return id!==null&&validIds.has(id)?id:null;});
       });
       // 若自己出現在場上，標記為已核准
       if(_myPlayerName && players.some(function(p){return p.name===_myPlayerName;})){
@@ -1877,10 +1880,10 @@ if(isViewerMode){
           renderViewerPickBar();
         }
       }
-      renderViewerUI(data.session.updatedAt);
+      renderViewerUI(s.updatedAt);
     }, function(err){
-      statusEl.textContent = '❌ 連線失敗：' + err.code;
-      console.warn('viewer error:', err);
+      statusEl.textContent = '❌ 連線失敗：' + (err.code||err);
+      console.warn('viewer RTDB error:', err);
     });
   });
 }
@@ -2035,18 +2038,23 @@ function switchJoinToViewer(){
   }
   var statusEl = document.getElementById('viewer-status');
   statusEl.style.display = 'block';
-  // 監聽場地資料（joinRequests/_sess_{uid}）
-  db.collection('joinRequests').doc('_sess_' + _joinUID).onSnapshot(function(doc){
+  // 用 Realtime Database 監聽場地資料
+  rtdb.ref('sessions/' + _joinUID).on('value', function(snap){
     statusEl.style.display = 'none';
-    if(!doc.exists || !doc.data().session){ return; }
-    var s = doc.data().session;
+    if(!snap.exists()){ return; }
+    var s = snap.val();
     courts = s.courts || [];
     players = s.players || [];
+    // null 元素補齊（RTDB 會省略 null）
+    courts.forEach(function(c){
+      c.playerSlots = (c.playerSlots||[null,null,null,null]).map(function(x){return x===undefined?null:x;});
+      c.nextSlots = (c.nextSlots||[null,null,null,null]).map(function(x){return x===undefined?null:x;});
+    });
     // 清除 slots 裡已不存在的球員 ID
     var validIds2 = new Set(players.map(function(p){return p.id;}));
     courts.forEach(function(c){
-      c.playerSlots = (c.playerSlots||[null,null,null,null]).map(function(id){return validIds2.has(id)?id:null;});
-      c.nextSlots = (c.nextSlots||[null,null,null,null]).map(function(id){return validIds2.has(id)?id:null;});
+      c.playerSlots = c.playerSlots.map(function(id){return id!==null&&validIds2.has(id)?id:null;});
+      c.nextSlots = c.nextSlots.map(function(id){return id!==null&&validIds2.has(id)?id:null;});
     });
     // 若自己被刪，清除身份並通知
     if(_myPlayerName && players.some(function(p){return p.name===_myPlayerName;})){
@@ -2058,7 +2066,7 @@ function switchJoinToViewer(){
     }
     renderViewerUI(s.updatedAt);
     checkMyCourtNotify();
-  }, function(err){ statusEl.textContent='❌ 連線失敗'; });
+  }, function(err){ statusEl.textContent='❌ 連線失敗：'+(err.code||err); });
 }
 
 var _viewerNameChosen = false; // 觀看QR模式是否已選名字
@@ -2507,10 +2515,10 @@ function syncSession(immediate){
       }; }),
       updatedAt: (typeof firebase !== 'undefined' && firebase.firestore) ? firebase.firestore.FieldValue.serverTimestamp() : Date.now()
     };
-    // 寫到 joinRequests/_sess_{uid}（此 collection 已開放 write）
-    db.collection('joinRequests').doc('_sess_' + _uid()).set({ _type:'session', session: sessionData }, { merge: true })
+    // 用 Realtime Database 同步（規則與 Firestore 分開，預設允許讀寫）
+    rtdb.ref('sessions/' + _uid()).set(sessionData)
       .then(function(){ _setSyncDot('ok'); })
-      .catch(function(e){ console.warn('syncSession error:', e.code, e.message); _setSyncDot('err', e.code); });
+      .catch(function(e){ console.warn('syncSession RTDB error:', e.code, e.message); _setSyncDot('err', e.code); });
   }, delay);
 }
 
@@ -2668,14 +2676,13 @@ async function forceSyncSession(){
       id: p.id||0, name: p.name||'', level: p.level||'1',
       status: p.status||'waiting', playCount: p.playCount||0, offTime: p.offTime||null
     };}),
-    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    updatedAt: Date.now()
   };
-  const btn = document.getElementById('btn-sync');
   try {
-    await db.collection('joinRequests').doc('_sess_' + _uid()).set({ _type:'session', session: sessionData }, { merge: true });
+    await rtdb.ref('sessions/' + _uid()).set(sessionData);
     showToast('✅ 成功同步！');
   } catch(e) {
-    showToast('❌ 同步失敗：' + e.code);
+    showToast('❌ 同步失敗：' + (e.code||e));
   }
 }
 
@@ -6028,12 +6035,15 @@ function toggleQueuePanel(){
     if(!tracking) return;
     tracking = false;
     var w = area.offsetWidth;
-    var idx = Math.round(area.scrollLeft / w);
     var dx = startX - e.changedTouches[0].clientX;
+    // 用 startScroll 算起始格，避免大力滑時 scrollLeft 已超過 1 格再加 1
+    var startIdx = Math.round(startScroll / w);
+    var targetIdx = startIdx;
     if(Math.abs(dx) > 30 || Math.abs(velX) > 0.3){
-      idx = Math.max(0, Math.min(courts.length-1, Math.round(area.scrollLeft/w) + (dx>0?1:-1)));
+      targetIdx = startIdx + (dx > 0 ? 1 : -1);
     }
-    area.scrollTo({left: idx * w, behavior:'smooth'});
+    targetIdx = Math.max(0, Math.min(courts.length - 1, targetIdx));
+    area.scrollTo({left: targetIdx * w, behavior:'smooth'});
   }, {passive: true});
 })();
 
