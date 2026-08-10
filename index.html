@@ -1831,8 +1831,8 @@ if(isViewerMode){
     document.getElementById('modal-setup').style.display = 'none';
     var statusEl = document.getElementById('viewer-status');
     statusEl.style.display = 'block';
-    // 監聽 Firestore session
-    db.collection('users').doc(_viewUID).onSnapshot(function(doc){
+    // 監聽 Firestore session（同路徑：joinRequests/_sess_{uid}）
+    db.collection('joinRequests').doc('_sess_' + _viewUID).onSnapshot(function(doc){
       statusEl.style.display = 'none';
       if(!doc.exists){
         document.getElementById('viewer-empty').textContent = '找不到此場次';
@@ -2465,6 +2465,7 @@ function _setSyncDot(state, errCode){
   if(state === 'ok'){
     dot.style.background = '#22c55e';
     dot.title = '觀看者連線正常';
+    dot._warned = false; // 下次失敗時再次提醒
   } else {
     dot.style.background = '#ef4444';
     var hint = errCode === 'permission-denied'
@@ -2510,7 +2511,8 @@ function syncSession(immediate){
       }; }),
       updatedAt: (typeof firebase !== 'undefined' && firebase.firestore) ? firebase.firestore.FieldValue.serverTimestamp() : Date.now()
     };
-    db.collection('users').doc(_uid()).set({ session: sessionData }, { merge: true })
+    // 寫到 joinRequests/_sess_{uid}（此 collection 已開放 write）
+    db.collection('joinRequests').doc('_sess_' + _uid()).set({ _type:'session', session: sessionData }, { merge: true })
       .then(function(){ _setSyncDot('ok'); })
       .catch(function(e){ console.warn('syncSession error:', e.code, e.message); _setSyncDot('err', e.code); });
   }, delay);
