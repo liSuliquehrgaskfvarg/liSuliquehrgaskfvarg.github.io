@@ -1908,7 +1908,7 @@ if(isViewerMode){
       }).catch(function(e){ console.warn('viewer poll err',e); });
     }
     _viewerPoll();
-    setInterval(_viewerPoll, 3000);
+    setInterval(_viewerPoll, 5000);
   });
 }
 
@@ -2077,7 +2077,7 @@ function switchJoinToViewer(){
     }).catch(function(e){ console.warn('join-viewer poll err',e); });
   }
   _joinViewerPoll();
-  setInterval(_joinViewerPoll, 3000);
+  setInterval(_joinViewerPoll, 5000);
 }
 
 var _viewerNameChosen = false; // 觀看QR模式是否已選名字
@@ -2524,12 +2524,18 @@ function syncSession(immediate){
       }; }),
       ts: Date.now()
     };
-    // 用 extendsclass.com 同步（不需要 Firebase）
+    // 用 extendsclass.com 同步（GET→merge→PUT，保留 pendingJoins 不被覆寫）
     _getOrCreateBlob(function(err, bid){
       if(err || !bid){ _setSyncDot('err','blob'); return; }
-      _putBlob(bid, sessionData)
+      fetch('https://json.extendsclass.com/bin/'+bid, {headers:{'Accept':'application/json'}})
+        .then(function(r){ return r.ok ? r.json() : {}; })
+        .catch(function(){ return {}; })
+        .then(function(current){
+          sessionData.pendingJoins = (current.pendingJoins && current.pendingJoins.length) ? current.pendingJoins : [];
+          return _putBlob(bid, sessionData);
+        })
         .then(function(r){ _setSyncDot(r && r.ok ? 'ok' : 'err'); })
-        .catch(function(e){ console.warn('syncSession blob err',e); _setSyncDot('err','net'); });
+        .catch(function(e){ console.warn('syncSession err',e); _setSyncDot('err','net'); });
     });
   }, delay);
 }
@@ -2546,7 +2552,7 @@ function startJoinListener(){
   if(isJoinMode || isViewerMode || !window._uid || !_uid()) return;
   if(_joinListenerActive) return;
   _joinListenerActive = true;
-  // Poll session blob 的 pendingJoins（每 4 秒一次）
+  // Poll session blob 的 pendingJoins（每 5 秒一次）
   function _pollPendingJoins(){
     var bid = localStorage.getItem(_getBlobKey());
     if(!bid) return; // session blob 還沒建立
@@ -2554,7 +2560,7 @@ function startJoinListener(){
       .then(function(r){ return r.ok ? r.json() : null; })
       .then(function(blob){
         if(!blob || !Array.isArray(blob.pendingJoins) || !blob.pendingJoins.length) return;
-        var added = false;
+        var newNames = [];
         blob.pendingJoins.forEach(function(entry){
           if(_handledJoinIds.has(entry.id)) return;
           _saveHandledJoin(entry.id);
@@ -2566,12 +2572,15 @@ function startJoinListener(){
             availableTime:entry.timeRange||'', startTime:entry.startTime||'',
             endTime:entry.endTime||'', payType:'零打', sessionPaid:false
           });
-          added = true;
+          newNames.push(entry.name);
         });
-        if(added){ saveData(); renderPlayers(); renderQueue(); syncSession(true); }
+        if(newNames.length){
+          showToast('✅ ' + newNames.join('、') + ' 已加入');
+          saveData(); renderPlayers(); renderQueue(); syncSession(true);
+        }
       }).catch(function(){});
   }
-  setInterval(_pollPendingJoins, 4000);
+  setInterval(_pollPendingJoins, 5000);
   _pollPendingJoins();
 }
 
