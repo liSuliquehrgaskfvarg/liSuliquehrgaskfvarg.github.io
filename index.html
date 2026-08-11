@@ -1828,27 +1828,26 @@ const _joinUID = _urlParams.get('join');
 const isJoinMode = !!_joinUID;
 const _blobId = _urlParams.get('b');  // session blob ID
 
-// ── JSON 存儲工具（extendsclass.com，ID 在 body 中，無 CORS Location 問題）──
-function _getBlobKey(){ return '_ecb_' + (localStorage.getItem('_localId')||'def'); }
+// ── JSON 存儲工具（jsonblob.com，免帳號、免 API key、CORS 完整支援）──
+function _getBlobKey(){ return '_jblob_' + (localStorage.getItem('_localId')||'def'); }
 function _getOrCreateBlob(callback){
   var id = localStorage.getItem(_getBlobKey());
   if(id){ callback(null, id); return; }
-  fetch('https://json.extendsclass.com/bin', {
+  fetch('https://jsonblob.com/api/jsonBlob', {
     method:'POST',
     headers:{'Content-Type':'application/json','Accept':'application/json'},
     body:JSON.stringify({_created:Date.now()})
-  }).then(function(r){ return r.json(); })
-  .then(function(body){
-    // body = {"status":201,"uri":"https://json.extendsclass.com/bin/xxxxx"}
-    var uri = (body && body.uri) || '';
-    var bid = (body && body.id) || uri.replace(/.*\//, '');
-    if(!bid){ callback('no-id:'+JSON.stringify(body), null); return; }
+  }).then(function(r){
+    // 201 Created：Location header = https://jsonblob.com/api/jsonBlob/<id>
+    var loc = r.headers.get('Location') || '';
+    var bid = loc.replace(/.*\//, '');
+    if(!bid){ callback('no-id(loc='+loc+',status='+r.status+')', null); return; }
     localStorage.setItem(_getBlobKey(), bid);
     callback(null, bid);
   }).catch(function(e){ callback(String(e), null); });
 }
 function _putBlob(bid, data){
-  return fetch('https://json.extendsclass.com/bin/'+bid, {
+  return fetch('https://jsonblob.com/api/jsonBlob/'+bid, {
     method:'PUT',
     headers:{'Content-Type':'application/json','Accept':'application/json'},
     body:JSON.stringify(data)
@@ -1862,14 +1861,14 @@ if(isViewerMode){
     document.getElementById('modal-setup').style.display = 'none';
     var statusEl = document.getElementById('viewer-status');
     statusEl.style.display = 'block';
-    // 用 extendsclass.com polling（每 3 秒抓一次，不需要 Firebase）
+    // 用 jsonblob.com polling（每 5 秒抓一次，不需要 Firebase）
     if(!_blobId){
       statusEl.textContent = '❌ 請向主辦人取得最新的 QR 碼';
       return;
     }
     var _vpLastTs = 0;
     function _viewerPoll(){
-      fetch('https://json.extendsclass.com/bin/'+_blobId, {
+      fetch('https://jsonblob.com/api/jsonBlob/'+_blobId, {
         headers:{'Accept':'application/json'}
       }).then(function(r){ if(!r.ok) throw r.status; return r.json(); })
       .then(function(s){
@@ -2009,10 +2008,10 @@ async function submitJoinRequest(){
   }
   try {
     // 讀取 session blob，把自己加進 pendingJoins，再寫回
-    var resp = await fetch('https://json.extendsclass.com/bin/'+_blobId, {headers:{'Accept':'application/json'}});
+    var resp = await fetch('https://jsonblob.com/api/jsonBlob/'+_blobId, {headers:{'Accept':'application/json'}});
     var blob = resp.ok ? await resp.json() : {};
     blob.pendingJoins = (blob.pendingJoins||[]).concat([entry]);
-    await fetch('https://json.extendsclass.com/bin/'+_blobId, {
+    await fetch('https://jsonblob.com/api/jsonBlob/'+_blobId, {
       method:'PUT',
       headers:{'Content-Type':'application/json','Accept':'application/json'},
       body: JSON.stringify(blob)
@@ -2042,14 +2041,14 @@ function switchJoinToViewer(){
   }
   var statusEl = document.getElementById('viewer-status');
   statusEl.style.display = 'block';
-  // 用 extendsclass.com polling
+  // 用 jsonblob.com polling
   if(!_blobId){
     statusEl.textContent = '❌ 請向主辦人取得最新的 QR 碼';
     return;
   }
   var _jpLastTs = 0;
   function _joinViewerPoll(){
-    fetch('https://json.extendsclass.com/bin/'+_blobId, {
+    fetch('https://jsonblob.com/api/jsonBlob/'+_blobId, {
       headers:{'Accept':'application/json'}
     }).then(function(r){ if(!r.ok) throw r.status; return r.json(); })
     .then(function(s){
@@ -2524,10 +2523,10 @@ function syncSession(immediate){
       }; }),
       ts: Date.now()
     };
-    // 用 extendsclass.com 同步（GET→merge→PUT，保留 pendingJoins 不被覆寫）
+    // 用 jsonblob.com 同步（GET→merge→PUT，保留 pendingJoins 不被覆寫）
     _getOrCreateBlob(function(err, bid){
-      if(err || !bid){ _setSyncDot('err','blob'); return; }
-      fetch('https://json.extendsclass.com/bin/'+bid, {headers:{'Accept':'application/json'}})
+      if(err || !bid){ _setSyncDot('err', err||'no-blob'); return; }
+      fetch('https://jsonblob.com/api/jsonBlob/'+bid, {headers:{'Accept':'application/json'}})
         .then(function(r){ return r.ok ? r.json() : {}; })
         .catch(function(){ return {}; })
         .then(function(current){
@@ -2556,7 +2555,7 @@ function startJoinListener(){
   function _pollPendingJoins(){
     var bid = localStorage.getItem(_getBlobKey());
     if(!bid) return; // session blob 還沒建立
-    fetch('https://json.extendsclass.com/bin/'+bid, {headers:{'Accept':'application/json'}})
+    fetch('https://jsonblob.com/api/jsonBlob/'+bid, {headers:{'Accept':'application/json'}})
       .then(function(r){ return r.ok ? r.json() : null; })
       .then(function(blob){
         if(!blob || !Array.isArray(blob.pendingJoins) || !blob.pendingJoins.length) return;
