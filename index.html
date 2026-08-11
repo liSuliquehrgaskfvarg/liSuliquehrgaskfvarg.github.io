@@ -1826,6 +1826,32 @@ const _viewUID = _urlParams.get('view');
 const isViewerMode = !!_viewUID;
 const _joinUID = _urlParams.get('join');
 const isJoinMode = !!_joinUID;
+const _blobId = _urlParams.get('b'); // jsonblob.com blob ID（觀看者用）
+
+// ── jsonblob.com 工具（取代 Firebase 同步）──────────────────
+function _getBlobKey(){ return '_jblob_' + (localStorage.getItem('_localId')||'def'); }
+function _getOrCreateBlob(callback){
+  var id = localStorage.getItem(_getBlobKey());
+  if(id){ callback(null, id); return; }
+  fetch('https://jsonblob.com/api/jsonBlob', {
+    method:'POST',
+    headers:{'Content-Type':'application/json','Accept':'application/json'},
+    body:JSON.stringify({_created:Date.now()})
+  }).then(function(r){
+    var loc = r.headers.get('Location')||'';
+    var bid = loc.replace(/.*\//,'');
+    if(!bid){ callback('no-id',null); return; }
+    localStorage.setItem(_getBlobKey(), bid);
+    callback(null, bid);
+  }).catch(function(e){ callback(String(e),null); });
+}
+function _putBlob(bid, data){
+  return fetch('https://jsonblob.com/api/jsonBlob/'+bid, {
+    method:'PUT',
+    headers:{'Content-Type':'application/json','Accept':'application/json'},
+    body:JSON.stringify(data)
+  });
+}
 
 if(isViewerMode){
   document.addEventListener('DOMContentLoaded', function(){
@@ -1834,57 +1860,53 @@ if(isViewerMode){
     document.getElementById('modal-setup').style.display = 'none';
     var statusEl = document.getElementById('viewer-status');
     statusEl.style.display = 'block';
-    // 用 Realtime Database 監聽 session
-    rtdb.ref('sessions/' + _viewUID).on('value', function(snap){
-      statusEl.style.display = 'none';
-      if(!snap.exists()){
-        document.getElementById('viewer-empty').textContent = '等待主持人開始比賽...';
-        document.getElementById('viewer-empty').style.display = 'block'; return;
-      }
-      document.getElementById('viewer-empty').style.display = 'none';
-      var s = snap.val();
-      courts = s.courts || [];
-      players = s.players || [];
-      // null 元素補齊（RTDB 會省略 null）
-      courts.forEach(function(c){
-        c.playerSlots = (c.playerSlots||[null,null,null,null]).map(function(x){return x===undefined?null:x;});
-        c.nextSlots = (c.nextSlots||[null,null,null,null]).map(function(x){return x===undefined?null:x;});
-      });
-      // 清除 slots 裡已不存在的球員 ID
-      var validIds = new Set(players.map(function(p){return p.id;}));
-      courts.forEach(function(c){
-        c.playerSlots = c.playerSlots.map(function(id){return id!==null&&validIds.has(id)?id:null;});
-        c.nextSlots = c.nextSlots.map(function(id){return id!==null&&validIds.has(id)?id:null;});
-      });
-      // 若自己出現在場上，標記為已核准
-      if(_myPlayerName && players.some(function(p){return p.name===_myPlayerName;})){
-        _myPlayerApproved = true;
-      }
-      // 若自己被刪（且曾被核准過），才通知下課
-      if(_myPlayerName && _myPlayerApproved && !players.some(function(p){return p.name===_myPlayerName;})){
-        showDismissedAlert(_myPlayerName);
-        _myPlayerName = null; _myPlayerApproved = false; _lastCourtNotified = null;
-        localStorage.removeItem('viewer-my-name');
-        document.getElementById('viewer-my-bar').style.display='none';
-        _viewerNameChosen = false;
-      }
-      // 還原或提示選名字
-      if(!_viewerNameChosen){
-        var saved = localStorage.getItem('viewer-my-name');
-        if(saved && players.some(function(p){return p.name===saved;})){
-          _myPlayerName = saved;
-          _viewerNameChosen = true;
-          document.getElementById('viewer-my-bar').style.display='flex';
-          document.getElementById('viewer-my-name').textContent = saved;
-        } else {
-          renderViewerPickBar();
+    // 用 jsonblob.com polling（每 3 秒抓一次，不需要 Firebase）
+    if(!_blobId){
+      statusEl.textContent = '❌ 請向主辦人取得最新的 QR 碼';
+      return;
+    }
+    var _vpLastTs = 0;
+    function _viewerPoll(){
+      fetch('https://jsonblob.com/api/jsonBlob/'+_blobId, {
+        headers:{'Accept':'application/json'}
+      }).then(function(r){ if(!r.ok) throw r.status; return r.json(); })
+      .then(function(s){
+        if(s.ts === _vpLastTs) return; // 沒有新資料就不 re-render
+        _vpLastTs = s.ts;
+        statusEl.style.display = 'none';
+        document.getElementById('viewer-empty').style.display = 'none';
+        courts = s.courts || [];
+        players = s.players || [];
+        courts.forEach(function(c){
+          c.playerSlots = (c.playerSlots||[null,null,null,null]).map(function(x){return x===undefined?null:x;});
+          c.nextSlots = (c.nextSlots||[null,null,null,null]).map(function(x){return x===undefined?null:x;});
+        });
+        var validIds = new Set(players.map(function(p){return p.id;}));
+        courts.forEach(function(c){
+          c.playerSlots = c.playerSlots.map(function(id){return id!==null&&validIds.has(id)?id:null;});
+          c.nextSlots = c.nextSlots.map(function(id){return id!==null&&validIds.has(id)?id:null;});
+        });
+        if(_myPlayerName && players.some(function(p){return p.name===_myPlayerName;})){ _myPlayerApproved=true; }
+        if(_myPlayerName && _myPlayerApproved && !players.some(function(p){return p.name===_myPlayerName;})){
+          showDismissedAlert(_myPlayerName);
+          _myPlayerName=null; _myPlayerApproved=false; _lastCourtNotified=null;
+          localStorage.removeItem('viewer-my-name');
+          document.getElementById('viewer-my-bar').style.display='none';
+          _viewerNameChosen=false;
         }
-      }
-      renderViewerUI(s.updatedAt);
-    }, function(err){
-      statusEl.textContent = '❌ 連線失敗：' + (err.code||err);
-      console.warn('viewer RTDB error:', err);
-    });
+        if(!_viewerNameChosen){
+          var saved=localStorage.getItem('viewer-my-name');
+          if(saved && players.some(function(p){return p.name===saved;})){
+            _myPlayerName=saved; _viewerNameChosen=true;
+            document.getElementById('viewer-my-bar').style.display='flex';
+            document.getElementById('viewer-my-name').textContent=saved;
+          } else { renderViewerPickBar(); }
+        }
+        renderViewerUI(s.ts);
+      }).catch(function(e){ console.warn('viewer poll err',e); });
+    }
+    _viewerPoll();
+    setInterval(_viewerPoll, 3000);
   });
 }
 
@@ -2038,35 +2060,42 @@ function switchJoinToViewer(){
   }
   var statusEl = document.getElementById('viewer-status');
   statusEl.style.display = 'block';
-  // 用 Realtime Database 監聽場地資料
-  rtdb.ref('sessions/' + _joinUID).on('value', function(snap){
-    statusEl.style.display = 'none';
-    if(!snap.exists()){ return; }
-    var s = snap.val();
-    courts = s.courts || [];
-    players = s.players || [];
-    // null 元素補齊（RTDB 會省略 null）
-    courts.forEach(function(c){
-      c.playerSlots = (c.playerSlots||[null,null,null,null]).map(function(x){return x===undefined?null:x;});
-      c.nextSlots = (c.nextSlots||[null,null,null,null]).map(function(x){return x===undefined?null:x;});
-    });
-    // 清除 slots 裡已不存在的球員 ID
-    var validIds2 = new Set(players.map(function(p){return p.id;}));
-    courts.forEach(function(c){
-      c.playerSlots = c.playerSlots.map(function(id){return id!==null&&validIds2.has(id)?id:null;});
-      c.nextSlots = c.nextSlots.map(function(id){return id!==null&&validIds2.has(id)?id:null;});
-    });
-    // 若自己被刪，清除身份並通知
-    if(_myPlayerName && players.some(function(p){return p.name===_myPlayerName;})){
-      _myPlayerApproved = true;
-    }
-    if(_myPlayerName && _myPlayerApproved && !players.some(function(p){return p.name===_myPlayerName;})){
-      showDismissedAlert(_myPlayerName);
-      _myPlayerName = null; _myPlayerApproved = false; _lastCourtNotified = null;
-    }
-    renderViewerUI(s.updatedAt);
-    checkMyCourtNotify();
-  }, function(err){ statusEl.textContent='❌ 連線失敗：'+(err.code||err); });
+  // 用 jsonblob.com polling
+  if(!_blobId){
+    statusEl.textContent = '❌ 請向主辦人取得最新的 QR 碼';
+    return;
+  }
+  var _jpLastTs = 0;
+  function _joinViewerPoll(){
+    fetch('https://jsonblob.com/api/jsonBlob/'+_blobId, {
+      headers:{'Accept':'application/json'}
+    }).then(function(r){ if(!r.ok) throw r.status; return r.json(); })
+    .then(function(s){
+      if(s.ts === _jpLastTs) return;
+      _jpLastTs = s.ts;
+      statusEl.style.display = 'none';
+      courts = s.courts || [];
+      players = s.players || [];
+      courts.forEach(function(c){
+        c.playerSlots = (c.playerSlots||[null,null,null,null]).map(function(x){return x===undefined?null:x;});
+        c.nextSlots = (c.nextSlots||[null,null,null,null]).map(function(x){return x===undefined?null:x;});
+      });
+      var validIds2 = new Set(players.map(function(p){return p.id;}));
+      courts.forEach(function(c){
+        c.playerSlots = c.playerSlots.map(function(id){return id!==null&&validIds2.has(id)?id:null;});
+        c.nextSlots = c.nextSlots.map(function(id){return id!==null&&validIds2.has(id)?id:null;});
+      });
+      if(_myPlayerName && players.some(function(p){return p.name===_myPlayerName;})){ _myPlayerApproved=true; }
+      if(_myPlayerName && _myPlayerApproved && !players.some(function(p){return p.name===_myPlayerName;})){
+        showDismissedAlert(_myPlayerName);
+        _myPlayerName=null; _myPlayerApproved=false; _lastCourtNotified=null;
+      }
+      renderViewerUI(s.ts);
+      checkMyCourtNotify();
+    }).catch(function(e){ console.warn('join-viewer poll err',e); });
+  }
+  _joinViewerPoll();
+  setInterval(_joinViewerPoll, 3000);
 }
 
 var _viewerNameChosen = false; // 觀看QR模式是否已選名字
@@ -2472,9 +2501,7 @@ function _setSyncDot(state, errCode){
     dot._warned = false; // 下次失敗時再次提醒
   } else {
     dot.style.background = '#ef4444';
-    var hint = errCode === 'permission-denied'
-      ? '同步失敗（Firestore 權限不足）\n請在 Firebase Console 開放 users collection 讀寫權限'
-      : '同步失敗：' + (errCode || '未知');
+    var hint = '同步失敗：' + (errCode || '未知') + '\n（請確認網路連線）';
     dot.title = hint;
     // 僅在第一次失敗時彈出提示（避免重複）
     if(!dot._warned){
@@ -2515,10 +2542,13 @@ function syncSession(immediate){
       }; }),
       updatedAt: (typeof firebase !== 'undefined' && firebase.firestore) ? firebase.firestore.FieldValue.serverTimestamp() : Date.now()
     };
-    // 用 Realtime Database 同步（規則與 Firestore 分開，預設允許讀寫）
-    rtdb.ref('sessions/' + _uid()).set(sessionData)
-      .then(function(){ _setSyncDot('ok'); })
-      .catch(function(e){ console.warn('syncSession RTDB error:', e.code, e.message); _setSyncDot('err', e.code); });
+    // 用 jsonblob.com 同步（不需要 Firebase）
+    _getOrCreateBlob(function(err, bid){
+      if(err || !bid){ _setSyncDot('err','blob'); return; }
+      _putBlob(bid, sessionData)
+        .then(function(){ _setSyncDot('ok'); })
+        .catch(function(e){ console.warn('syncSession blob err',e); _setSyncDot('err','net'); });
+    });
   }, delay);
 }
 
@@ -2678,22 +2708,26 @@ async function forceSyncSession(){
     };}),
     updatedAt: Date.now()
   };
-  try {
-    await rtdb.ref('sessions/' + _uid()).set(sessionData);
-    showToast('✅ 成功同步！');
-  } catch(e) {
-    showToast('❌ 同步失敗：' + (e.code||e));
-  }
+  await new Promise(function(resolve, reject){
+    _getOrCreateBlob(function(err, bid){
+      if(err || !bid){ reject(new Error(err||'no-blob')); return; }
+      _putBlob(bid, sessionData).then(resolve).catch(reject);
+    });
+  }).then(function(){ showToast('✅ 成功同步！'); })
+    .catch(function(e){ showToast('❌ 同步失敗：'+(e.message||e)); });
 }
 
 function showQRCode(){
-  var url = location.origin + location.pathname + '?view=' + _uid();
-  document.getElementById('qr-url').textContent = url;
-  document.getElementById('qr-container').innerHTML = '';
-  try {
-    new QRCode(document.getElementById('qr-container'), { text: url, width: 200, height: 200, colorDark:'#000', colorLight:'#fff' });
-  } catch(e){ document.getElementById('qr-container').textContent = url; }
-  document.getElementById('modal-qr').style.display = 'flex';
+  // 先確保 blob 已建立，再把 blob ID 放進 QR URL
+  _getOrCreateBlob(function(err, bid){
+    var url = location.origin + location.pathname + '?view=' + _uid() + (bid ? '&b='+bid : '');
+    document.getElementById('qr-url').textContent = url;
+    document.getElementById('qr-container').innerHTML = '';
+    try {
+      new QRCode(document.getElementById('qr-container'), { text: url, width: 200, height: 200, colorDark:'#000', colorLight:'#fff' });
+    } catch(e){ document.getElementById('qr-container').textContent = url; }
+    document.getElementById('modal-qr').style.display = 'flex';
+  });
 }
 
 function copyQRUrl(){
