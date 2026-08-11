@@ -2241,8 +2241,8 @@ function renderViewerUI(updatedAt){
   emptyDiv.style.display = (courts.length===0 && waiting.length===0) ? 'block' : 'none';
 
   // Updated time
-  if(updatedAt && updatedAt.toDate){
-    var d = updatedAt.toDate();
+  if(updatedAt){
+    var d = (updatedAt && updatedAt.toDate) ? updatedAt.toDate() : new Date(updatedAt);
     document.getElementById('viewer-updated').textContent = '更新：'+d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0')+':'+d.getSeconds().toString().padStart(2,'0');
   }
   if(typeof checkMyCourtNotify === 'function') checkMyCourtNotify();
@@ -2520,13 +2520,13 @@ function syncSession(immediate){
         playCount: p.playCount || 0,
         offTime: p.offTime || null
       }; }),
-      updatedAt: (typeof firebase !== 'undefined' && firebase.firestore) ? firebase.firestore.FieldValue.serverTimestamp() : Date.now()
+      ts: Date.now()
     };
     // 用 jsonblob.com 同步（不需要 Firebase）
     _getOrCreateBlob(function(err, bid){
       if(err || !bid){ _setSyncDot('err','blob'); return; }
       _putBlob(bid, sessionData)
-        .then(function(){ _setSyncDot('ok'); })
+        .then(function(r){ _setSyncDot(r && r.ok ? 'ok' : 'err'); })
         .catch(function(e){ console.warn('syncSession blob err',e); _setSyncDot('err','net'); });
     });
   }, delay);
@@ -2704,12 +2704,12 @@ async function forceSyncSession(){
       id: p.id||0, name: p.name||'', level: p.level||'1',
       status: p.status||'waiting', playCount: p.playCount||0, offTime: p.offTime||null
     };}),
-    updatedAt: Date.now()
+    ts: Date.now()
   };
   await new Promise(function(resolve, reject){
     _getOrCreateBlob(function(err, bid){
       if(err || !bid){ reject(new Error(err||'no-blob')); return; }
-      _putBlob(bid, sessionData).then(resolve).catch(reject);
+      _putBlob(bid, sessionData).then(function(r){ r.ok ? resolve() : reject(new Error('HTTP '+r.status)); }).catch(reject);
     });
   }).then(function(){ showToast('✅ 成功同步！'); })
     .catch(function(e){ showToast('❌ 同步失敗：'+(e.message||e)); });
