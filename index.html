@@ -1826,8 +1826,7 @@ const _viewUID = _urlParams.get('view');
 const isViewerMode = !!_viewUID;
 const _joinUID = _urlParams.get('join');
 const isJoinMode = !!_joinUID;
-const _blobId = _urlParams.get('b');  // session blob ID（觀看者用）
-const _jbId   = _urlParams.get('jb'); // join blob ID（球員加入用）
+const _blobId = _urlParams.get('b');  // session blob ID
 
 // ── jsonblob.com 工具（取代 Firebase 同步）──────────────────
 function _getBlobKey(){ return '_jblob_' + (localStorage.getItem('_localId')||'def'); }
@@ -2000,24 +1999,23 @@ async function submitJoinRequest(){
   };
   _myPlayerName = name;
   _myPlayerApproved = false;
-  if(!_jbId){
-    // 沒有 join blob ID（舊版 QR），直接進觀看畫面
-    msg.textContent='✅ 已送出，請稍等場地資訊更新';
-    msg.style.color='#4ade80';
-    switchJoinToViewer();
+  if(!_blobId){
+    msg.textContent='❌ QR 碼已過期，請向主辦人重新取得';
+    msg.style.color='#f87171';
+    btn.disabled=false; btn.textContent='送出申請';
     return;
   }
   try {
-    // 讀取目前的 join blob，加入自己，再寫回
-    var resp = await fetch('https://jsonblob.com/api/jsonBlob/'+_jbId, {headers:{'Accept':'application/json'}});
-    var blob = resp.ok ? await resp.json() : {requests:[]};
-    blob.requests = (blob.requests||[]).concat([entry]);
-    await fetch('https://jsonblob.com/api/jsonBlob/'+_jbId, {
+    // 讀取 session blob，把自己加進 pendingJoins，再寫回
+    var resp = await fetch('https://jsonblob.com/api/jsonBlob/'+_blobId, {headers:{'Accept':'application/json'}});
+    var blob = resp.ok ? await resp.json() : {};
+    blob.pendingJoins = (blob.pendingJoins||[]).concat([entry]);
+    await fetch('https://jsonblob.com/api/jsonBlob/'+_blobId, {
       method:'PUT',
       headers:{'Content-Type':'application/json','Accept':'application/json'},
       body: JSON.stringify(blob)
     });
-    msg.textContent='✅ 已加入，等待場地資訊同步...';
+    msg.textContent='✅ 已加入！';
     msg.style.color='#4ade80';
     switchJoinToViewer(); // 直接進觀看畫面，不等主辦人按允許
   } catch(e){
@@ -2542,43 +2540,37 @@ function _saveHandledJoin(id){
   try{ localStorage.setItem('_hjIds', JSON.stringify([..._handledJoinIds].slice(-300))); }catch(e){}
 }
 
-var _processedJoinIds = new Set(JSON.parse(localStorage.getItem('_pjIds')||'[]'));
-function _saveProcessedJoin(id){
-  _processedJoinIds.add(id);
-  try{ localStorage.setItem('_pjIds', JSON.stringify([..._processedJoinIds].slice(-500))); }catch(e){}
-}
-
 function startJoinListener(){
   if(isJoinMode || isViewerMode || !window._uid || !_uid()) return;
   if(_joinListenerActive) return;
   _joinListenerActive = true;
-  // 用 join blob polling 取代 Firestore listener
-  function _pollJoinBlob(){
-    var jbid = localStorage.getItem(_getJoinBlobKey());
-    if(!jbid) return; // blob 還沒建立（還沒開過加入 QR）
-    fetch('https://jsonblob.com/api/jsonBlob/'+jbid, {headers:{'Accept':'application/json'}})
+  // Poll session blob 的 pendingJoins（每 4 秒一次）
+  function _pollPendingJoins(){
+    var bid = localStorage.getItem(_getBlobKey());
+    if(!bid) return; // session blob 還沒建立
+    fetch('https://jsonblob.com/api/jsonBlob/'+bid, {headers:{'Accept':'application/json'}})
       .then(function(r){ return r.ok ? r.json() : null; })
       .then(function(blob){
-        if(!blob || !Array.isArray(blob.requests)) return;
+        if(!blob || !Array.isArray(blob.pendingJoins) || !blob.pendingJoins.length) return;
         var added = false;
-        blob.requests.forEach(function(entry){
-          if(_processedJoinIds.has(entry.id)) return; // 已處理
-          _saveProcessedJoin(entry.id);
-          if(players.find(function(p){ return p.name===entry.name; })) return; // 已在名單
-          if(!isPro() && players.length >= 16) return; // 免費版上限
+        blob.pendingJoins.forEach(function(entry){
+          if(_handledJoinIds.has(entry.id)) return;
+          _saveHandledJoin(entry.id);
+          if(players.find(function(p){ return p.name===entry.name; })) return;
+          if(!isPro() && players.length >= 16) return;
           players.push({
-            id: nid++, name: entry.name, level: entry.level,
+            id:nid++, name:entry.name, level:entry.level,
             status:'waiting', offTime:null, playCount:0, partnerHistory:[],
-            availableTime: entry.timeRange||'', startTime: entry.startTime||'',
-            endTime: entry.endTime||'', payType:'零打', sessionPaid:false
+            availableTime:entry.timeRange||'', startTime:entry.startTime||'',
+            endTime:entry.endTime||'', payType:'零打', sessionPaid:false
           });
           added = true;
         });
-        if(added){ render(); syncSession(true); }
+        if(added){ saveData(); renderPlayers(); renderQueue(); syncSession(true); }
       }).catch(function(){});
   }
-  setInterval(_pollJoinBlob, 5000);
-  _pollJoinBlob(); // 立即執行一次
+  setInterval(_pollPendingJoins, 4000);
+  _pollPendingJoins();
 }
 
 function _updateJoinBadge(){
@@ -2683,36 +2675,15 @@ async function clearJoinTime(){
   } catch(e){ alert('清除失敗：' + e.message); }
 }
 
-function _getJoinBlobKey(){ return '_jjblob_' + (localStorage.getItem('_localId')||'def'); }
-function _getOrCreateJoinBlob(callback){
-  var id = localStorage.getItem(_getJoinBlobKey());
-  if(id){ callback(null, id); return; }
-  fetch('https://jsonblob.com/api/jsonBlob', {
-    method:'POST',
-    headers:{'Content-Type':'application/json','Accept':'application/json'},
-    body:JSON.stringify({requests:[]})
-  }).then(function(r){
-    var loc = r.headers.get('Location')||'';
-    var bid = loc.replace(/.*\//,'');
-    if(!bid){ callback('no-id',null); return; }
-    localStorage.setItem(_getJoinBlobKey(), bid);
-    callback(null, bid);
-  }).catch(function(e){ callback(String(e),null); });
-}
-
 function showJoinQR(){
-  // 先確保兩個 blob 都建好，再顯示 QR
-  _getOrCreateBlob(function(e1, sessBid){
-    _getOrCreateJoinBlob(function(e2, joinBid){
-      var url = location.origin + location.pathname + '?join=' + _uid()
-        + (sessBid ? '&b='+sessBid : '')
-        + (joinBid ? '&jb='+joinBid : '');
-      document.getElementById('join-qr-url').textContent = url;
-      document.getElementById('join-qr-container').innerHTML = '';
-      try { new QRCode(document.getElementById('join-qr-container'), {text:url, width:200, height:200, colorDark:'#000', colorLight:'#fff'}); }
-      catch(e){ document.getElementById('join-qr-container').textContent = url; }
-      document.getElementById('modal-join-qr').style.display = 'flex';
-    });
+  // 確保 session blob 已建立（球員需要透過它送加入申請）
+  _getOrCreateBlob(function(e, bid){
+    var url = location.origin + location.pathname + '?join=' + _uid() + (bid ? '&b='+bid : '');
+    document.getElementById('join-qr-url').textContent = url;
+    document.getElementById('join-qr-container').innerHTML = '';
+    try { new QRCode(document.getElementById('join-qr-container'), {text:url, width:200, height:200, colorDark:'#000', colorLight:'#fff'}); }
+    catch(e2){ document.getElementById('join-qr-container').textContent = url; }
+    document.getElementById('modal-join-qr').style.display = 'flex';
   });
 }
 
