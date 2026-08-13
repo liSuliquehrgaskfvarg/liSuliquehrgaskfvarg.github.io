@@ -1772,14 +1772,14 @@ header h1{font-size:1.2rem;font-weight:800;}
 // FIREBASE INIT
 // ══════════════════════════════
 const firebaseConfig = {
-  apiKey: "AIzaSyAKeHVmF1NOYbweLVDDFImN987QRlAWxuI",
-  authDomain: "badminton-16549.firebaseapp.com",
-  databaseURL: "https://badminton-16549-default-rtdb.firebaseio.com",
-  projectId: "badminton-16549",
-  storageBucket: "badminton-16549.firebasestorage.app",
-  messagingSenderId: "739239566870",
-  appId: "1:739239566870:web:aa7632f3a69ee526b05f37",
-  measurementId: "G-K2PQB442SK"
+  apiKey: "AIzaSyClfXZCror4lzkff4TCgUqF1p-deujQPjs",
+  authDomain: "badminton-736c1.firebaseapp.com",
+  databaseURL: "https://badminton-736c1-default-rtdb.firebaseio.com",
+  projectId: "badminton-736c1",
+  storageBucket: "badminton-736c1.firebasestorage.app",
+  messagingSenderId: "471432007990",
+  appId: "1:471432007990:web:80d62802bcf73c8ac7e397",
+  measurementId: "G-YTVB0QXCHD"
 };
 var auth, db, rtdb;
 try {
@@ -1828,31 +1828,7 @@ const _joinUID = _urlParams.get('join');
 const isJoinMode = !!_joinUID;
 const _blobId = _urlParams.get('b');  // session blob ID
 
-// ── JSON 存儲工具（jsonblob.com，免帳號、免 API key、CORS 完整支援）──
-function _getBlobKey(){ return '_jblob_' + (localStorage.getItem('_localId')||'def'); }
-function _getOrCreateBlob(callback){
-  var id = localStorage.getItem(_getBlobKey());
-  if(id){ callback(null, id); return; }
-  fetch('https://jsonblob.com/api/jsonBlob', {
-    method:'POST',
-    headers:{'Content-Type':'application/json','Accept':'application/json'},
-    body:JSON.stringify({_created:Date.now()})
-  }).then(function(r){
-    // 201 Created：Location header = https://jsonblob.com/api/jsonBlob/<id>
-    var loc = r.headers.get('Location') || '';
-    var bid = loc.replace(/.*\//, '');
-    if(!bid){ callback('no-id(loc='+loc+',status='+r.status+')', null); return; }
-    localStorage.setItem(_getBlobKey(), bid);
-    callback(null, bid);
-  }).catch(function(e){ callback(String(e), null); });
-}
-function _putBlob(bid, data){
-  return fetch('https://jsonblob.com/api/jsonBlob/'+bid, {
-    method:'PUT',
-    headers:{'Content-Type':'application/json','Accept':'application/json'},
-    body:JSON.stringify(data)
-  });
-}
+// ── Firebase RTDB 即時同步（WebSocket 推送，不需 polling）──
 
 if(isViewerMode){
   document.addEventListener('DOMContentLoaded', function(){
@@ -1861,18 +1837,12 @@ if(isViewerMode){
     document.getElementById('modal-setup').style.display = 'none';
     var statusEl = document.getElementById('viewer-status');
     statusEl.style.display = 'block';
-    // 用 jsonblob.com polling（每 5 秒抓一次，不需要 Firebase）
-    if(!_blobId){
-      statusEl.textContent = '❌ 請向主辦人取得最新的 QR 碼';
-      return;
-    }
+    // Firebase RTDB 即時監聽（WebSocket 推送）
+    statusEl.textContent = '⏳ 等待主辦方同步中...';
     var _vpLastTs = 0;
-    function _viewerPoll(){
-      fetch('https://jsonblob.com/api/jsonBlob/'+_blobId, {
-        headers:{'Accept':'application/json'}
-      }).then(function(r){ if(!r.ok) throw r.status; return r.json(); })
-      .then(function(s){
-        if(s.ts === _vpLastTs) return; // 沒有新資料就不 re-render
+    rtdb.ref('sessions/' + _viewUID).on('value', function(snapshot){
+      var s = snapshot.val();
+      if(!s || s.ts === _vpLastTs) return; // 沒有新資料就不 re-render
         _vpLastTs = s.ts;
         statusEl.style.display = 'none';
         document.getElementById('viewer-empty').style.display = 'none';
@@ -1904,10 +1874,8 @@ if(isViewerMode){
           } else { renderViewerPickBar(); }
         }
         renderViewerUI(s.ts);
-      }).catch(function(e){ console.warn('viewer poll err',e); });
-    }
-    _viewerPoll();
-    setInterval(_viewerPoll, 5000);
+    });
+
   });
 }
 
@@ -2000,23 +1968,10 @@ async function submitJoinRequest(){
   };
   _myPlayerName = name;
   _myPlayerApproved = false;
-  if(!_blobId){
-    msg.textContent='❌ QR 碼已過期，請向主辦人重新取得';
-    msg.style.color='#f87171';
-    btn.disabled=false; btn.textContent='送出申請';
-    return;
-  }
   try {
-    // 讀取 session blob，把自己加進 pendingJoins，再寫回
-    var resp = await fetch('https://jsonblob.com/api/jsonBlob/'+_blobId, {headers:{'Accept':'application/json'}});
-    var blob = resp.ok ? await resp.json() : {};
-    blob.pendingJoins = (blob.pendingJoins||[]).concat([entry]);
-    await fetch('https://jsonblob.com/api/jsonBlob/'+_blobId, {
-      method:'PUT',
-      headers:{'Content-Type':'application/json','Accept':'application/json'},
-      body: JSON.stringify(blob)
-    });
-    msg.textContent='✅ 已加入！';
+    // 透過 Firebase RTDB 送出加入申請（主辦方即時收到）
+    await rtdb.ref('joinRequests/' + _joinUID + '/' + entry.id).set(entry);
+    msg.textContent='✅ 已送出！等待排程...';
     msg.style.color='#4ade80';
     switchJoinToViewer(); // 直接進觀看畫面，不等主辦人按允許
   } catch(e){
@@ -2041,42 +1996,34 @@ function switchJoinToViewer(){
   }
   var statusEl = document.getElementById('viewer-status');
   statusEl.style.display = 'block';
-  // 用 jsonblob.com polling
-  if(!_blobId){
-    statusEl.textContent = '❌ 請向主辦人取得最新的 QR 碼';
-    return;
-  }
+  // 用 Firebase RTDB 即時監聽
+  statusEl.textContent = '⏳ 等待主辦方同步中...';
   var _jpLastTs = 0;
-  function _joinViewerPoll(){
-    fetch('https://jsonblob.com/api/jsonBlob/'+_blobId, {
-      headers:{'Accept':'application/json'}
-    }).then(function(r){ if(!r.ok) throw r.status; return r.json(); })
-    .then(function(s){
-      if(s.ts === _jpLastTs) return;
-      _jpLastTs = s.ts;
-      statusEl.style.display = 'none';
-      courts = s.courts || [];
-      players = s.players || [];
-      courts.forEach(function(c){
-        c.playerSlots = (c.playerSlots||[null,null,null,null]).map(function(x){return x===undefined?null:x;});
-        c.nextSlots = (c.nextSlots||[null,null,null,null]).map(function(x){return x===undefined?null:x;});
-      });
-      var validIds2 = new Set(players.map(function(p){return p.id;}));
-      courts.forEach(function(c){
-        c.playerSlots = c.playerSlots.map(function(id){return id!==null&&validIds2.has(id)?id:null;});
-        c.nextSlots = c.nextSlots.map(function(id){return id!==null&&validIds2.has(id)?id:null;});
-      });
-      if(_myPlayerName && players.some(function(p){return p.name===_myPlayerName;})){ _myPlayerApproved=true; }
-      if(_myPlayerName && _myPlayerApproved && !players.some(function(p){return p.name===_myPlayerName;})){
-        showDismissedAlert(_myPlayerName);
-        _myPlayerName=null; _myPlayerApproved=false; _lastCourtNotified=null;
-      }
-      renderViewerUI(s.ts);
-      checkMyCourtNotify();
-    }).catch(function(e){ console.warn('join-viewer poll err',e); });
-  }
-  _joinViewerPoll();
-  setInterval(_joinViewerPoll, 5000);
+  rtdb.ref('sessions/' + _joinUID).on('value', function(snapshot){
+    var s = snapshot.val();
+    if(!s || s.ts === _jpLastTs) return;
+    _jpLastTs = s.ts;
+    statusEl.style.display = 'none';
+    courts = s.courts || [];
+    players = s.players || [];
+    courts.forEach(function(c){
+      c.playerSlots = (c.playerSlots||[null,null,null,null]).map(function(x){return x===undefined?null:x;});
+      c.nextSlots = (c.nextSlots||[null,null,null,null]).map(function(x){return x===undefined?null:x;});
+    });
+    var validIds2 = new Set(players.map(function(p){return p.id;}));
+    courts.forEach(function(c){
+      c.playerSlots = c.playerSlots.map(function(id){return id!==null&&validIds2.has(id)?id:null;});
+      c.nextSlots = c.nextSlots.map(function(id){return id!==null&&validIds2.has(id)?id:null;});
+    });
+    if(_myPlayerName && players.some(function(p){return p.name===_myPlayerName;})){ _myPlayerApproved=true; }
+    if(_myPlayerName && _myPlayerApproved && !players.some(function(p){return p.name===_myPlayerName;})){
+      showDismissedAlert(_myPlayerName);
+      _myPlayerName=null; _myPlayerApproved=false; _lastCourtNotified=null;
+    }
+    renderViewerUI(s.ts);
+    checkMyCourtNotify();
+  });
+
 }
 
 var _viewerNameChosen = false; // 觀看QR模式是否已選名字
@@ -2523,19 +2470,10 @@ function syncSession(immediate){
       }; }),
       ts: Date.now()
     };
-    // 用 jsonblob.com 同步（GET→merge→PUT，保留 pendingJoins 不被覆寫）
-    _getOrCreateBlob(function(err, bid){
-      if(err || !bid){ _setSyncDot('err', err||'no-blob'); return; }
-      fetch('https://jsonblob.com/api/jsonBlob/'+bid, {headers:{'Accept':'application/json'}})
-        .then(function(r){ return r.ok ? r.json() : {}; })
-        .catch(function(){ return {}; })
-        .then(function(current){
-          sessionData.pendingJoins = (current.pendingJoins && current.pendingJoins.length) ? current.pendingJoins : [];
-          return _putBlob(bid, sessionData);
-        })
-        .then(function(r){ _setSyncDot(r && r.ok ? 'ok' : 'err'); })
-        .catch(function(e){ console.warn('syncSession err',e); _setSyncDot('err','net'); });
-    });
+    // 透過 Firebase RTDB 發佈 session 給所有觀看者
+    rtdb.ref('sessions/' + _uid()).set(sessionData)
+      .then(function(){ _setSyncDot('ok'); })
+      .catch(function(e){ console.warn('syncSession err',e); _setSyncDot('err','net'); });
   }, delay);
 }
 
@@ -2551,36 +2489,23 @@ function startJoinListener(){
   if(isJoinMode || isViewerMode || !window._uid || !_uid()) return;
   if(_joinListenerActive) return;
   _joinListenerActive = true;
-  // Poll session blob 的 pendingJoins（每 5 秒一次）
-  function _pollPendingJoins(){
-    var bid = localStorage.getItem(_getBlobKey());
-    if(!bid) return; // session blob 還沒建立
-    fetch('https://jsonblob.com/api/jsonBlob/'+bid, {headers:{'Accept':'application/json'}})
-      .then(function(r){ return r.ok ? r.json() : null; })
-      .then(function(blob){
-        if(!blob || !Array.isArray(blob.pendingJoins) || !blob.pendingJoins.length) return;
-        var newNames = [];
-        blob.pendingJoins.forEach(function(entry){
-          if(_handledJoinIds.has(entry.id)) return;
-          _saveHandledJoin(entry.id);
-          if(players.find(function(p){ return p.name===entry.name; })) return;
-          if(!isPro() && players.length >= 16) return;
-          players.push({
-            id:nid++, name:entry.name, level:entry.level,
-            status:'waiting', offTime:null, playCount:0, partnerHistory:[],
-            availableTime:entry.timeRange||'', startTime:entry.startTime||'',
-            endTime:entry.endTime||'', payType:'零打', sessionPaid:false
-          });
-          newNames.push(entry.name);
-        });
-        if(newNames.length){
-          showToast('✅ ' + newNames.join('、') + ' 已加入');
-          saveData(); renderPlayers(); renderQueue(); syncSession(true);
-        }
-      }).catch(function(){});
-  }
-  setInterval(_pollPendingJoins, 5000);
-  _pollPendingJoins();
+  // Firebase RTDB 即時監聽加入申請（child_added = 每筆新申請立即觸發）
+  rtdb.ref('joinRequests/' + _uid()).on('child_added', function(snapshot){
+    var entry = snapshot.val();
+    if(!entry || !entry.id) return;
+    if(_handledJoinIds.has(entry.id)) return;
+    _saveHandledJoin(entry.id);
+    if(players.find(function(p){ return p.name===entry.name; })) return;
+    if(!isPro() && players.length >= 16) return;
+    players.push({
+      id:nid++, name:entry.name, level:entry.level,
+      status:'waiting', offTime:null, playCount:0, partnerHistory:[],
+      availableTime:entry.timeRange||'', startTime:entry.startTime||'',
+      endTime:entry.endTime||'', payType:'零打', sessionPaid:false
+    });
+    showToast('✅ ' + entry.name + ' 已加入');
+    saveData(); renderPlayers(); renderQueue(); syncSession(true);
+  });
 }
 
 function _updateJoinBadge(){
@@ -2686,15 +2611,12 @@ async function clearJoinTime(){
 }
 
 function showJoinQR(){
-  // 確保 session blob 已建立（球員需要透過它送加入申請）
-  _getOrCreateBlob(function(e, bid){
-    var url = location.origin + location.pathname + '?join=' + _uid() + (bid ? '&b='+bid : '');
-    document.getElementById('join-qr-url').textContent = url;
-    document.getElementById('join-qr-container').innerHTML = '';
-    try { new QRCode(document.getElementById('join-qr-container'), {text:url, width:200, height:200, colorDark:'#000', colorLight:'#fff'}); }
-    catch(e2){ document.getElementById('join-qr-container').textContent = url; }
-    document.getElementById('modal-join-qr').style.display = 'flex';
-  });
+  var url = location.origin + location.pathname + '?join=' + _uid();
+  document.getElementById('join-qr-url').textContent = url;
+  document.getElementById('join-qr-container').innerHTML = '';
+  try { new QRCode(document.getElementById('join-qr-container'), {text:url, width:200, height:200, colorDark:'#000', colorLight:'#fff'}); }
+  catch(e2){ document.getElementById('join-qr-container').textContent = url; }
+  document.getElementById('modal-join-qr').style.display = 'flex';
 }
 
 function copyJoinUrl(){
@@ -2716,26 +2638,20 @@ async function forceSyncSession(){
     };}),
     ts: Date.now()
   };
-  await new Promise(function(resolve, reject){
-    _getOrCreateBlob(function(err, bid){
-      if(err || !bid){ reject(new Error(err||'no-blob')); return; }
-      _putBlob(bid, sessionData).then(function(r){ r.ok ? resolve() : reject(new Error('HTTP '+r.status)); }).catch(reject);
-    });
-  }).then(function(){ showToast('✅ 成功同步！'); })
-    .catch(function(e){ showToast('❌ 同步失敗：'+(e.message||e)); });
+  try {
+    await rtdb.ref('sessions/' + _uid()).set(sessionData);
+    showToast('✅ 成功同步！'); _setSyncDot('ok');
+  } catch(e){ showToast('❌ 同步失敗：'+(e.message||e)); _setSyncDot('err','net'); }
 }
 
 function showQRCode(){
-  // 先確保 blob 已建立，再把 blob ID 放進 QR URL
-  _getOrCreateBlob(function(err, bid){
-    var url = location.origin + location.pathname + '?view=' + _uid() + (bid ? '&b='+bid : '');
-    document.getElementById('qr-url').textContent = url;
-    document.getElementById('qr-container').innerHTML = '';
-    try {
-      new QRCode(document.getElementById('qr-container'), { text: url, width: 200, height: 200, colorDark:'#000', colorLight:'#fff' });
-    } catch(e){ document.getElementById('qr-container').textContent = url; }
-    document.getElementById('modal-qr').style.display = 'flex';
-  });
+  var url = location.origin + location.pathname + '?view=' + _uid();
+  document.getElementById('qr-url').textContent = url;
+  document.getElementById('qr-container').innerHTML = '';
+  try {
+    new QRCode(document.getElementById('qr-container'), { text: url, width: 200, height: 200, colorDark:'#000', colorLight:'#fff' });
+  } catch(e){ document.getElementById('qr-container').textContent = url; }
+  document.getElementById('modal-qr').style.display = 'flex';
 }
 
 function copyQRUrl(){
