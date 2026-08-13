@@ -1782,18 +1782,20 @@ const firebaseConfig = {
   measurementId: "G-YTVB0QXCHD"
 };
 var auth, db, rtdb;
+var _dbMock = { collection: function(){ return { doc: function(){ return { get: function(){ return Promise.reject('no-firebase'); }, set: function(){ return Promise.reject('no-firebase'); }, onSnapshot: function(){ return function(){}; } }; }, where: function(){ return { onSnapshot: function(){ return function(){}; } }; }, add: function(){ return Promise.reject('no-firebase'); } }; } };
+var _rtdbMock = { ref: function(){ return { set: function(){ return Promise.reject('no-firebase'); }, on: function(){}, off: function(){} }; } };
+// 先初始化 app 和 auth
 try {
   firebase.initializeApp(firebaseConfig);
   auth = firebase.auth();
-  db = firebase.firestore();
-  rtdb = firebase.database();
 } catch(e) {
-  console.warn('Firebase 初始化失敗，使用純本機模式', e);
-  // 假物件，讓後續呼叫不會報錯
+  console.warn('Firebase app 初始化失敗', e);
   auth = { signInAnonymously: function(){ return Promise.reject('no-firebase'); } };
-  db = { collection: function(){ return { doc: function(){ return { get: function(){ return Promise.reject('no-firebase'); }, set: function(){ return Promise.reject('no-firebase'); }, onSnapshot: function(){ return function(){}; } }; }, where: function(){ return { onSnapshot: function(){ return function(){}; } }; }, add: function(){ return Promise.reject('no-firebase'); } }; } };
-  rtdb = { ref: function(){ return { set: function(){ return Promise.reject('no-firebase'); }, on: function(){}, off: function(){} }; } };
 }
+// Firestore（可選，失敗不影響 RTDB）
+try { db = firebase.firestore(); } catch(e) { console.warn('Firestore 不可用', e); db = _dbMock; }
+// RTDB（核心同步功能）
+try { rtdb = firebase.database(); } catch(e) { console.warn('RTDB 初始化失敗', e); rtdb = _rtdbMock; }
 
 let currentUser = null;
 let _userPro = true;  // 全部功能開放，不需登入
