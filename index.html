@@ -5119,12 +5119,21 @@ function renderPlayers(){
         return '<span class="pay-tag pfree">免費</span>';
       })();
 
+      const CARD_BG_LIGHT=['#dcfce7','#fce7f3','#fef9c3','#e0f2fe'];
+      const CARD_BG_DARK =['rgba(74,222,128,.13)','rgba(249,168,212,.13)','rgba(253,224,71,.13)','rgba(125,211,252,.13)'];
+      const CARD_BORDER  =['#86efac','#f9a8d4','#fde047','#7dd3fc'];
+      const ti2=tierOf(p.level);
+      const isDark=document.documentElement.classList.contains('dark')||window.matchMedia('(prefers-color-scheme:dark)').matches;
+      const cardBg=isDark?(CARD_BG_DARK[ti2]||''):(CARD_BG_LIGHT[ti2]||'#fff');
+      const cardBorder=CARD_BORDER[ti2]||'var(--bdr)';
+
       const div=document.createElement('div');
       div.className='p-item'+(isPlay?' playing':'')+(isSelected?' selected':'');
+      div.style.background=cardBg;
+      div.style.borderColor=isSelected?'var(--blu)':cardBorder;
       div.onclick=(e)=>{ if(e.target.closest('button')) return; if(!isPlay) selectPlayer(p.id); };
       div.innerHTML=`
         <div class="p-item-top">
-          <div class="mn ${LCLS(p.level)}">${tierName(p.level)}</div>
           ${genderTag(p.gender||'')}
           <span style="font-size:0.84rem;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.name}</span>
           <span style="font-size:0.7rem;font-weight:800;color:#6abf5a;flex-shrink:0">${cnt}場</span>
