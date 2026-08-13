@@ -4926,15 +4926,22 @@ function importData(){
     reader.onload = function(ev){
       try {
         var d = JSON.parse(ev.target.result);
-        players    = d.players    || [];
-        courts     = d.courts     || [];
-        roster     = d.roster     || [];
-        fixedPairs = d.fixedPairs || [];
-        rid        = d.rid  || 1;
-        nid        = d.nid  || 1;
-        namingStyle= d.namingStyle || 'number';
-        // 匯入時清除 cooling 狀態，等第一場再計休息
-        players.forEach(function(p){ if(p.status==='cooling'){ p.status='waiting'; p.offTime=null; } });
+        // 球員合併：同名覆蓋，新人新增，現有人保留
+        var imported = d.players || [];
+        imported.forEach(function(imp){
+          if(imp.status==='cooling'){ imp.status='waiting'; imp.offTime=null; }
+          var idx = players.findIndex(function(p){ return p.name === imp.name; });
+          if(idx >= 0){
+            players[idx] = Object.assign({}, players[idx], imp);
+          } else {
+            imp.id = nid++;
+            players.push(imp);
+          }
+        });
+        courts     = d.courts     || courts;
+        roster     = d.roster     || roster;
+        fixedPairs = d.fixedPairs || fixedPairs;
+        namingStyle= d.namingStyle || namingStyle || 'number';
         ensureFixedRoster();
         saveData();
         document.getElementById('modal-setup').style.display = 'none';
