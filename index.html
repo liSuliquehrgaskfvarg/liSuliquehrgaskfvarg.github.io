@@ -2492,22 +2492,13 @@ function startJoinListener(){
   if(isJoinMode || isViewerMode || !window._uid || !_uid()) return;
   if(_joinListenerActive) return;
   _joinListenerActive = true;
-  // Firebase RTDB 即時監聽加入申請（child_added = 每筆新申請立即觸發）
+  // Firebase RTDB 即時監聽加入申請，顯示審核卡片讓主辦方同意／拒絕
   rtdb.ref('joinRequests/' + _uid()).on('child_added', function(snapshot){
     var entry = snapshot.val();
     if(!entry || !entry.id) return;
     if(_handledJoinIds.has(entry.id)) return;
-    _saveHandledJoin(entry.id);
-    if(players.find(function(p){ return p.name===entry.name; })) return;
-    if(!isPro() && players.length >= 16) return;
-    players.push({
-      id:nid++, name:entry.name, level:entry.level,
-      status:'waiting', offTime:null, playCount:0, partnerHistory:[],
-      availableTime:entry.timeRange||'', startTime:entry.startTime||'',
-      endTime:entry.endTime||'', payType:'零打', sessionPaid:false
-    });
-    showToast('✅ ' + entry.name + ' 已加入');
-    saveData(); renderPlayers(); renderQueue(); syncSession(true);
+    // 包裝成 showJoinNotify 需要的格式
+    showJoinNotify({ id: entry.id, data: function(){ return entry; } });
   });
 }
 
