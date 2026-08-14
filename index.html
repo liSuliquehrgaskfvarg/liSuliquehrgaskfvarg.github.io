@@ -1573,15 +1573,13 @@ header h1{font-size:1.2rem;font-weight:800;}
 
 <!-- Join QR Code Modal -->
 <div class="overlay" id="modal-join-qr" onclick="if(event.target.id==='modal-join-qr')document.getElementById('modal-join-qr').style.display='none'" style="display:none">
-  <div class="modal" style="width:300px;text-align:center">
-    <h3 style="margin-bottom:6px"><i class="bi bi-qr-code-scan"></i> 球員加入 QR Code</h3>
-    <p style="font-size:0.73rem;color:var(--txt2);margin-bottom:14px">球員掃描後填資料，主辦人確認即可進候場</p>
-    <div id="join-qr-container" style="display:inline-block;background:#fff;padding:12px;border-radius:10px;margin-bottom:10px"></div>
-    <div id="join-qr-url" style="font-size:0.62rem;color:var(--mut);word-break:break-all;margin-bottom:14px"></div>
-    <div style="display:flex;gap:8px">
-      <button class="mbtn mcancel" style="flex:1" onclick="document.getElementById('modal-join-qr').style.display='none'">關閉</button>
-      <button class="mbtn mok" style="flex:1" onclick="copyJoinUrl()">複製連結</button>
+  <div class="modal" style="width:320px;max-height:86vh;overflow-y:auto">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <h3 style="margin:0"><i class="bi bi-qr-code-scan"></i> 球員加入 QR</h3>
+      <button onclick="document.getElementById('modal-join-qr').style.display='none'" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--mut)">✕</button>
     </div>
+    <p style="font-size:0.72rem;color:var(--mut);margin-bottom:14px">球員掃碼填名字即可申請加入，主辦方確認後進入候場</p>
+    <div id="join-qr-list" style="display:flex;flex-direction:column;gap:16px"></div>
   </div>
 </div>
 
@@ -1604,6 +1602,9 @@ header h1{font-size:1.2rem;font-weight:800;}
   <div style="max-width:400px;margin:0 auto">
     <div id="join-time-block-msg" style="display:none;background:var(--sur);border-radius:14px;padding:28px 20px;text-align:center;font-size:1rem;font-weight:700;color:var(--txt2);line-height:1.8;margin-bottom:12px"></div>
     <div id="join-form-card" style="background:var(--sur);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:14px">
+      <div id="join-slot-time-banner" style="display:none;background:#dbeafe;border-radius:10px;padding:10px 14px;text-align:center;font-size:1rem;font-weight:700;color:#1d4ed8">
+        ⏰ <span id="join-slot-time-text"></span>
+      </div>
       <div>
         <label style="font-size:0.78rem;color:var(--mut);font-weight:600;display:block;margin-bottom:5px">姓名</label>
         <input id="join-name" type="text" placeholder="請輸入姓名" autocomplete="off"
@@ -1619,13 +1620,13 @@ header h1{font-size:1.2rem;font-weight:800;}
         </div>
       </div>
       <div>
-        <label style="font-size:0.78rem;color:var(--mut);font-weight:600;display:block;margin-bottom:5px">性別</label>
+        <label style="font-size:0.78rem;color:var(--mut);font-weight:600;display:block;margin-bottom:5px">性別 <span style="color:#f87171;font-size:0.7rem">（必填）</span></label>
         <div class="sel-btn-group" id="join-gender-group">
           <button type="button" class="join-sel-btn" data-val="M" onclick="selectBtn('join-gender-group','_joinGender','M')">男</button>
           <button type="button" class="join-sel-btn" data-val="F" onclick="selectBtn('join-gender-group','_joinGender','F')">女</button>
         </div>
       </div>
-      <div>
+      <div id="join-time-row">
         <label style="font-size:0.78rem;color:var(--mut);font-weight:600;display:block;margin-bottom:5px">可打時間</label>
         <div style="display:flex;align-items:center;gap:8px">
           <select id="join-time-start" style="flex:1;background:var(--sur2);border:1.5px solid var(--bdr);border-radius:8px;padding:10px 8px;color:var(--txt);font-size:1rem;outline:none;-webkit-appearance:none"></select>
@@ -1644,23 +1645,34 @@ header h1{font-size:1.2rem;font-weight:800;}
 
 <!-- Join Time Settings Modal -->
 <div class="overlay" id="modal-join-time" onclick="if(event.target.id==='modal-join-time')closeJoinTimeModal()" style="display:none">
-  <div class="modal" style="width:320px;position:relative">
+  <div class="modal" style="width:340px;max-height:84vh;overflow-y:auto;position:relative">
     <button onclick="closeJoinTimeModal()" style="position:absolute;top:10px;right:14px;background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--mut)">✕</button>
     <h3 style="margin-bottom:4px"><i class="bi bi-clock-fill"></i> 加入時間設定</h3>
-    <p style="font-size:0.73rem;color:var(--mut);margin-bottom:16px">設定球員可加入的時間區間。留空代表不限制。</p>
-    <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:12px">
-      <div>
-        <label style="font-size:0.75rem;color:var(--txt2);display:block;margin-bottom:5px">開始時間</label>
-        <input type="time" id="join-time-open-start" style="width:100%;background:var(--sur2);border:1.5px solid var(--bdr);border-radius:8px;padding:9px 12px;color:var(--txt);font-size:1rem;outline:none;box-sizing:border-box">
+
+    <!-- Section 1: Open window -->
+    <div style="font-size:0.7rem;color:var(--mut);font-weight:700;letter-spacing:0.06em;text-transform:uppercase;margin:12px 0 6px">開放填表時間</div>
+    <p style="font-size:0.7rem;color:var(--mut);margin-bottom:10px">限制球員只能在此時間內掃碼填表（留空 = 不限制）</p>
+    <div style="display:flex;gap:8px;margin-bottom:4px">
+      <div style="flex:1">
+        <label style="font-size:0.72rem;color:var(--txt2);display:block;margin-bottom:4px">開始</label>
+        <input type="time" id="join-time-open-start" style="width:100%;background:var(--sur2);border:1.5px solid var(--bdr);border-radius:8px;padding:8px 10px;color:var(--txt);font-size:0.9rem;outline:none;box-sizing:border-box">
       </div>
-      <div>
-        <label style="font-size:0.75rem;color:var(--txt2);display:block;margin-bottom:5px">結束時間</label>
-        <input type="time" id="join-time-open-end" style="width:100%;background:var(--sur2);border:1.5px solid var(--bdr);border-radius:8px;padding:9px 12px;color:var(--txt);font-size:1rem;outline:none;box-sizing:border-box">
+      <div style="flex:1">
+        <label style="font-size:0.72rem;color:var(--txt2);display:block;margin-bottom:4px">結束</label>
+        <input type="time" id="join-time-open-end" style="width:100%;background:var(--sur2);border:1.5px solid var(--bdr);border-radius:8px;padding:8px 10px;color:var(--txt);font-size:0.9rem;outline:none;box-sizing:border-box">
       </div>
     </div>
-    <p style="font-size:0.7rem;color:var(--mut);margin-bottom:14px">留空 = 不限制，任何時間均可加入</p>
-    <div style="display:flex;gap:8px">
-      <button class="mbtn mcancel" style="flex:1" onclick="clearJoinTime()">清除限制</button>
+
+    <hr style="border:none;border-top:1px solid var(--bdr);margin:16px 0">
+
+    <!-- Section 2: Time slot QRs -->
+    <div style="font-size:0.7rem;color:var(--mut);font-weight:700;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:6px">時段 QR 設定</div>
+    <p style="font-size:0.7rem;color:var(--mut);margin-bottom:10px">每個時段對應一個獨立 QR Code，球員掃碼後自動綁定該時段（最多 15 個）</p>
+    <div id="join-slots-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px"></div>
+    <button id="join-add-slot-btn" onclick="addJoinSlot()" style="width:100%;background:var(--sur2);border:1.5px dashed var(--bdr);border-radius:8px;padding:9px;color:var(--txt2);font-size:0.85rem;cursor:pointer">＋ 新增時段</button>
+
+    <div style="display:flex;gap:8px;margin-top:16px">
+      <button class="mbtn mcancel" style="flex:1" onclick="clearJoinTime()">清除全部</button>
       <button class="mbtn mok" style="flex:1" onclick="saveJoinTime()">儲存</button>
     </div>
   </div>
@@ -1888,40 +1900,54 @@ if(isJoinMode){
     document.getElementById('join-overlay').style.display = 'block';
     var _ml=document.getElementById('modal-login'); if(_ml) _ml.style.display='none';
     document.getElementById('modal-setup').style.display = 'none';
-    // 填入每半小時選項
-    var slots = [];
-    for(var h=6;h<24;h++) for(var m=0;m<60;m+=30){
-      var t = String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');
-      slots.push(t);
+
+    // 判斷 URL 有沒有時段資訊 (ts/te)
+    var _urlTs = _urlParams.get('ts');
+    var _urlTe = _urlParams.get('te');
+    if(_urlTs && _urlTe){
+      // 預設時段 QR：顯示時間 banner，隱藏時間選擇
+      var banner = document.getElementById('join-slot-time-banner');
+      if(banner){ banner.style.display = 'block'; }
+      var bannerText = document.getElementById('join-slot-time-text');
+      if(bannerText){ bannerText.textContent = _urlTs + ' – ' + _urlTe; }
+      var timeRow = document.getElementById('join-time-row');
+      if(timeRow){ timeRow.style.display = 'none'; }
+    } else {
+      // 自選時間 QR：填入每半小時選項
+      var slots = [];
+      for(var h=6;h<24;h++) for(var m=0;m<60;m+=30){
+        var t = String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');
+        slots.push(t);
+      }
+      ['join-time-start','join-time-end'].forEach(function(id){
+        var sel = document.getElementById(id);
+        slots.forEach(function(t){ var o=document.createElement('option'); o.value=o.textContent=t; sel.appendChild(o); });
+      });
+      // 預設：開始=當前半小時，結束+2小時
+      var now2 = new Date();
+      var h0=now2.getHours(), m0=now2.getMinutes()<30?0:30;
+      var startIdx = slots.indexOf(String(h0).padStart(2,'0')+':'+String(m0).padStart(2,'0'));
+      document.getElementById('join-time-start').selectedIndex = Math.max(0,startIdx);
+      document.getElementById('join-time-end').selectedIndex = Math.min(slots.length-1, Math.max(0,startIdx)+4);
+      // 開始時間改變時自動修正結束時間
+      document.getElementById('join-time-start').addEventListener('change', function(){
+        var startSel = document.getElementById('join-time-start');
+        var endSel   = document.getElementById('join-time-end');
+        if(endSel.value <= startSel.value){
+          var idx = Array.from(startSel.options).findIndex(function(o){return o.value===startSel.value;});
+          endSel.selectedIndex = Math.min(slots.length-1, idx+4);
+        }
+      });
+      // 結束時間改變時若無效則拒絕並還原
+      document.getElementById('join-time-end').addEventListener('change', function(){
+        var startSel = document.getElementById('join-time-start');
+        var endSel   = document.getElementById('join-time-end');
+        if(endSel.value <= startSel.value){
+          var idx = Array.from(startSel.options).findIndex(function(o){return o.value===startSel.value;});
+          endSel.selectedIndex = Math.min(slots.length-1, idx+2);
+        }
+      });
     }
-    ['join-time-start','join-time-end'].forEach(function(id){
-      var sel = document.getElementById(id);
-      slots.forEach(function(t){ var o=document.createElement('option'); o.value=o.textContent=t; sel.appendChild(o); });
-    });
-    // 預設：開始=當前半小時，結束+2小時
-    var now2 = new Date();
-    var h0=now2.getHours(), m0=now2.getMinutes()<30?0:30;
-    var startIdx = slots.indexOf(String(h0).padStart(2,'0')+':'+String(m0).padStart(2,'0'));
-    document.getElementById('join-time-start').selectedIndex = Math.max(0,startIdx);
-    document.getElementById('join-time-end').selectedIndex = Math.min(slots.length-1, Math.max(0,startIdx)+4);
-    // 開始時間改變時自動修正結束時間
-    document.getElementById('join-time-start').addEventListener('change', function(){
-      var startSel = document.getElementById('join-time-start');
-      var endSel   = document.getElementById('join-time-end');
-      if(endSel.value <= startSel.value){
-        var idx = Array.from(startSel.options).findIndex(function(o){return o.value===startSel.value;});
-        endSel.selectedIndex = Math.min(slots.length-1, idx+4);
-      }
-    });
-    // 結束時間改變時若無效則拒絕並還原
-    document.getElementById('join-time-end').addEventListener('change', function(){
-      var startSel = document.getElementById('join-time-start');
-      var endSel   = document.getElementById('join-time-end');
-      if(endSel.value <= startSel.value){
-        var idx = Array.from(startSel.options).findIndex(function(o){return o.value===startSel.value;});
-        endSel.selectedIndex = Math.min(slots.length-1, idx+2);
-      }
-    });
     // ── 檢查主辦方設定的加入時間限制 ──
     db.collection('joinRequests').doc('_sess_' + _joinUID).get().then(function(doc){
       var data = doc.exists ? doc.data() : {};
@@ -1947,13 +1973,22 @@ if(isJoinMode){
 
 async function submitJoinRequest(){
   const name = document.getElementById('join-name').value.trim();
-  const ts   = document.getElementById('join-time-start').value;
-  const te   = document.getElementById('join-time-end').value;
   const msg  = document.getElementById('join-msg');
   const btn  = document.getElementById('join-submit-btn');
   if(!name){ msg.textContent='請輸入姓名'; msg.style.color='#f87171'; return; }
   if(!_joinLvl){ msg.textContent='請選擇等級'; msg.style.color='#f87171'; return; }
-  if(te<=ts){ msg.textContent='結束時間必須晚於開始時間'; msg.style.color='#f87171'; return; }
+  if(!_joinGender){ msg.textContent='請選擇性別'; msg.style.color='#f87171'; return; }
+  // 時段：從 URL 取（固定時段 QR）或從下拉選單取（自選時段 QR）
+  var _urlTs2 = _urlParams.get('ts');
+  var _urlTe2 = _urlParams.get('te');
+  var ts, te;
+  if(_urlTs2 && _urlTe2){
+    ts = _urlTs2; te = _urlTe2;
+  } else {
+    ts = document.getElementById('join-time-start').value;
+    te = document.getElementById('join-time-end').value;
+    if(te<=ts){ msg.textContent='結束時間必須晚於開始時間'; msg.style.color='#f87171'; return; }
+  }
   btn.disabled=true; btn.textContent='送出中...';
   const TIER=['','新','初','中','高'];
   const entry = {
@@ -2530,7 +2565,7 @@ function showJoinNotify(doc){
   card.style.cssText = 'background:#1e293b;border:2px solid #4ade80;border-radius:12px;padding:12px 14px;box-shadow:0 4px 20px rgba(0,0,0,.6);animation:fadeIn .3s ease';
   card.innerHTML = `
     <div style="font-size:0.7rem;color:var(--mut);margin-bottom:4px"><i class="bi bi-person-walking"></i> 球員申請加入</div>
-    <div style="font-weight:700;font-size:1rem;margin-bottom:2px">${d.name} <span class="lvl ${['','lt1','lt2','lt3','lt4'][parseInt(d.level)||1]||'lt1'}" style="font-size:0.75rem;border-radius:4px;padding:1px 6px">${d.levelName||d.level}</span></div>
+    <div style="font-weight:700;font-size:1rem;margin-bottom:2px;color:#f1f5f9">${d.name} <span class="lvl ${['','lt1','lt2','lt3','lt4'][parseInt(d.level)||1]||'lt1'}" style="font-size:0.75rem;border-radius:4px;padding:1px 6px">${d.levelName||d.level}</span></div>
     <div style="font-size:0.78rem;color:#86efac;margin-bottom:10px"><i class="bi bi-clock"></i> ${d.timeRange}</div>
     <div style="display:flex;gap:6px">
       <button onclick="approveJoin('${doc.id}','${d.name}','${d.level}','${d.timeRange}','${d.startTime||''}','${d.endTime||''}')" style="flex:1;background:#16a34a;border:none;border-radius:7px;padding:7px;color:#fff;font-size:0.85rem;font-weight:700;cursor:pointer"><i class="bi bi-check-lg"></i> 同意</button>
@@ -2566,52 +2601,115 @@ function rejectJoin(docId){
 }
 
 // ── 加入時間設定 ──────────────────────────────────────────
+var _joinSlots = [];
+function _joinSlotsKey(){ return 'joinSlots_' + _uid(); }
+function loadJoinSlots(){
+  try { _joinSlots = JSON.parse(localStorage.getItem(_joinSlotsKey()) || '[]'); }
+  catch(e){ _joinSlots = []; }
+}
+function saveJoinSlotsToStorage(){
+  try { localStorage.setItem(_joinSlotsKey(), JSON.stringify(_joinSlots)); } catch(e){}
+}
+function addJoinSlot(){
+  if(_joinSlots.length >= 15){ showToast('最多 15 個時段'); return; }
+  _joinSlots.push({ start: '06:00', end: '09:00' });
+  renderJoinSlotsList();
+}
+function removeJoinSlot(i){
+  _joinSlots.splice(i, 1);
+  renderJoinSlotsList();
+}
+function renderJoinSlotsList(){
+  var list = document.getElementById('join-slots-list');
+  if(!list) return;
+  if(_joinSlots.length === 0){
+    list.innerHTML = '<div style="text-align:center;color:var(--mut);font-size:0.75rem;padding:8px 0">尚無時段，點下方按鈕新增</div>';
+  } else {
+    list.innerHTML = _joinSlots.map(function(s, i){
+      return '<div style="display:flex;align-items:center;gap:6px">' +
+        '<span style="font-size:0.75rem;color:var(--mut);min-width:20px;text-align:right">' + (i+1) + '</span>' +
+        '<input type="time" value="' + s.start + '" onchange="_joinSlots[' + i + '].start=this.value" style="flex:1;background:var(--sur2);border:1.5px solid var(--bdr);border-radius:8px;padding:7px 8px;color:var(--txt);font-size:0.88rem;outline:none">' +
+        '<span style="color:var(--mut);font-size:0.85rem;flex-shrink:0">–</span>' +
+        '<input type="time" value="' + s.end + '" onchange="_joinSlots[' + i + '].end=this.value" style="flex:1;background:var(--sur2);border:1.5px solid var(--bdr);border-radius:8px;padding:7px 8px;color:var(--txt);font-size:0.88rem;outline:none">' +
+        '<button onclick="removeJoinSlot(' + i + ')" style="background:#fca5a5;border:none;border-radius:6px;padding:5px 9px;color:#7f1d1d;cursor:pointer;font-size:0.8rem;flex-shrink:0">✕</button>' +
+        '</div>';
+    }).join('');
+  }
+  var addBtn = document.getElementById('join-add-slot-btn');
+  if(addBtn) addBtn.style.display = _joinSlots.length >= 15 ? 'none' : '';
+}
+
 function openJoinTimeModal(){
   if(!window._uid || !_uid()){ alert('請先登入'); return; }
-  db.collection('joinRequests').doc('_sess_' + _uid()).get().then(function(doc){
-    var data = doc.exists ? doc.data() : {};
-    document.getElementById('join-time-open-start').value = data.joinTimeStart || '';
-    document.getElementById('join-time-open-end').value   = data.joinTimeEnd   || '';
-    document.getElementById('modal-join-time').style.display = 'flex';
-  }).catch(function(){
-    document.getElementById('join-time-open-start').value = '';
-    document.getElementById('join-time-open-end').value   = '';
-    document.getElementById('modal-join-time').style.display = 'flex';
-  });
+  document.getElementById('join-time-open-start').value = localStorage.getItem('joinTimeStart_' + _uid()) || '';
+  document.getElementById('join-time-open-end').value   = localStorage.getItem('joinTimeEnd_' + _uid())   || '';
+  loadJoinSlots();
+  renderJoinSlotsList();
+  document.getElementById('modal-join-time').style.display = 'flex';
 }
 function closeJoinTimeModal(){
   document.getElementById('modal-join-time').style.display = 'none';
 }
-async function saveJoinTime(){
+function saveJoinTime(){
   var start = document.getElementById('join-time-open-start').value;
   var end   = document.getElementById('join-time-open-end').value;
   if(start && end && end <= start){ alert('結束時間必須晚於開始時間'); return; }
-  try {
-    await db.collection('joinRequests').doc('_sess_' + _uid()).set({ joinTimeStart: start, joinTimeEnd: end }, { merge: true });
-    closeJoinTimeModal();
-    showToast('加入時間已儲存 ✅');
-  } catch(e){ alert('儲存失敗：' + e.message); }
+  localStorage.setItem('joinTimeStart_' + _uid(), start);
+  localStorage.setItem('joinTimeEnd_' + _uid(),   end);
+  saveJoinSlotsToStorage();
+  closeJoinTimeModal();
+  showToast('時間設定已儲存 ✅');
 }
-async function clearJoinTime(){
-  try {
-    await db.collection('joinRequests').doc('_sess_' + _uid()).set({ joinTimeStart: '', joinTimeEnd: '' }, { merge: true });
-    closeJoinTimeModal();
-    showToast('加入時間限制已清除');
-  } catch(e){ alert('清除失敗：' + e.message); }
+function clearJoinTime(){
+  localStorage.setItem('joinTimeStart_' + _uid(), '');
+  localStorage.setItem('joinTimeEnd_' + _uid(),   '');
+  _joinSlots = [];
+  saveJoinSlotsToStorage();
+  closeJoinTimeModal();
+  showToast('加入時間設定已清除');
 }
 
 function showJoinQR(){
-  var url = location.origin + location.pathname + '?join=' + _uid();
-  document.getElementById('join-qr-url').textContent = url;
-  document.getElementById('join-qr-container').innerHTML = '';
-  try { new QRCode(document.getElementById('join-qr-container'), {text:url, width:200, height:200, colorDark:'#000', colorLight:'#fff'}); }
-  catch(e2){ document.getElementById('join-qr-container').textContent = url; }
-  document.getElementById('modal-join-qr').style.display = 'flex';
-}
+  loadJoinSlots();
+  var baseUrl = location.origin + location.pathname + '?join=' + _uid();
+  var list = document.getElementById('join-qr-list');
+  list.innerHTML = '';
 
-function copyJoinUrl(){
-  var url = document.getElementById('join-qr-url').textContent;
-  navigator.clipboard.writeText(url).then(()=>alert('✅ 連結已複製！')).catch(()=>prompt('複製此連結：',url));
+  function makeQRBlock(label, url, isDashed){
+    var wrapper = document.createElement('div');
+    wrapper.style.cssText = 'border:' + (isDashed ? '2px dashed var(--bdr)' : '1.5px solid var(--bdr)') + ';border-radius:12px;padding:14px;text-align:center';
+    var qrId = 'jqr_' + Math.random().toString(36).substr(2,6);
+    wrapper.innerHTML =
+      '<div style="font-size:0.82rem;font-weight:700;color:var(--txt2);margin-bottom:10px">' + label + '</div>' +
+      '<div id="' + qrId + '" style="display:inline-block;background:#fff;padding:10px;border-radius:8px;margin-bottom:8px"></div>' +
+      '<div style="font-size:0.55rem;color:var(--mut);word-break:break-all;margin-bottom:8px">' + url + '</div>' +
+      '<button onclick="(function(u){navigator.clipboard.writeText(u).then(function(){showToast(\'已複製！\');}).catch(function(){prompt(\'複製連結：\',u);});})(\''+url.replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\')" style="background:var(--sur2);border:1px solid var(--bdr);border-radius:8px;padding:5px 14px;color:var(--txt);font-size:0.8rem;cursor:pointer">複製連結</button>';
+    list.appendChild(wrapper);
+    setTimeout(function(){
+      var el = document.getElementById(qrId);
+      if(!el) return;
+      try { new QRCode(el, {text:url, width:176, height:176, colorDark:'#000', colorLight:'#fff'}); }
+      catch(e){ el.textContent = url; }
+    }, 0);
+  }
+
+  if(_joinSlots.length === 0){
+    // No slots configured — show message + self-select QR
+    var msg = document.createElement('div');
+    msg.style.cssText = 'text-align:center;color:var(--mut);font-size:0.8rem;padding:8px 0 4px';
+    msg.innerHTML = '尚未設定時段。可在「設定加入時間」中新增時段 QR。';
+    list.appendChild(msg);
+  } else {
+    _joinSlots.forEach(function(slot, i){
+      var url = baseUrl + '&ts=' + encodeURIComponent(slot.start) + '&te=' + encodeURIComponent(slot.end);
+      makeQRBlock('時段 ' + (i+1) + '：' + slot.start + ' – ' + slot.end, url, false);
+    });
+  }
+
+  // Self-select QR always shown at bottom
+  makeQRBlock('自選時間', baseUrl, true);
+
+  document.getElementById('modal-join-qr').style.display = 'flex';
 }
 
 async function forceSyncSession(){
@@ -3153,6 +3251,7 @@ function addRosterEntry(){
   const name=nameEl.value.trim();
   if(!name){nameEl.focus();return;}
   if(!_rosterAddLvl){alert('請選擇等級');return;}
+  if(!_rosterAddGender){alert('請選擇性別');return;}
   if(roster.find(r=>r.name===name)){alert(`「${name}」已在球員庫中`);return;}
   roster.push({id:rid++, name, level:_rosterAddLvl, gender:_rosterAddGender||'', payType:''});
   nameEl.value=''; _rosterAddLvl=''; _rosterAddGender='';
@@ -3243,6 +3342,7 @@ function saveRosterEdit(){
   const duplicate = roster.find(rx=>rx.name===name && rx.id!==editingRosterId);
   if(duplicate){ alert(`「${name}」已在球員庫中`); return; }
   if(!_editLvl){ alert('請選擇等級'); return; }
+  if(!_editGender){ alert('請選擇性別'); return; }
   const oldName = r.name;
   r.name = name;
   r.level = _editLvl;
@@ -3369,13 +3469,20 @@ function renderLeft(){
     if(t>=0 && t<5) groups[t].push(r);
   });
 
+  const TIER_BG_LT=['#dcfce7','#fce7f3','#fef9c3','#e0f2fe'];
+  const TIER_BG_DK=['rgba(74,222,128,.18)','rgba(249,168,212,.18)','rgba(253,224,71,.18)','rgba(125,211,252,.18)'];
+  const TIER_TXT  =['#166534','#9d174d','#854d0e','#075985'];
+  const _isDark = document.documentElement.classList.contains('dark')||window.matchMedia('(prefers-color-scheme:dark)').matches;
   [...groups].reverse().forEach((grp, ri)=>{
     const ti = 4 - ri;
     if(grp.length===0) return;
     const collapsed = !!_tierCollapsed[ti];
     const hdr=document.createElement('div');
     hdr.className='tier-hdr' + (collapsed?' collapsed':'');
-    hdr.innerHTML=`<span class="tier-arrow">▾</span><span class="ms" style="font-size:0.9em;margin-right:3px;vertical-align:middle;color:var(--mut)">sports_tennis</span>${TIER_LABEL[ti]}<span style="color:var(--bdr);margin-left:auto;font-size:0.6rem">${grp.length}</span>`;
+    const hdrBg = _isDark ? (TIER_BG_DK[ti]||'') : (TIER_BG_LT[ti]||'');
+    const hdrTxt = _isDark ? '' : TIER_TXT[ti]||'';
+    hdr.style.cssText = 'background:'+hdrBg+';'+(hdrTxt?'color:'+hdrTxt+';':'');
+    hdr.innerHTML=`<span class="tier-arrow">▾</span>${TIER_LABEL[ti]}<span style="margin-left:auto;font-size:0.65rem;opacity:0.7">${grp.length} 人</span>`;
     const rowsWrap=document.createElement('div');
     rowsWrap.className='tier-rows';
     hdr.onclick=()=>{
@@ -3392,8 +3499,7 @@ function renderLeft(){
         const avgCnt=players.length?players.reduce((s,p)=>s+(p.playCount||0),0)/Math.max(1,players.length):0;
         const cntColor=rCnt>0&&rCnt>=avgCnt+2?'#f87171':rCnt>0?'#6abf5a':'var(--mut)';
         row.innerHTML=`
-          <div class="mn ${LCLS(r.level)}" style="width:32px;height:32px;font-size:0.8rem;font-weight:900;flex-shrink:0">${tierName(r.level)}</div>
-          <span class="roster-name"><span class="ms" style="font-size:0.9em;color:var(--mut);margin-right:3px;vertical-align:middle">person</span>${r.name}</span>
+          <span class="roster-name">${r.name}${r.gender?(' '+genderTag(r.gender)):''}</span>
           <button class="btn-roster-edit" onclick="openRosterEditModal(${r.id})" title="編輯"><i class="bi bi-pencil-fill"></i></button>
           <button class="btn-roster-add" onclick="addFromRoster(${r.id})" title="加入本場"><i class="bi bi-plus-lg"></i></button>
         `;
@@ -3458,13 +3564,20 @@ function renderRosterTab(){
     if(t>=0 && t<5) groups[t].push(r);
   });
 
+  const TIER_BG_LT2=['#dcfce7','#fce7f3','#fef9c3','#e0f2fe'];
+  const TIER_BG_DK2=['rgba(74,222,128,.18)','rgba(249,168,212,.18)','rgba(253,224,71,.18)','rgba(125,211,252,.18)'];
+  const TIER_TXT2  =['#166534','#9d174d','#854d0e','#075985'];
+  const _isDark2 = document.documentElement.classList.contains('dark')||window.matchMedia('(prefers-color-scheme:dark)').matches;
   [...groups].reverse().forEach((grp, ri)=>{
     const ti = 4 - ri;
     if(grp.length===0) return;
     const collapsed = !!_tierCollapsed[ti];
     const hdr=document.createElement('div');
     hdr.className='tier-hdr' + (collapsed?' collapsed':'');
-    hdr.innerHTML=`<span class="tier-arrow">▾</span><span class="ms" style="font-size:0.9em;margin-right:3px;vertical-align:middle;color:var(--mut)">sports_tennis</span>${TIER_LABEL[ti]}<span style="color:var(--bdr);margin-left:auto;font-size:0.6rem">${grp.length}</span>`;
+    const hdrBg2 = _isDark2 ? (TIER_BG_DK2[ti]||'') : (TIER_BG_LT2[ti]||'');
+    const hdrTxt2 = _isDark2 ? '' : TIER_TXT2[ti]||'';
+    hdr.style.cssText = 'background:'+hdrBg2+';'+(hdrTxt2?'color:'+hdrTxt2+';':'');
+    hdr.innerHTML=`<span class="tier-arrow">▾</span>${TIER_LABEL[ti]}<span style="margin-left:auto;font-size:0.65rem;opacity:0.7">${grp.length} 人</span>`;
     hdr.onclick=()=>{ _tierCollapsed[ti]=!_tierCollapsed[ti]; renderRosterTab(); renderLeft(); };
     body.appendChild(hdr);
     if(!collapsed){
@@ -3476,8 +3589,7 @@ function renderRosterTab(){
         const avgCnt=players.length?players.reduce((s,p)=>s+(p.playCount||0),0)/Math.max(1,players.length):0;
         const cntColor=rCnt>0&&rCnt>=avgCnt+2?'#f87171':rCnt>0?'#6abf5a':'var(--mut)';
         row.innerHTML=`
-          <div class="mn ${LCLS(r.level)}" style="width:36px;height:36px;font-size:0.85rem;font-weight:900;flex-shrink:0">${tierName(r.level)}</div>
-          <span class="roster-name" style="font-size:1rem">${r.name}</span>
+          <span class="roster-name" style="font-size:1rem">${r.name}${r.gender?(' '+genderTag(r.gender)):''}</span>
           <button class="btn-roster-edit" onclick="openRosterEditModal(${r.id})" title="編輯" style="font-size:0.85rem;padding:3px 7px"><i class="bi bi-pencil-fill"></i></button>
           <button class="btn-roster-add" onclick="addFromRoster(${r.id})" title="加入本場" style="font-size:0.8rem;padding:2px 8px"><i class="bi bi-plus-lg"></i> 加入</button>
         `;
@@ -4483,7 +4595,23 @@ function finishCourtWithScore(cid, sA, sB){
   const {ok}=validateScore(sA,sB);
   const offAt=now();
 
-  if(!ok){
+  const teamA=[c.playerSlots[0],c.playerSlots[1]].map(id=>players.find(p=>p.id===id)).filter(Boolean);
+  const teamB=[c.playerSlots[2],c.playerSlots[3]].map(id=>players.find(p=>p.id===id)).filter(Boolean);
+
+  // 記錄戰績（有沒有計分都記）
+  if(teamA.length > 0 || teamB.length > 0){
+    var matchEntry = {
+      teamA: teamA.map(p=>({name:p.name, level:p.level})),
+      teamB: teamB.map(p=>({name:p.name, level:p.level})),
+      courtName: courtName(c),
+      time: new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'})
+    };
+    if(scoreMode && ok){ matchEntry.scoreA = sA; matchEntry.scoreB = sB; }
+    matchHistory.push(matchEntry);
+  }
+
+  if(!ok && scoreMode){
+    // 有計分但比分無效：仍下場，但不計勝負
     c.playerSlots.forEach(id=>{
       if(id===null) return;
       const p=players.find(p=>p.id===id);
@@ -4498,21 +4626,6 @@ function finishCourtWithScore(cid, sA, sB){
     }
     render();
     return;
-  }
-
-  const teamA=[c.playerSlots[0],c.playerSlots[1]].map(id=>players.find(p=>p.id===id)).filter(Boolean);
-  const teamB=[c.playerSlots[2],c.playerSlots[3]].map(id=>players.find(p=>p.id===id)).filter(Boolean);
-
-  // 記錄戰績（有沒有計分都記）
-  if(teamA.length > 0 || teamB.length > 0){
-    var matchEntry = {
-      teamA: teamA.map(p=>({name:p.name, level:p.level})),
-      teamB: teamB.map(p=>({name:p.name, level:p.level})),
-      courtName: courtName(c),
-      time: new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'})
-    };
-    if(scoreMode && ok){ matchEntry.scoreA = sA; matchEntry.scoreB = sB; }
-    matchHistory.push(matchEntry);
   }
 
   c.playerSlots.forEach(id=>{
