@@ -1647,33 +1647,14 @@ header h1{font-size:1.2rem;font-weight:800;}
 <div class="overlay" id="modal-join-time" onclick="if(event.target.id==='modal-join-time')closeJoinTimeModal()" style="display:none">
   <div class="modal" style="width:340px;max-height:84vh;overflow-y:auto;position:relative">
     <button onclick="closeJoinTimeModal()" style="position:absolute;top:10px;right:14px;background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--mut)">✕</button>
-    <h3 style="margin-bottom:4px"><i class="bi bi-clock-fill"></i> 加入時間設定</h3>
-
-    <!-- Section 1: Open window -->
-    <div style="font-size:0.7rem;color:var(--mut);font-weight:700;letter-spacing:0.06em;text-transform:uppercase;margin:12px 0 6px">開放填表時間</div>
-    <p style="font-size:0.7rem;color:var(--mut);margin-bottom:10px">限制球員只能在此時間內掃碼填表（留空 = 不限制）</p>
-    <div style="display:flex;gap:8px;margin-bottom:4px">
-      <div style="flex:1">
-        <label style="font-size:0.72rem;color:var(--txt2);display:block;margin-bottom:4px">開始</label>
-        <input type="time" id="join-time-open-start" style="width:100%;background:var(--sur2);border:1.5px solid var(--bdr);border-radius:8px;padding:8px 10px;color:var(--txt);font-size:0.9rem;outline:none;box-sizing:border-box">
-      </div>
-      <div style="flex:1">
-        <label style="font-size:0.72rem;color:var(--txt2);display:block;margin-bottom:4px">結束</label>
-        <input type="time" id="join-time-open-end" style="width:100%;background:var(--sur2);border:1.5px solid var(--bdr);border-radius:8px;padding:8px 10px;color:var(--txt);font-size:0.9rem;outline:none;box-sizing:border-box">
-      </div>
-    </div>
-
-    <hr style="border:none;border-top:1px solid var(--bdr);margin:16px 0">
-
-    <!-- Section 2: Time slot QRs -->
-    <div style="font-size:0.7rem;color:var(--mut);font-weight:700;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:6px">時段 QR 設定</div>
-    <p style="font-size:0.7rem;color:var(--mut);margin-bottom:10px">每個時段對應一個獨立 QR Code，球員掃碼後自動綁定該時段（最多 15 個）</p>
+    <h3 style="margin-bottom:10px"><i class="bi bi-clock-fill"></i> 加入時段設定</h3>
+    <p style="font-size:0.7rem;color:var(--mut);margin-bottom:12px">每個時段對應一個獨立 QR Code，球員掃碼後自動綁定該時段（最多 15 個）</p>
     <div id="join-slots-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px"></div>
     <button id="join-add-slot-btn" onclick="addJoinSlot()" style="width:100%;background:var(--sur2);border:1.5px dashed var(--bdr);border-radius:8px;padding:9px;color:var(--txt2);font-size:0.85rem;cursor:pointer">＋ 新增時段</button>
 
     <div style="display:flex;gap:8px;margin-top:16px">
       <button class="mbtn mcancel" style="flex:1" onclick="clearJoinTime()">清除全部</button>
-      <button class="mbtn mok" style="flex:1" onclick="saveJoinTime()">儲存</button>
+      <button class="mbtn mok" style="flex:1" onclick="closeJoinTimeModal()">完成</button>
     </div>
   </div>
 </div>
@@ -2613,11 +2594,19 @@ function saveJoinSlotsToStorage(){
 function addJoinSlot(){
   if(_joinSlots.length >= 15){ showToast('最多 15 個時段'); return; }
   _joinSlots.push({ start: '06:00', end: '09:00' });
+  saveJoinSlotsToStorage();
   renderJoinSlotsList();
 }
 function removeJoinSlot(i){
   _joinSlots.splice(i, 1);
+  saveJoinSlotsToStorage();
   renderJoinSlotsList();
+}
+var _halfHourSlots = (function(){
+  var a=[]; for(var h=6;h<24;h++) for(var m=0;m<60;m+=30){ a.push(String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')); } return a;
+})();
+function _slotOpts(selected){
+  return _halfHourSlots.map(function(t){ return '<option value="'+t+'"'+(t===selected?' selected':'')+'>'+t+'</option>'; }).join('');
 }
 function renderJoinSlotsList(){
   var list = document.getElementById('join-slots-list');
@@ -2626,12 +2615,13 @@ function renderJoinSlotsList(){
     list.innerHTML = '<div style="text-align:center;color:var(--mut);font-size:0.75rem;padding:8px 0">尚無時段，點下方按鈕新增</div>';
   } else {
     list.innerHTML = _joinSlots.map(function(s, i){
-      return '<div style="display:flex;align-items:center;gap:6px">' +
-        '<span style="font-size:0.75rem;color:var(--mut);min-width:20px;text-align:right">' + (i+1) + '</span>' +
-        '<input type="time" value="' + s.start + '" onchange="_joinSlots[' + i + '].start=this.value" style="flex:1;background:var(--sur2);border:1.5px solid var(--bdr);border-radius:8px;padding:7px 8px;color:var(--txt);font-size:0.88rem;outline:none">' +
+      var selStyle = 'flex:1;background:var(--sur2);border:1.5px solid var(--bdr);border-radius:8px;padding:7px 6px;color:var(--txt);font-size:0.85rem;outline:none;-webkit-appearance:none';
+      return '<div style="display:flex;align-items:center;gap:5px;margin-bottom:2px">' +
+        '<span style="font-size:0.72rem;color:var(--mut);min-width:18px;text-align:right">' + (i+1) + '</span>' +
+        '<select style="'+selStyle+'" onchange="_joinSlots['+i+'].start=this.value;saveJoinSlotsToStorage()">'+_slotOpts(s.start)+'</select>' +
         '<span style="color:var(--mut);font-size:0.85rem;flex-shrink:0">–</span>' +
-        '<input type="time" value="' + s.end + '" onchange="_joinSlots[' + i + '].end=this.value" style="flex:1;background:var(--sur2);border:1.5px solid var(--bdr);border-radius:8px;padding:7px 8px;color:var(--txt);font-size:0.88rem;outline:none">' +
-        '<button onclick="removeJoinSlot(' + i + ')" style="background:#fca5a5;border:none;border-radius:6px;padding:5px 9px;color:#7f1d1d;cursor:pointer;font-size:0.8rem;flex-shrink:0">✕</button>' +
+        '<select style="'+selStyle+'" onchange="_joinSlots['+i+'].end=this.value;saveJoinSlotsToStorage()">'+_slotOpts(s.end)+'</select>' +
+        '<button onclick="removeJoinSlot('+i+')" style="background:#fca5a5;border:none;border-radius:6px;padding:5px 9px;color:#7f1d1d;cursor:pointer;font-size:0.8rem;flex-shrink:0">✕</button>' +
         '</div>';
     }).join('');
   }
@@ -2641,8 +2631,6 @@ function renderJoinSlotsList(){
 
 function openJoinTimeModal(){
   if(!window._uid || !_uid()){ alert('請先登入'); return; }
-  document.getElementById('join-time-open-start').value = localStorage.getItem('joinTimeStart_' + _uid()) || '';
-  document.getElementById('join-time-open-end').value   = localStorage.getItem('joinTimeEnd_' + _uid())   || '';
   loadJoinSlots();
   renderJoinSlotsList();
   document.getElementById('modal-join-time').style.display = 'flex';
@@ -2650,23 +2638,12 @@ function openJoinTimeModal(){
 function closeJoinTimeModal(){
   document.getElementById('modal-join-time').style.display = 'none';
 }
-function saveJoinTime(){
-  var start = document.getElementById('join-time-open-start').value;
-  var end   = document.getElementById('join-time-open-end').value;
-  if(start && end && end <= start){ alert('結束時間必須晚於開始時間'); return; }
-  localStorage.setItem('joinTimeStart_' + _uid(), start);
-  localStorage.setItem('joinTimeEnd_' + _uid(),   end);
-  saveJoinSlotsToStorage();
-  closeJoinTimeModal();
-  showToast('時間設定已儲存 ✅');
-}
+function saveJoinTime(){ closeJoinTimeModal(); }
 function clearJoinTime(){
-  localStorage.setItem('joinTimeStart_' + _uid(), '');
-  localStorage.setItem('joinTimeEnd_' + _uid(),   '');
   _joinSlots = [];
   saveJoinSlotsToStorage();
-  closeJoinTimeModal();
-  showToast('加入時間設定已清除');
+  renderJoinSlotsList();
+  showToast('已清除所有時段');
 }
 
 function showJoinQR(){
