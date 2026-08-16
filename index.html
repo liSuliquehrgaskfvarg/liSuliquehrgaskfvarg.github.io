@@ -4384,11 +4384,20 @@ function waitingQueue(){
 // PLAYER SELECTION (click-to-place)
 // ══════════════════════════════
 function selectPlayer(id){
+  const partnerId=getPairPartner(id);
   const idx=selectedPlayerIds.indexOf(id);
-  if(idx!==-1){ selectedPlayerIds.splice(idx,1); }
-  else {
-    if(selectedPlayerIds.length>=4){ showToast('最多同時選 4 位'); return; }
-    selectedPlayerIds.push(id);
+  if(idx!==-1){
+    // 取消選取：連同搭檔一起取消
+    selectedPlayerIds.splice(idx,1);
+    if(partnerId!==null){
+      const pi=selectedPlayerIds.indexOf(partnerId);
+      if(pi!==-1) selectedPlayerIds.splice(pi,1);
+    }
+  } else {
+    const toAdd=[id];
+    if(partnerId!==null && !selectedPlayerIds.includes(partnerId)) toAdd.push(partnerId);
+    if(selectedPlayerIds.length+toAdd.length>4){ showToast('最多同時選 4 位'); return; }
+    toAdd.forEach(x=>selectedPlayerIds.push(x));
   }
   renderPlayers();
   renderCourts();
@@ -4405,13 +4414,33 @@ function placeInSlot(courtId, pos, isStaging=false){
 
   const slots = isStaging ? c.nextSlots : c.playerSlots;
 
-  // If slot is filled → pick up that player (reset to single select)
+  // If slot is filled → pick up that player (+ pair partner)
   if(slots[pos]!==null){
     const pid=slots[pos];
     const idx=selectedPlayerIds.indexOf(pid);
-    if(idx!==-1){ selectedPlayerIds.splice(idx,1); render(); return; }
+    if(idx!==-1){
+      // 取消：連搭檔一起取消
+      selectedPlayerIds.splice(idx,1);
+      const pp=getPairPartner(pid);
+      if(pp!==null){ const pi=selectedPlayerIds.indexOf(pp); if(pi!==-1) selectedPlayerIds.splice(pi,1); }
+      render(); return;
+    }
     slots[pos]=null;
     selectedPlayerIds=[pid];
+    // 搭檔在場上也一起拿起
+    const partnerId=getPairPartner(pid);
+    if(partnerId!==null){
+      courts.forEach(ct=>{
+        for(let i=0;i<ct.playerSlots.length;i++){
+          if(ct.playerSlots[i]===partnerId && (ct.status!=='playing'||isStaging)){
+            ct.playerSlots[i]=null; selectedPlayerIds.push(partnerId); return;
+          }
+        }
+        for(let i=0;i<ct.nextSlots.length;i++){
+          if(ct.nextSlots[i]===partnerId){ ct.nextSlots[i]=null; selectedPlayerIds.push(partnerId); return; }
+        }
+      });
+    }
     render(); return;
   }
 
