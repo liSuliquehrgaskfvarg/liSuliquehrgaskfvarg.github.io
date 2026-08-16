@@ -3370,12 +3370,10 @@ var _rosterAddId=null;
 function addFromRoster(rosterid){
   const re=roster.find(r=>r.id===rosterid);
   if(!re) return;
-  if(players.find(p=>p.name===re.name)){ showToast('⚠ '+re.name+' 已在場上'); return; }
+  if(players.find(p=>p.name===re.name)){ showToast('⚠ '+re.name+' 已在候場'); return; }
   if(!isPro()&&players.length>=16){ showUpgradeHint('免費版最多 16 位球員'); return; }
   _rosterAddId=rosterid;
-  var nameEl=document.getElementById('raf-name');
-  if(nameEl) nameEl.textContent=re.name+(re.gender==='M'?' ♂':re.gender==='F'?' ♀':'');
-  document.getElementById('modal-raf').classList.add('open');
+  _confirmAddFromRoster();
 }
 function _initRafSlotSelect(id){
   var el=document.getElementById(id); if(!el) return;
@@ -3414,6 +3412,7 @@ function _confirmAddFromRoster(){
   players.push(newP);
   document.getElementById('modal-raf').classList.remove('open');
   _rosterAddId=null;
+  showToast('✅ '+re.name+' 已加入候場');
   render(); renderLeft();
 }
 
