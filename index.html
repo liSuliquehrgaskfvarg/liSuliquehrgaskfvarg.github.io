@@ -775,8 +775,14 @@ header h1{font-size:1.2rem;font-weight:800;}
 .pro-lock::before{content:'\f470';font-family:'bootstrap-icons';font-size:0.65rem;margin-left:3px;vertical-align:middle;}
 /* Locked cards look the same as normal cards */
 /* 新手教學 dots */
-.tut-dot{width:7px;height:7px;border-radius:50%;background:var(--bdr);transition:background .2s;}
-.tut-dot.active{background:var(--blu);}
+.tut-dot{width:7px;height:7px;border-radius:50%;background:#cbd5e1;transition:background .2s;}
+.tut-dot.active{background:#166534;}
+/* Spotlight 脈衝光環 */
+@keyframes tut-ring{
+  0%,100%{outline:3px solid rgba(106,191,90,.95);outline-offset:2px;}
+  50%     {outline:3px solid rgba(106,191,90,.1);outline-offset:8px;}
+}
+.tut-pulse{animation:tut-ring 1.4s ease-in-out infinite;}
 /* Toggle switch */
 .toggle-row{display:flex;align-items:center;justify-content:space-between;gap:12px;}
 .toggle-switch{position:relative;width:46px;height:26px;flex-shrink:0;}
@@ -1043,15 +1049,15 @@ header h1{font-size:1.2rem;font-weight:800;}
 <div id="tut-backdrop" onclick="tutBackdropTap()" style="display:none;position:fixed;inset:0;z-index:3500;"></div>
 <div id="tut-spotlight" style="display:none;position:fixed;z-index:3600;border-radius:14px;pointer-events:none;box-shadow:0 0 0 9999px rgba(0,0,0,.72);transition:top .35s,left .35s,width .35s,height .35s;"></div>
 <div id="tut-tap-zone" style="display:none;position:fixed;z-index:3700;cursor:pointer;border-radius:14px;" onclick="tutTapTarget()"></div>
-<div id="tut-tooltip" style="display:none;position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:3800;background:var(--sur);border-radius:22px;padding:22px 20px 28px;box-shadow:0 6px 28px rgba(0,0,0,.18);width:calc(100vw - 16px);max-width:420px;">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-    <div style="display:flex;gap:6px" id="tut-dots"></div>
-    <button onclick="tutEnd()" style="background:none;border:none;color:var(--mut);font-size:0.78rem;cursor:pointer;padding:4px 8px">略過</button>
+<div id="tut-tooltip" style="display:none;position:fixed;z-index:3800;background:#fff;border-radius:18px;padding:14px 16px 14px;box-shadow:0 8px 32px rgba(0,0,0,.28);width:calc(100vw - 40px);max-width:280px;left:50%;transform:translateX(-50%)">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+    <div style="display:flex;gap:5px" id="tut-dots"></div>
+    <button onclick="tutEnd()" style="background:none;border:none;color:#94a3b8;font-size:0.72rem;cursor:pointer;padding:2px 6px;-webkit-tap-highlight-color:transparent">略過</button>
   </div>
-  <div style="font-size:2.2rem;text-align:center;margin-bottom:8px" id="tut-icon"></div>
-  <div style="font-size:1rem;font-weight:800;color:var(--txt);text-align:center;margin-bottom:6px" id="tut-title"></div>
-  <div style="font-size:0.88rem;color:var(--txt2);line-height:1.65;text-align:center;margin-bottom:20px;white-space:pre-line" id="tut-desc"></div>
-  <button id="tut-next-btn" onclick="tutNext()" style="width:100%;padding:14px;background:var(--blu);color:#fff;border:none;border-radius:12px;font-size:0.95rem;font-weight:800;cursor:pointer;">下一步</button>
+  <div style="font-size:0.95rem;font-weight:800;color:#0f172a;margin-bottom:5px" id="tut-title"></div>
+  <div style="font-size:0.8rem;color:#475569;line-height:1.5;margin-bottom:10px" id="tut-desc"></div>
+  <div id="tut-tap-hint" style="font-size:0.75rem;color:#16a34a;font-weight:700;text-align:center">👆 點擊高亮區域繼續</div>
+  <button id="tut-next-btn" onclick="tutNext()" style="display:none;width:100%;margin-top:8px;padding:11px;background:#166534;color:#fff;border:none;border-radius:10px;font-size:0.88rem;font-weight:800;cursor:pointer">🏸 完成，開始排班！</button>
 </div>
 
 <!-- Add Player Modal -->
@@ -1699,9 +1705,8 @@ header h1{font-size:1.2rem;font-weight:800;}
       </label>
     </div>
     <div style="display:flex;gap:8px">
-      <button class="mbtn" style="flex:1;padding:8px 10px;background:#334155;color:#f1f5f9;border:none;border-radius:8px;font-weight:700;cursor:pointer" onclick="_exportSelectAll()">全選</button>
-      <button class="mbtn" style="flex:1;padding:8px 10px;background:#334155;color:#f1f5f9;border:none;border-radius:8px;font-weight:700;cursor:pointer" onclick="_exportDeselectAll()">全不選</button>
-      <button class="mbtn mok" style="flex:2" onclick="_doSelectiveExport()"><i class="bi bi-download"></i> 確認匯出</button>
+      <button class="mbtn mcancel" style="flex:0 0 auto;padding:8px 14px;-webkit-tap-highlight-color:transparent" ontouchstart="this.style.background='var(--bdr)'" ontouchend="this.style.background=''" onclick="_exportToggleAll()">全選/全不選</button>
+      <button class="mbtn mok" style="flex:1" onclick="_doSelectiveExport()"><i class="bi bi-download"></i> 確認匯出</button>
     </div>
   </div>
 </div>
@@ -2213,19 +2218,29 @@ window.addEventListener('resize', function(){
   setFontSize(saved);
 });
 
-// ── 互動新手教學 ──────────────────────────────────────
+// ── 互動新手教學（事件驅動版）──────────────────────────
 var TUT_STEPS = [
-  { type:'intro', icon:'bi-feather2', iconImg:'/icon-180.png', title:'歡迎使用羽球排版表！',
-    desc:'讓我帶你快速學會基本操作\n跟著步驟點按鈕，2分鐘上手！', nextBtn:'開始！' },
-  { tab:'players', targetId:'tut-add-player', icon:'bi-clipboard2-data-fill',
-    title:'第一步：加入球員',
-    desc:'點高亮的按鈕\n加入今天來打球的人', nextBtn:'我加好了，繼續 →' },
-  { tab:'courts', targetId:'tut-queue-area', icon:'bi-person-running', extraUp: true,
-    title:'第二步：手動派球員上場',
-    desc:'在候場名單點一下球員（卡片變色代表已選取）\n再點場地上的空位，就能把他派上場\n也可按下面的「自動排場」讓系統幫你分配！', nextBtn:'了解了 →' },
-  { tab:'courts', targetId:'tut-auto-all', icon:'bi-lightning-charge-fill',
-    title:'第三步：自動排場',
-    desc:'球員加好後\n點這裡讓 App 自動幫你分配場地', nextBtn:'✅ 了解，開始使用！' },
+  {
+    tab: 'players',
+    targetId: 'tut-add-player',
+    title: '加入今天的球員',
+    desc: '點這裡，新增今天來打球的人',
+    action: function(){ openAddModal(); }
+  },
+  {
+    tab: 'courts',
+    targetId: 'tut-auto-all',
+    title: '一鍵自動排場 ⚡',
+    desc: '球員加好後，點這裡讓系統自動分配場地與隊伍',
+    action: function(){ autoFillAll(); }
+  },
+  {
+    tab: 'courts',
+    targetId: 'tut-queue-area',
+    title: '手動微調',
+    desc: '想換人？點球員卡片選取，再點場地空位即可替換',
+    isLast: true
+  }
 ];
 var _tutStep = 0;
 
@@ -2233,95 +2248,97 @@ function openTutorial(){
   _tutStep = 0;
   _tutShowStep();
 }
+
 function tutEnd(){
-  document.getElementById('tut-backdrop').style.display = 'none';
-  document.getElementById('tut-spotlight').style.display = 'none';
-  document.getElementById('tut-tap-zone').style.display = 'none';
-  document.getElementById('tut-tooltip').style.display = 'none';
+  ['tut-backdrop','tut-spotlight','tut-tap-zone','tut-tooltip'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el){ el.style.display='none'; el.classList.remove('tut-pulse'); }
+  });
   localStorage.setItem('tutorialDone','1');
-  // 教學結束後回到場地 tab
   switchTab('courts');
+  showToast('🏸 太棒了！開始你的第一場羽球排班吧');
 }
+
 function tutNext(){
   _tutStep++;
   if(_tutStep >= TUT_STEPS.length){ tutEnd(); return; }
   _tutShowStep();
 }
+
 function tutTapTarget(){
-  // user tapped the highlighted element — advance tutorial then let original action happen
+  var s = TUT_STEPS[_tutStep];
+  var act = s && s.action;
   tutNext();
+  if(act) setTimeout(act, 80);
 }
-function tutBackdropTap(){ /* block taps outside spotlight */ }
+
+function tutBackdropTap(){ /* 擋住 spotlight 外的誤觸 */ }
 
 function _tutShowStep(){
   var s = TUT_STEPS[_tutStep];
-  var isLast = _tutStep === TUT_STEPS.length - 1;
+  if(!s){ tutEnd(); return; }
 
-  // dots
+  // 切換 tab
+  if(s.tab) _tutSwitchTab(s.tab);
+
+  // 更新氣泡內容
   var dots='';
   for(var i=0;i<TUT_STEPS.length;i++) dots+='<div class="tut-dot'+(i===_tutStep?' active':'')+'"></div>';
   document.getElementById('tut-dots').innerHTML = dots;
-  document.getElementById('tut-icon').innerHTML = s.iconImg
-    ? '<img src="'+s.iconImg+'" style="width:56px;height:56px;border-radius:14px;object-fit:cover">'
-    : '<i class="bi ' + s.icon + '"></i>';
   document.getElementById('tut-title').textContent = s.title;
   document.getElementById('tut-desc').textContent = s.desc;
-  document.getElementById('tut-next-btn').textContent = s.nextBtn || (isLast?'✅ 完成！':'下一步 →');
+  var hint = document.getElementById('tut-tap-hint');
+  var nextBtn = document.getElementById('tut-next-btn');
+  if(hint) hint.style.display = s.isLast ? 'none' : 'block';
+  if(nextBtn) nextBtn.style.display = s.isLast ? 'block' : 'none';
 
-  // Step 0 = intro: no spotlight, just tooltip
-  if(s.type === 'intro'){
-    document.getElementById('tut-backdrop').style.cssText = 'display:block;position:fixed;inset:0;z-index:3500;background:rgba(0,0,0,.6);';
-    document.getElementById('tut-spotlight').style.display = 'none';
-    document.getElementById('tut-tap-zone').style.display = 'none';
-    var tt = document.getElementById('tut-tooltip');
-    tt.style.top = '20px'; tt.style.bottom = 'auto';
-    tt.style.display = 'block';
-    return;
-  }
-
-  // Navigate to correct tab (bypass Pro lock during tutorial)
-  if(s.tab) _tutSwitchTab(s.tab);
-
-  // Wait for tab to render, then scroll target into view, then position spotlight
   setTimeout(function(){
     var el = document.getElementById(s.targetId);
     if(!el){ tutNext(); return; }
-    // Scroll element to center of viewport so getBoundingClientRect is accurate
-    el.scrollIntoView({behavior:'auto', block:'center'});
+    el.scrollIntoView({behavior:'smooth', block:'center'});
+
     setTimeout(function(){
       var r = el.getBoundingClientRect();
-      var pad = 8;
+      var pad = 10;
+
+      // Spotlight + 脈衝光環
       var sp = document.getElementById('tut-spotlight');
+      sp.classList.remove('tut-pulse');
       sp.style.cssText = 'display:block;position:fixed;z-index:3600;border-radius:14px;pointer-events:none;'
-        +'box-shadow:0 0 0 9999px rgba(0,0,0,.72);transition:top .35s,left .35s,width .35s,height .35s;'
+        +'box-shadow:0 0 0 9999px rgba(0,0,0,.58);'
         +'top:'+(r.top-pad)+'px;left:'+(r.left-pad)+'px;'
         +'width:'+(r.width+pad*2)+'px;height:'+(r.height+pad*2)+'px;';
+      requestAnimationFrame(function(){ sp.classList.add('tut-pulse'); });
 
+      // Tap zone（最後一步改為點擊直接完成）
       var tz = document.getElementById('tut-tap-zone');
       tz.style.cssText = 'display:block;position:fixed;z-index:3700;cursor:pointer;border-radius:14px;'
         +'top:'+(r.top-pad)+'px;left:'+(r.left-pad)+'px;'
         +'width:'+(r.width+pad*2)+'px;height:'+(r.height+pad*2)+'px;';
 
+      // Backdrop
       document.getElementById('tut-backdrop').style.cssText = 'display:block;position:fixed;inset:0;z-index:3500;';
 
-      // 動態決定 tooltip 位置：target 在上半部 → tooltip 移到底部，避免蓋住 spotlight
-      var tooltip = document.getElementById('tut-tooltip');
-      var targetMidY = r.top + r.height / 2;
-      tooltip.style.left = '50%';
-      tooltip.style.transform = 'translateX(-50%)';
-      if(targetMidY < window.innerHeight * 0.5){
-        tooltip.style.top = 'auto';
-        tooltip.style.bottom = '90px';
+      // 氣泡位置：目標上方或下方，選空間較大的那側
+      var tt = document.getElementById('tut-tooltip');
+      var BUBBLE_GAP = 14;
+      var spaceBelow = window.innerHeight - r.bottom - BUBBLE_GAP;
+      var spaceAbove = r.top - BUBBLE_GAP;
+      tt.style.left = '50%';
+      tt.style.transform = 'translateX(-50%)';
+      if(spaceBelow >= 130 || spaceBelow >= spaceAbove){
+        tt.style.top = (r.bottom + BUBBLE_GAP) + 'px';
+        tt.style.bottom = 'auto';
       } else {
-        tooltip.style.top = '20px';
-        tooltip.style.bottom = 'auto';
+        tt.style.top = 'auto';
+        tt.style.bottom = (window.innerHeight - r.top + BUBBLE_GAP) + 'px';
       }
-      tooltip.style.display = 'block';
+      tt.style.display = 'block';
     }, 200);
-  }, 320);
+  }, 300);
 }
+
 function _tutSwitchTab(name){
-  // Force switch without Pro check (tutorial needs access to all tabs)
   ['courts','players','qr','settings'].forEach(function(t){
     var panel=document.getElementById('tab-'+t);
     var btn=document.getElementById('nav-'+t);
@@ -5614,16 +5631,12 @@ function closeExportSelectModal(e){
   document.getElementById('modal-export-select').classList.remove('open');
 }
 
-function _exportSelectAll(){
+var _exportAllState = false;
+function _exportToggleAll(){
+  _exportAllState = !_exportAllState;
   ['roster','players','billing','history'].forEach(function(k){
     var cb = document.getElementById('exp-cb-'+k);
-    if(cb) cb.checked = true;
-  });
-}
-function _exportDeselectAll(){
-  ['roster','players','billing','history'].forEach(function(k){
-    var cb = document.getElementById('exp-cb-'+k);
-    if(cb) cb.checked = false;
+    if(cb) cb.checked = _exportAllState;
   });
 }
 
