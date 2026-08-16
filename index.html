@@ -1631,7 +1631,7 @@ header h1{font-size:1.2rem;font-weight:800;}
     <button id="join-add-slot-btn" onclick="addJoinSlot()" style="width:100%;background:var(--sur2);border:1.5px dashed var(--bdr);border-radius:8px;padding:9px;color:var(--txt2);font-size:0.85rem;cursor:pointer">＋ 新增時段</button>
 
     <div style="display:flex;gap:8px;margin-top:16px">
-      <button class="mbtn mcancel" style="flex:1" onclick="clearJoinTime()">清除全部</button>
+      <button class="mbtn mcancel" style="flex:1;-webkit-tap-highlight-color:transparent" ontouchstart="this.style.background='var(--bdr)'" ontouchend="this.style.background=''" onclick="clearJoinTime()">清除全部</button>
       <button class="mbtn mok" style="flex:1" onclick="closeJoinTimeModal()">完成</button>
     </div>
   </div>
@@ -1705,7 +1705,7 @@ header h1{font-size:1.2rem;font-weight:800;}
       </label>
     </div>
     <div style="display:flex;gap:8px">
-      <button class="mbtn mcancel" style="flex:0 0 auto;padding:8px 14px;-webkit-tap-highlight-color:transparent" ontouchstart="this.style.background='var(--bdr)'" ontouchend="this.style.background=''" onclick="_exportToggleAll()">全選/全不選</button>
+      <button class="mbtn mcancel" style="flex:0 0 auto;padding:8px 14px;-webkit-tap-highlight-color:transparent" ontouchstart="this.style.background='var(--bdr)'" ontouchend="this.style.background=''" onclick="_exportSelectAll()">全選</button>
       <button class="mbtn mok" style="flex:1" onclick="_doSelectiveExport()"><i class="bi bi-download"></i> 確認匯出</button>
     </div>
   </div>
@@ -2645,6 +2645,7 @@ function closeJoinTimeModal(){
 }
 function saveJoinTime(){ closeJoinTimeModal(); }
 function clearJoinTime(){
+  if(!confirm('確定要清除所有時段嗎？')) return;
   _joinSlots = [];
   saveJoinSlotsToStorage();
   renderJoinSlotsList();
@@ -5631,12 +5632,10 @@ function closeExportSelectModal(e){
   document.getElementById('modal-export-select').classList.remove('open');
 }
 
-var _exportAllState = false;
-function _exportToggleAll(){
-  _exportAllState = !_exportAllState;
+function _exportSelectAll(){
   ['roster','players','billing','history'].forEach(function(k){
     var cb = document.getElementById('exp-cb-'+k);
-    if(cb) cb.checked = _exportAllState;
+    if(cb) cb.checked = true;
   });
 }
 
