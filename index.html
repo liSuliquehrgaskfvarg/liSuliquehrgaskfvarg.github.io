@@ -1781,6 +1781,16 @@ header h1{font-size:1.2rem;font-weight:800;}
   </div>
 </div>
 
+<!-- Move Next Court Modal -->
+<div class="overlay" id="modal-move-next" onclick="if(event.target===this)closeMoveNext()" style="display:none">
+  <div class="modal" style="width:300px">
+    <button onclick="closeMoveNext()" style="position:absolute;top:10px;right:14px;background:none;border:none;font-size:1.1rem;cursor:pointer;color:var(--mut)"><i class="bi bi-x-lg"></i></button>
+    <h3 style="margin-bottom:6px"><i class="bi bi-arrow-right-circle-fill"></i> 移到哪個場地？</h3>
+    <p id="move-next-from" style="font-size:0.75rem;color:var(--mut);margin-bottom:14px"></p>
+    <div id="move-next-options" style="display:flex;flex-direction:column;gap:8px"></div>
+  </div>
+</div>
+
 <!-- Player History Modal -->
 <div class="overlay" id="modal-player-history" onclick="if(event.target===this)closePlayerHistory()" style="display:none">
   <div class="modal" style="width:370px;max-height:75vh;display:flex;flex-direction:column;padding:18px 16px 14px">
@@ -2140,6 +2150,32 @@ function clearMyName(){
 function skipMyName(){
   _viewerNameChosen = true;
   document.getElementById('viewer-pick-bar').style.display='none';
+}
+
+function moveNextCourt(fromCourtId){
+  var fromCourt=courts.find(c=>c.id===fromCourtId);
+  if(!fromCourt) return;
+  var staged=fromCourt.nextSlots.filter(id=>id!==null);
+  if(staged.length===0){ showToast('下一場沒有球員'); return; }
+  var emptyCourts=courts.filter(c=>c.id!==fromCourtId && c.status!=='playing' && c.playerSlots.every(s=>s===null));
+  if(emptyCourts.length===0){ showToast('沒有空場可移動'); return; }
+  if(emptyCourts.length===1){ _doMoveNext(fromCourtId,emptyCourts[0].id); return; }
+  var names=fromCourt.nextSlots.filter(id=>id!==null).map(id=>{var p=players.find(p=>p.id===id);return p?p.name:'?';});
+  document.getElementById('move-next-from').textContent='場地 '+fromCourt.name+' 的下一場：'+names.join('、');
+  document.getElementById('move-next-options').innerHTML=emptyCourts.map(c=>
+    `<button class="mbtn mok" style="-webkit-tap-highlight-color:transparent" onclick="closeMoveNext();_doMoveNext(${fromCourtId},${c.id})">移到場地 ${c.name}</button>`
+  ).join('');
+  document.getElementById('modal-move-next').style.display='flex';
+}
+function closeMoveNext(){ document.getElementById('modal-move-next').style.display='none'; }
+function _doMoveNext(fromId,toId){
+  var fromCourt=courts.find(c=>c.id===fromId);
+  var toCourt=courts.find(c=>c.id===toId);
+  if(!fromCourt||!toCourt) return;
+  [0,1,2,3].forEach(i=>{ toCourt.playerSlots[i]=fromCourt.nextSlots[i]; fromCourt.nextSlots[i]=null; });
+  toCourt.status=toCourt.playerSlots.some(s=>s!==null)?'ready':'empty';
+  render();
+  showToast('✅ 已移到場地 '+toCourt.name);
 }
 
 function showPlayerHistory(name){
@@ -5370,7 +5406,10 @@ function renderCourts(){
     // Staging area
     const stagingHtml=`
       <div class="staging-area">
-        <div class="staging-hdr"><i class="bi bi-skip-end-fill"></i> 下一場 <span style="font-size:0.65rem;color:var(--mut)">${nextFilled}/4</span></div>
+        <div class="staging-hdr">
+          <i class="bi bi-skip-end-fill"></i> 下一場 <span style="font-size:0.65rem;color:var(--mut)">${nextFilled}/4</span>
+          ${nextFilled>0?`<button onclick="event.stopPropagation();moveNextCourt(${c.id})" style="margin-left:auto;background:#1a3d1a;color:#6abf5a;border:none;border-radius:6px;padding:2px 9px;font-size:0.65rem;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent"><i class="bi bi-arrow-right-circle"></i> 移場</button>`:''}
+        </div>
         <div class="staging-grid">
           ${[0,1,2,3].map(pos=>renderStagingSlot(pos)).join('')}
         </div>
