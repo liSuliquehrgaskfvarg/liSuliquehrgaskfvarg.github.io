@@ -911,6 +911,7 @@ header h1{font-size:1.2rem;font-weight:800;}
         <button class="cc-count-btn" id="cc-btn-3" onclick="setCourtCount(3)">3</button>
         <button class="cc-count-btn" id="cc-btn-4" onclick="setCourtCount(4)">4</button>
         <button class="cc-count-btn" id="cc-btn-5" onclick="setCourtCount(5)">5</button>
+        <button class="cc-count-btn" id="cc-btn-rev" onclick="toggleCourtOrder()" title="反轉場地順序" style="font-size:1rem;width:34px">⇄</button>
       </div>
       <button id="tut-auto-all" class="btn-auto-all" onclick="autoFillAll()"><i class="bi bi-lightning-charge-fill"></i> 全部自動排場</button>
     </div>
@@ -2750,6 +2751,7 @@ let players = [];
 // partnerHistory: list of player IDs played with recently (last ~12 entries = 3 games × 3 others)
 
 let courts = []; // initialized by confirmSetup()
+let courtsReversed = false; // 場地顯示順序（反向）
 let scoreMode = false; // 是否開啟計分模式
 let matchHistory = []; // [{teamA:[{name,level}], teamB:[{name,level}], scoreA, scoreB, courtName, time}]
 
@@ -5156,7 +5158,8 @@ function renderCourts(){
   const cardContainer = area;
   tabBar.innerHTML='';
 
-  courts.forEach(c=>{
+  const displayCourts = courtsReversed ? [...courts].reverse() : courts;
+  displayCourts.forEach(c=>{
     const isPlay=c.status==='playing';
     const isEmpty=slotsCount(c)===0;
     const isReady=slotsFull(c)&&!isPlay;
@@ -5344,6 +5347,13 @@ function renderStats(){
     var _btn=document.getElementById('cc-btn-'+_i);
     if(_btn) _btn.classList.toggle('active', courts.length===_i);
   }
+  var _revBtn=document.getElementById('cc-btn-rev');
+  if(_revBtn) _revBtn.classList.toggle('active', courtsReversed);
+}
+
+function toggleCourtOrder(){
+  courtsReversed = !courtsReversed;
+  render();
 }
 
 function setCourtCount(n){
