@@ -2292,52 +2292,50 @@ function _tutShowStep(){
   if(hint) hint.style.display = s.isLast ? 'none' : 'block';
   if(nextBtn) nextBtn.style.display = s.isLast ? 'block' : 'none';
 
-  setTimeout(function(){
-    var el = document.getElementById(s.targetId);
-    if(!el){ tutNext(); return; }
-    el.scrollIntoView({behavior:'smooth', block:'center'});
+  var el = document.getElementById(s.targetId);
+  if(!el){ tutNext(); return; }
+  el.scrollIntoView({behavior:'instant', block:'center'});
 
-    setTimeout(function(){
-      var r = el.getBoundingClientRect();
-      var pad = 10;
+  requestAnimationFrame(function(){
+    var r = el.getBoundingClientRect();
+    var pad = 10;
 
-      // Spotlight + 脈衝光環
-      var sp = document.getElementById('tut-spotlight');
-      sp.classList.remove('tut-pulse');
-      sp.style.cssText = 'display:block;position:fixed;z-index:3600;border-radius:14px;pointer-events:none;'
-        +'box-shadow:0 0 0 9999px rgba(0,0,0,.58);'
-        +'top:'+(r.top-pad)+'px;left:'+(r.left-pad)+'px;'
-        +'width:'+(r.width+pad*2)+'px;height:'+(r.height+pad*2)+'px;';
-      requestAnimationFrame(function(){ sp.classList.add('tut-pulse'); });
+    // Backdrop
+    document.getElementById('tut-backdrop').style.cssText = 'display:block;position:fixed;inset:0;z-index:3500;';
 
-      // Tap zone（最後一步改為點擊直接完成）
-      var tz = document.getElementById('tut-tap-zone');
-      tz.style.cssText = 'display:block;position:fixed;z-index:3700;cursor:pointer;border-radius:14px;'
-        +'top:'+(r.top-pad)+'px;left:'+(r.left-pad)+'px;'
-        +'width:'+(r.width+pad*2)+'px;height:'+(r.height+pad*2)+'px;';
+    // Spotlight + 脈衝光環
+    var sp = document.getElementById('tut-spotlight');
+    sp.classList.remove('tut-pulse');
+    sp.style.cssText = 'display:block;position:fixed;z-index:3600;border-radius:14px;pointer-events:none;'
+      +'box-shadow:0 0 0 9999px rgba(0,0,0,.58);'
+      +'top:'+(r.top-pad)+'px;left:'+(r.left-pad)+'px;'
+      +'width:'+(r.width+pad*2)+'px;height:'+(r.height+pad*2)+'px;';
+    requestAnimationFrame(function(){ sp.classList.add('tut-pulse'); });
 
-      // Backdrop
-      document.getElementById('tut-backdrop').style.cssText = 'display:block;position:fixed;inset:0;z-index:3500;';
+    // Tap zone
+    var tz = document.getElementById('tut-tap-zone');
+    tz.style.cssText = 'display:block;position:fixed;z-index:3700;cursor:pointer;border-radius:14px;'
+      +'top:'+(r.top-pad)+'px;left:'+(r.left-pad)+'px;'
+      +'width:'+(r.width+pad*2)+'px;height:'+(r.height+pad*2)+'px;';
 
-      // 氣泡位置：目標上方或下方，選空間較大的那側
-      var tt = document.getElementById('tut-tooltip');
-      var BUBBLE_GAP = 14;
-      var spaceBelow = window.innerHeight - r.bottom - BUBBLE_GAP;
-      var spaceAbove = r.top - BUBBLE_GAP;
-      tt.style.left = '50%';
-      tt.style.transform = 'translateX(-50%)';
-      if(spaceBelow >= 130 || spaceBelow >= spaceAbove){
-        tt.style.top = (r.bottom + BUBBLE_GAP) + 'px';
-        tt.style.bottom = 'auto';
-      } else {
-        tt.style.top = 'auto';
-        tt.style.bottom = (window.innerHeight - r.top + BUBBLE_GAP) + 'px';
-      }
-      tt.style.display = 'block';
-      var skip = document.getElementById('tut-skip-btn');
-      if(skip) skip.style.display = 'block';
-    }, 200);
-  }, 300);
+    // 氣泡位置：目標上方或下方，選空間較大的那側
+    var tt = document.getElementById('tut-tooltip');
+    var BUBBLE_GAP = 14;
+    var spaceBelow = window.innerHeight - r.bottom - BUBBLE_GAP;
+    var spaceAbove = r.top - BUBBLE_GAP;
+    tt.style.left = '50%';
+    tt.style.transform = 'translateX(-50%)';
+    if(spaceBelow >= 130 || spaceBelow >= spaceAbove){
+      tt.style.top = (r.bottom + BUBBLE_GAP) + 'px';
+      tt.style.bottom = 'auto';
+    } else {
+      tt.style.top = 'auto';
+      tt.style.bottom = (window.innerHeight - r.top + BUBBLE_GAP) + 'px';
+    }
+    tt.style.display = 'block';
+    var skip = document.getElementById('tut-skip-btn');
+    if(skip) skip.style.display = 'block';
+  });
 }
 
 function _tutSwitchTab(name){
