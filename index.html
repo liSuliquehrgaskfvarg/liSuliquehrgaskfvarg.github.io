@@ -4289,6 +4289,8 @@ function waitingQueue(){
 // PLAYER SELECTION (click-to-place)
 // ══════════════════════════════
 function selectPlayer(id){
+  const list=document.getElementById('player-list');
+  const scrollTop=list?list.scrollTop:0;
   const idx=selectedPlayerIds.indexOf(id);
   if(idx!==-1){ selectedPlayerIds.splice(idx,1); }
   else {
@@ -4297,6 +4299,7 @@ function selectPlayer(id){
   }
   renderPlayers();
   renderCourts();
+  if(list) list.scrollTop=scrollTop;
 }
 
 // Feature 1: move already-assigned players
@@ -5264,7 +5267,7 @@ function renderCourts(){
     const renderCCSlot=(pos)=>{
       const pid=c.playerSlots[pos];
       const t=slotTeam(pos);
-      const isTarget=selectedPlayerId!==null;
+      const isTarget=selectedPlayerIds.length>0;
       if(pid!=null){
         const p=players.find(pl=>pl.id===pid);
         if(!p) return `<div class="cc-slot filled team${t}"><span class="cc-empty-hint">─</span></div>`;
