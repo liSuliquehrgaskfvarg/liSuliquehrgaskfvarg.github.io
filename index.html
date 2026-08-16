@@ -4384,8 +4384,6 @@ function waitingQueue(){
 // PLAYER SELECTION (click-to-place)
 // ══════════════════════════════
 function selectPlayer(id){
-  const list=document.getElementById('player-list');
-  const scrollTop=list?list.scrollTop:0;
   const idx=selectedPlayerIds.indexOf(id);
   if(idx!==-1){ selectedPlayerIds.splice(idx,1); }
   else {
@@ -4394,7 +4392,6 @@ function selectPlayer(id){
   }
   renderPlayers();
   renderCourts();
-  if(list) list.scrollTop=scrollTop;
 }
 
 // Feature 1: move already-assigned players
@@ -5201,6 +5198,8 @@ function renderPlayerTab(){
 
 function renderPlayers(){
   const list=document.getElementById('player-list');
+  const queueBody=document.getElementById('queue-body');
+  const savedScroll=queueBody?queueBody.scrollTop:0;
   const pid=playingIds();
   list.innerHTML='';
 
@@ -5312,6 +5311,7 @@ function renderPlayers(){
       hint.classList.remove('show');
     }
   }
+  if(queueBody) queueBody.scrollTop=savedScroll;
 }
 
 function renderCourts(){
