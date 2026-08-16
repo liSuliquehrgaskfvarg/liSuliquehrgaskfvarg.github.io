@@ -1439,7 +1439,7 @@ header h1{font-size:1.2rem;font-weight:800;}
 <!-- Setup Modal (shown on load) -->
 <div class="overlay" id="modal-setup" style="display:flex;z-index:2000;background:rgba(0,0,0,.88)">
   <div class="modal" style="width:340px;text-align:center">
-    <div style="font-size:2.2rem;margin-bottom:4px"><i class="bi bi-feather2"></i></div>
+    <div style="margin-bottom:8px"><img src="/icon-180.png" style="width:60px;height:60px;border-radius:16px;object-fit:cover"></div>
     <h3 style="font-size:1.1rem;margin-bottom:18px">羽球排版表</h3>
     <!-- Court count -->
     <div style="margin-bottom:18px">
@@ -1635,7 +1635,7 @@ header h1{font-size:1.2rem;font-weight:800;}
 <div id="viewer-overlay" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:5000;overflow-y:auto;padding:16px">
   <div style="max-width:600px;margin:0 auto">
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-      <span style="font-size:1.5rem"><i class="bi bi-feather2"></i></span>
+      <img src="/icon-180.png" style="width:32px;height:32px;border-radius:8px;object-fit:cover">
       <h1 style="font-size:1.1rem;font-weight:800">羽球排版表</h1>
       <span style="font-size:0.65rem;background:#1a3d1a;color:#6abf5a;border-radius:999px;padding:2px 9px;margin-left:4px"><i class="bi bi-eye-fill"></i> 觀看</span>
       <span id="viewer-updated" style="font-size:0.62rem;color:var(--mut);margin-left:auto"></span>
@@ -2098,7 +2098,7 @@ function showDismissedAlert(name){
   if(navigator.vibrate) navigator.vibrate([200,100,200]);
   var el = document.createElement('div');
   el.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:9999;background:#1e293b;border:2px solid #f87171;border-radius:18px;padding:28px 32px;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,0.7);animation:fadeIn .3s ease';
-  el.innerHTML = '<div style="font-size:2rem;margin-bottom:8px"><i class="bi bi-feather2"></i></div>'
+  el.innerHTML = '<div style="margin-bottom:8px"><img src="/icon-180.png" style="width:52px;height:52px;border-radius:13px;object-fit:cover"></div>'
     + '<div style="font-size:1.3rem;font-weight:900;color:#f87171;margin-bottom:6px">下課了！</div>'
     + '<div style="font-size:1rem;color:#e2e8f0;margin-bottom:4px">' + name + '，辛苦了</div>'
     + '<div style="font-size:0.8rem;color:var(--mut);margin-top:8px">感謝今天的參與</div>';
@@ -2117,7 +2117,7 @@ function showPlayerCourtAlert(courtName){
     document.body.appendChild(el);
   }
   el.innerHTML = `
-    <div style="font-size:4rem"><i class="bi bi-feather2"></i></div>
+    <div style="margin-bottom:4px"><img src="/icon-180.png" style="width:80px;height:80px;border-radius:20px;object-fit:cover"></div>
     <div style="font-size:1.8rem;font-weight:900;color:#4ade80;text-align:center">你要上場了！</div>
     <div style="font-size:1.3rem;color:#fff;text-align:center">${courtName}${courtSuffix(courtName)}</div>
     <button onclick="document.getElementById('my-court-alert').style.display='none'"
@@ -2214,7 +2214,7 @@ window.addEventListener('resize', function(){
 
 // ── 互動新手教學 ──────────────────────────────────────
 var TUT_STEPS = [
-  { type:'intro', icon:'bi-feather2', title:'歡迎使用羽球排版表！',
+  { type:'intro', icon:'bi-feather2', iconImg:'/icon-180.png', title:'歡迎使用羽球排版表！',
     desc:'讓我帶你快速學會基本操作\n跟著步驟點按鈕，2分鐘上手！', nextBtn:'開始！' },
   { tab:'players', targetId:'tut-add-player', icon:'bi-clipboard2-data-fill',
     title:'第一步：加入球員',
@@ -2260,7 +2260,9 @@ function _tutShowStep(){
   var dots='';
   for(var i=0;i<TUT_STEPS.length;i++) dots+='<div class="tut-dot'+(i===_tutStep?' active':'')+'"></div>';
   document.getElementById('tut-dots').innerHTML = dots;
-  document.getElementById('tut-icon').innerHTML = '<i class="bi ' + s.icon + '"></i>';
+  document.getElementById('tut-icon').innerHTML = s.iconImg
+    ? '<img src="'+s.iconImg+'" style="width:56px;height:56px;border-radius:14px;object-fit:cover">'
+    : '<i class="bi ' + s.icon + '"></i>';
   document.getElementById('tut-title').textContent = s.title;
   document.getElementById('tut-desc').textContent = s.desc;
   document.getElementById('tut-next-btn').textContent = s.nextBtn || (isLast?'✅ 完成！':'下一步 →');
@@ -2580,6 +2582,19 @@ var _halfHourSlots = (function(){
 function _slotOpts(selected){
   return _halfHourSlots.map(function(t){ return '<option value="'+t+'"'+(t===selected?' selected':'')+'>'+t+'</option>'; }).join('');
 }
+function updateJoinSlotTime(i, field, value){
+  var slot = _joinSlots[i];
+  if(!slot) return;
+  slot[field] = value;
+  // 確保結束 > 開始
+  if(slot.end <= slot.start){
+    var nextIdx = _halfHourSlots.indexOf(slot.start) + 1;
+    slot.end = _halfHourSlots[nextIdx] || _halfHourSlots[_halfHourSlots.length - 1];
+    showToast('結束時間已自動調整為 ' + slot.end);
+    renderJoinSlotsList();
+  }
+  saveJoinSlotsToStorage();
+}
 function renderJoinSlotsList(){
   var list = document.getElementById('join-slots-list');
   if(!list) return;
@@ -2590,9 +2605,9 @@ function renderJoinSlotsList(){
       var selStyle = 'flex:1;background:var(--sur2);border:1.5px solid var(--bdr);border-radius:8px;padding:7px 6px;color:var(--txt);font-size:0.85rem;outline:none;-webkit-appearance:none';
       return '<div style="display:flex;align-items:center;gap:5px;margin-bottom:2px">' +
         '<span style="font-size:0.72rem;color:var(--mut);min-width:18px;text-align:right">' + (i+1) + '</span>' +
-        '<select style="'+selStyle+'" onchange="_joinSlots['+i+'].start=this.value;saveJoinSlotsToStorage()">'+_slotOpts(s.start)+'</select>' +
+        '<select style="'+selStyle+'" onchange="updateJoinSlotTime('+i+',\'start\',this.value)">'+_slotOpts(s.start)+'</select>' +
         '<span style="color:var(--mut);font-size:0.85rem;flex-shrink:0">–</span>' +
-        '<select style="'+selStyle+'" onchange="_joinSlots['+i+'].end=this.value;saveJoinSlotsToStorage()">'+_slotOpts(s.end)+'</select>' +
+        '<select style="'+selStyle+'" onchange="updateJoinSlotTime('+i+',\'end\',this.value)">'+_slotOpts(s.end)+'</select>' +
         '<button onclick="removeJoinSlot('+i+')" style="background:#fca5a5;border:none;border-radius:6px;padding:5px 9px;color:#7f1d1d;cursor:pointer;font-size:0.8rem;flex-shrink:0">✕</button>' +
         '</div>';
     }).join('');
@@ -3448,7 +3463,7 @@ function renderLeft(){
         const avgCnt=players.length?players.reduce((s,p)=>s+(p.playCount||0),0)/Math.max(1,players.length):0;
         const cntColor=rCnt>0&&rCnt>=avgCnt+2?'#f87171':rCnt>0?'#6abf5a':'var(--mut)';
         row.innerHTML=`
-          <span class="roster-name">${r.name}${r.gender?(' '+genderTag(r.gender)):''}</span>
+          <span class="roster-name">${r.name}${r.gender?(' <span style="color:'+(r.gender==='M'?'#2563eb':'#db2777')+';font-weight:700">'+( r.gender==='M'?'男':'女')+'</span>'):''}</span>
           <button class="btn-roster-edit" onclick="openRosterEditModal(${r.id})" title="編輯"><i class="bi bi-pencil-fill"></i></button>
           <button class="btn-roster-add" onclick="addFromRoster(${r.id})" title="加入本場"><i class="bi bi-plus-lg"></i></button>
         `;
@@ -3538,7 +3553,7 @@ function renderRosterTab(){
         const avgCnt=players.length?players.reduce((s,p)=>s+(p.playCount||0),0)/Math.max(1,players.length):0;
         const cntColor=rCnt>0&&rCnt>=avgCnt+2?'#f87171':rCnt>0?'#6abf5a':'var(--mut)';
         row.innerHTML=`
-          <span class="roster-name" style="font-size:1rem">${r.name}${r.gender?(' '+genderTag(r.gender)):''}</span>
+          <span class="roster-name" style="font-size:1rem">${r.name}${r.gender?(' <span style="color:'+(r.gender==='M'?'#2563eb':'#db2777')+';font-weight:700">'+( r.gender==='M'?'男':'女')+'</span>'):''}</span>
           <button class="btn-roster-edit" onclick="openRosterEditModal(${r.id})" title="編輯" style="font-size:0.85rem;padding:3px 7px"><i class="bi bi-pencil-fill"></i></button>
           <button class="btn-roster-add" onclick="addFromRoster(${r.id})" title="加入本場" style="font-size:0.8rem;padding:2px 8px"><i class="bi bi-plus-lg"></i> 加入</button>
         `;
@@ -4189,8 +4204,8 @@ function waitingQueue(){
 // PLAYER SELECTION (click-to-place)
 // ══════════════════════════════
 function selectPlayer(id){
-  if(selectedPlayerId===id){ return; } // 已選取，再點不重複觸發
-  selectedPlayerId=id;
+  if(selectedPlayerId===id){ selectedPlayerId=null; }
+  else { selectedPlayerId=id; }
   renderPlayers();
   renderCourts();
 }
@@ -4949,26 +4964,38 @@ function renderPlayerTab(){
     return parseInt(b.level)-parseInt(a.level);
   });
 
+  var CARD_BG_LT3=['#dcfce7','#fce7f3','#fef9c3','#e0f2fe'];
+  var CARD_BG_DK3=['rgba(74,222,128,.13)','rgba(249,168,212,.13)','rgba(253,224,71,.13)','rgba(125,211,252,.13)'];
+  var CARD_BDR3=['#86efac','#f9a8d4','#fde047','#7dd3fc'];
+  var _isDk3=document.documentElement.classList.contains('dark')||window.matchMedia('(prefers-color-scheme:dark)').matches;
+
   sorted.forEach(function(p){
     var isPlay=p.status==='playing'||inMainSlot.has(p.id);
     var partnerName=(function(){ var partner=getPairPartner(p.id); if(!partner) return ''; var pp=players.find(function(x){return x.id===partner;}); return pp?pp.name:''; })();
     var cnt2=p.playCount||0;
+    var ti3=tierOf(p.level);
     var div=document.createElement('div');
     div.className='p-item'+(isPlay?' playing':'');
+    div.style.background=_isDk3?(CARD_BG_DK3[ti3]||''):(CARD_BG_LT3[ti3]||'#fff');
+    div.style.borderColor=CARD_BDR3[ti3]||'var(--bdr)';
     div.onclick=function(e){ if(e.target.closest('button')) return; if(!isPlay) selectPlayer(p.id); };
+    var gTag=p.gender?('<span style="color:'+(p.gender==='M'?'#2563eb':'#db2777')+';font-weight:700;font-size:0.65rem;flex-shrink:0">'+(p.gender==='M'?'男':'女')+'</span>'):'';
+    var timeSpan=(p.startTime&&p.endTime)?('<span style="font-size:0.58rem;color:#86efac;background:#1a3d1a;border-radius:4px;padding:1px 5px;flex-shrink:0">🕐'+p.startTime+'–'+p.endTime+'</span>'):(p.availableTime?('<span style="font-size:0.58rem;color:#86efac;background:#1a3d1a;border-radius:4px;padding:1px 5px;flex-shrink:0">🕐'+p.availableTime+'</span>'):'');
     div.innerHTML=
       '<div class="p-item-top">'
-      +'<div class="mn '+LCLS(p.level)+'">'+tierName(p.level)+'</div>'
-      +genderTag(p.gender||'')
       +'<span style="font-size:0.84rem;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+p.name+'</span>'
-      +'<span style="font-size:0.7rem;font-weight:800;color:#6abf5a;flex-shrink:0">'+cnt2+'場</span>'
+      +gTag
+      +'</div>'
+      +'<div style="display:flex;align-items:center;gap:4px;min-height:14px">'
+      +timeSpan
+      +'<div style="display:flex;align-items:center;gap:4px;flex:1;flex-wrap:wrap;justify-content:flex-end">'
+      +(partnerName?'<span style="font-size:0.6rem;color:var(--pur)">綁'+partnerName+'</span>':'')
+      +statusTag(p)
+      +'</div>'
       +'</div>'
       +'<div class="p-item-bot">'
-      +'<div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;flex:1">'
-      +statusTag(p)
-      +(partnerName?'<span style="font-size:0.6rem;color:var(--pur)">綁'+partnerName+'</span>':'')
-      +((p.startTime&&p.endTime)?'<span style="font-size:0.58rem;color:#1a4a10;background:#dcfce7;border-radius:4px;padding:1px 5px">🕐'+p.startTime+'–'+p.endTime+'</span>':(p.availableTime?'<span style="font-size:0.58rem;color:#1a4a10;background:#dcfce7;border-radius:4px;padding:1px 5px">🕐'+p.availableTime+'</span>':''))
-      +'</div>'
+      +'<span style="font-size:1rem;font-weight:800;color:#6abf5a;flex-shrink:0">'+cnt2+'場</span>'
+      +'<div style="flex:1"></div>'
       +'<button class="btn-rm" onclick="event.stopPropagation();removePlayer('+p.id+')" style="font-size:0.7rem;align-self:flex-end">✕</button>'
       +'</div>';
     dst.appendChild(div);
@@ -5060,14 +5087,14 @@ function renderPlayers(){
           ${genderTag(p.gender||'')}
         </div>
         <div style="display:flex;align-items:center;gap:4px;min-height:14px">
-          <div style="display:flex;align-items:center;gap:4px;flex:1;flex-wrap:wrap">
-            ${statusHtml}
-            ${partnerName?`<span style="font-size:0.6rem;color:var(--pur)">綁${partnerName}</span>`:''}
-          </div>
           ${(p.startTime&&p.endTime)?`<span style="font-size:0.58rem;color:#86efac;background:#1a3d1a;border-radius:4px;padding:1px 5px;flex-shrink:0">🕐${p.startTime}–${p.endTime}</span>`:(p.availableTime?`<span style="font-size:0.58rem;color:#86efac;background:#1a3d1a;border-radius:4px;padding:1px 5px;flex-shrink:0">🕐${p.availableTime}</span>`:'')}
+          <div style="display:flex;align-items:center;gap:4px;flex:1;flex-wrap:wrap;justify-content:flex-end">
+            ${partnerName?`<span style="font-size:0.6rem;color:var(--pur)">綁${partnerName}</span>`:''}
+            ${statusHtml}
+          </div>
         </div>
         <div class="p-item-bot">
-          <span style="font-size:0.7rem;font-weight:800;color:#6abf5a;flex-shrink:0">${cnt}場</span>
+          <span style="font-size:1rem;font-weight:800;color:#6abf5a;flex-shrink:0">${cnt}場</span>
           <div style="flex:1"></div>
           <button class="btn-rm" onclick="event.stopPropagation();removePlayer(${p.id})" style="font-size:0.7rem;align-self:flex-end">✕</button>
         </div>
