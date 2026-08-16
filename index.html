@@ -1699,8 +1699,9 @@ header h1{font-size:1.2rem;font-weight:800;}
       </label>
     </div>
     <div style="display:flex;gap:8px">
-      <button class="mbtn mcancel" style="flex:0 0 auto;padding:8px 14px" onclick="_exportToggleAll()">全選/全不選</button>
-      <button class="mbtn mok" style="flex:1" onclick="_doSelectiveExport()"><i class="bi bi-download"></i> 確認匯出</button>
+      <button class="mbtn" style="flex:1;padding:8px 10px;background:#334155;color:#f1f5f9;border:none;border-radius:8px;font-weight:700;cursor:pointer" onclick="_exportSelectAll()">全選</button>
+      <button class="mbtn" style="flex:1;padding:8px 10px;background:#334155;color:#f1f5f9;border:none;border-radius:8px;font-weight:700;cursor:pointer" onclick="_exportDeselectAll()">全不選</button>
+      <button class="mbtn mok" style="flex:2" onclick="_doSelectiveExport()"><i class="bi bi-download"></i> 確認匯出</button>
     </div>
   </div>
 </div>
@@ -5613,12 +5614,16 @@ function closeExportSelectModal(e){
   document.getElementById('modal-export-select').classList.remove('open');
 }
 
-var _exportAllState = false;
-function _exportToggleAll(){
-  _exportAllState = !_exportAllState;
+function _exportSelectAll(){
   ['roster','players','billing','history'].forEach(function(k){
     var cb = document.getElementById('exp-cb-'+k);
-    if(cb) cb.checked = _exportAllState;
+    if(cb) cb.checked = true;
+  });
+}
+function _exportDeselectAll(){
+  ['roster','players','billing','history'].forEach(function(k){
+    var cb = document.getElementById('exp-cb-'+k);
+    if(cb) cb.checked = false;
   });
 }
 
