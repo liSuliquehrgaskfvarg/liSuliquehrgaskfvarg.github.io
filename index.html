@@ -558,35 +558,67 @@ header h1{font-size:1.2rem;font-weight:800;}
 }
 
 /* ══════════════════════════════
-   MOBILE LANDSCAPE FIX
+   MOBILE LANDSCAPE — 左右分欄
 ══════════════════════════════ */
 @media (max-width:900px) and (orientation:landscape) {
-  /* 隱藏統計列節省高度 */
   .stats-row { display:none !important; }
-  /* 場地標頭壓縮 */
-  .courts-sec-hdr { padding:3px 10px !important; }
-  #court-tabs { padding:2px 6px !important; }
-  .court-tab { padding:3px 10px !important; font-size:0.75rem !important; }
-  /* 場地區域填滿剩餘空間，不讓 tab-courts 整體捲動 */
-  #tab-courts { overflow-y:hidden !important; }
+  /* tab-courts 用 grid：Row1=控制列(全寬) Row2=分頁列(全寬) Row3=左場地+右候場 */
+  #tab-courts {
+    overflow:hidden !important;
+    display:grid !important;
+    grid-template-columns:1fr 1fr !important;
+    grid-template-rows:auto auto 1fr !important;
+  }
+  .courts-sec-hdr {
+    grid-column:1 / -1 !important;
+    grid-row:1 !important;
+    padding:3px 10px !important;
+  }
+  #court-tabs {
+    grid-column:1 / -1 !important;
+    grid-row:2 !important;
+    padding:2px 6px !important;
+  }
+  /* 場地區（左半，Row3） */
   .courts-area {
-    flex:1 1 0 !important;
+    grid-column:1 !important;
+    grid-row:3 !important;
+    display:flex !important;
+    flex-direction:row !important;
     overflow-x:scroll !important;
     overflow-y:hidden !important;
     align-items:stretch !important;
+    scroll-snap-type:x mandatory !important;
+    -webkit-overflow-scrolling:touch !important;
     min-height:0 !important;
+    border-right:2px solid var(--bdr) !important;
   }
-  /* 每張場地卡片自行垂直捲動 */
   .court-card {
-    flex:0 0 100vw !important;
+    flex:0 0 50vw !important;
+    width:50vw !important;
     overflow-y:auto !important;
+    -webkit-overflow-scrolling:touch !important;
     min-height:0 !important;
+    padding:5px 8px !important;
+  }
+  /* 候場區（右半，Row3）：queue-hdr + queue-body 保持正常 flex 子元素 */
+  .queue-area {
+    grid-column:2 !important;
+    grid-row:3 !important;
+    display:flex !important;
+    flex-direction:column !important;
+    min-height:0 !important;
+    overflow:hidden !important;
+    border-top:none !important;
+  }
+  .queue-hdr { flex-shrink:0 !important; padding:5px 12px !important; }
+  .queue-body {
+    flex:1 1 0 !important;
+    overflow-y:auto !important;
+    max-height:unset !important;
     -webkit-overflow-scrolling:touch !important;
   }
-  /* 候場名單固定在底部，高度壓縮 */
-  .queue-area { flex:0 0 auto !important; min-height:unset !important; }
-  .queue-hdr { padding:4px 14px !important; }
-  .queue-body { max-height:90px !important; overflow-y:auto !important; flex:none !important; }
+  .p-item { width:100% !important; padding:7px 8px !important; }
 }
 
 /* ══════════════════════════════
@@ -938,11 +970,6 @@ header h1{font-size:1.2rem;font-weight:800;}
     </div>
     <div class="courts-sec-hdr">
       <div class="court-count-btns">
-        <button class="cc-count-btn" id="cc-btn-1" onclick="setCourtCount(1)">1</button>
-        <button class="cc-count-btn" id="cc-btn-2" onclick="setCourtCount(2)">2</button>
-        <button class="cc-count-btn" id="cc-btn-3" onclick="setCourtCount(3)">3</button>
-        <button class="cc-count-btn" id="cc-btn-4" onclick="setCourtCount(4)">4</button>
-        <button class="cc-count-btn" id="cc-btn-5" onclick="setCourtCount(5)">5</button>
         <button class="cc-count-btn" id="cc-btn-rev" onclick="toggleCourtOrder()" title="反轉場地順序" style="font-size:1rem;width:34px">⇄</button>
       </div>
       <button id="tut-auto-all" class="btn-auto-all" onclick="autoFillAll()"><i class="bi bi-lightning-charge-fill"></i> 全部自動排場</button>
@@ -5443,11 +5470,6 @@ function renderStats(){
   set('sc-total',players.length);
   set('sc-play',playing);
   set('sc-courts',courtActive+'/'+courts.length);
-  // court count buttons highlight
-  for(var _i=1;_i<=5;_i++){
-    var _btn=document.getElementById('cc-btn-'+_i);
-    if(_btn) _btn.classList.toggle('active', courts.length===_i);
-  }
   var _revBtn=document.getElementById('cc-btn-rev');
   if(_revBtn) _revBtn.classList.toggle('active', courtsReversed);
 }
