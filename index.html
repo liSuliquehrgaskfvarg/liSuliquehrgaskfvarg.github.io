@@ -1722,6 +1722,15 @@ header h1{font-size:1.2rem;font-weight:800;}
   </div>
 </div>
 
+<!-- Player History Modal -->
+<div class="overlay" id="modal-player-history" onclick="if(event.target===this)closePlayerHistory()" style="display:none">
+  <div class="modal" style="width:370px;max-height:75vh;display:flex;flex-direction:column;padding:18px 16px 14px">
+    <button onclick="closePlayerHistory()" style="position:absolute;top:10px;right:14px;background:none;border:none;font-size:1.1rem;cursor:pointer;color:var(--mut)"><i class="bi bi-x-lg"></i></button>
+    <h3 id="ph-title" style="margin-bottom:14px;font-size:1rem"><i class="bi bi-person-lines-fill"></i> 對戰紀錄</h3>
+    <div id="ph-body" style="overflow-y:auto;flex:1"></div>
+  </div>
+</div>
+
 <!-- Score Input Modal -->
 <div class="overlay" id="modal-score" onclick="closeScoreModal(event)">
   <div class="modal" style="width:300px;text-align:center">
@@ -2074,6 +2083,51 @@ function skipMyName(){
   document.getElementById('viewer-pick-bar').style.display='none';
 }
 
+function showPlayerHistory(name){
+  var myMatches=[];
+  matchHistory.forEach(function(m,idx){
+    var inA=m.teamA.some(function(p){return p.name===name;});
+    var inB=m.teamB.some(function(p){return p.name===name;});
+    if(!inA&&!inB) return;
+    myMatches.push({
+      matchNo:idx+1,
+      court:m.courtName,
+      time:m.time||'',
+      myTeam:inA?m.teamA:m.teamB,
+      oppTeam:inA?m.teamB:m.teamA,
+      scoreMe:inA?(m.scoreA!==undefined?m.scoreA:null):(m.scoreB!==undefined?m.scoreB:null),
+      scoreOpp:inA?(m.scoreB!==undefined?m.scoreB:null):(m.scoreA!==undefined?m.scoreA:null),
+    });
+  });
+  document.getElementById('ph-title').innerHTML='<i class="bi bi-person-lines-fill"></i> '+name+' 的對戰紀錄';
+  var body=document.getElementById('ph-body');
+  if(myMatches.length===0){
+    body.innerHTML='<div style="color:var(--mut);text-align:center;padding:24px 0">暫無對戰紀錄</div>';
+  } else {
+    body.innerHTML=myMatches.map(function(m){
+      var mates=m.myTeam.filter(function(p){return p.name!==name;}).map(function(p){return p.name;});
+      var opps=m.oppTeam.map(function(p){return p.name;});
+      var won=(m.scoreMe!==null&&m.scoreOpp!==null)&&m.scoreMe>m.scoreOpp;
+      var scoreHtml=(m.scoreMe!==null&&m.scoreOpp!==null)
+        ?'<span style="font-size:0.8rem;font-weight:800;margin-left:auto;color:'+(won?'#4ade80':'#f87171')+'">'+m.scoreMe+':'+m.scoreOpp+'</span>'
+        :'';
+      return '<div style="background:var(--sur2);border-radius:10px;padding:10px 12px;margin-bottom:8px">'
+        +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">'
+        +'<span style="font-size:0.65rem;background:#1a3d1a;color:#6abf5a;border-radius:999px;padding:1px 9px;font-weight:700">第 '+m.matchNo+' 場</span>'
+        +'<span style="font-size:0.7rem;color:var(--mut)">'+m.court+' · '+m.time+'</span>'
+        +scoreHtml
+        +'</div>'
+        +'<div style="font-size:0.82rem;line-height:1.8">'
+        +(mates.length?'<span style="color:var(--mut)">隊友：</span><b>'+mates.join('、')+'</b>　':'')
+        +'<span style="color:var(--mut)">對手：</span><b>'+(opps.length?opps.join('、'):'無')+'</b>'
+        +'</div>'
+        +'</div>';
+    }).join('');
+  }
+  document.getElementById('modal-player-history').style.display='flex';
+}
+function closePlayerHistory(){document.getElementById('modal-player-history').style.display='none';}
+
 function renderViewerPickBar(){
   if(_viewerNameChosen || isJoinMode) return;
   if(players.length===0) return;
@@ -2165,9 +2219,9 @@ function renderViewerUI(updatedAt){
       if(!p) return '';
       var isMe = _myPlayerName && p.name===_myPlayerName;
       var lc = lvlColorC[parseInt(p.level)]||{bg:'#4ade80',txt:'#14532d'};
-      var base = 'display:inline-block;font-weight:700;background:'+lc.bg+';color:'+lc.txt+';border-radius:8px;padding:3px 10px;font-size:1rem;';
+      var base = 'display:inline-block;font-weight:700;background:'+lc.bg+';color:'+lc.txt+';border-radius:8px;padding:3px 10px;font-size:1rem;cursor:pointer;';
       if(isMe) base += 'border:2.5px solid #fff;box-shadow:0 0 0 3px rgba(255,255,255,0.35);';
-      return '<span style="'+base+'">'+p.name+'</span>';
+      return '<span style="'+base+'" onclick="showPlayerHistory(\''+p.name.replace(/'/g,"\\'")+'\')" >'+p.name+'</span>';
     }
     div.innerHTML = '<div style="font-size:1rem;font-weight:900;color:#6abf5a;margin-bottom:10px">場地 '+c.name+'  <span style="font-size:0.85rem;padding:3px 10px;border-radius:999px;background:'+(c.status==='playing'?'#14532d':'var(--bdr)')+';color:'+(c.status==='playing'?'#4ade80':'var(--mut)')+'">'+({empty:'空',playing:'比賽中',ready:'準備中'}[c.status]||c.status)+'</span></div>'
       + (teamA.length||teamB.length ? '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'
@@ -2186,8 +2240,9 @@ function renderViewerUI(updatedAt){
     var c=lvlColor[parseInt(p.level)]||{bg:'var(--sur)',txt:'var(--txt)'};
     var isMe = _myPlayerName && p.name===_myPlayerName;
     var chip = document.createElement('div');
-    chip.style.cssText = 'background:'+c.bg+';color:'+c.txt+';border-radius:999px;padding:8px 18px;font-size:1.1rem;font-weight:700;'+(isMe?'border:2.5px solid #fff;box-shadow:0 0 0 3px rgba(255,255,255,0.4);':'border:none;');
+    chip.style.cssText = 'background:'+c.bg+';color:'+c.txt+';border-radius:999px;padding:8px 18px;font-size:1.1rem;font-weight:700;cursor:pointer;'+(isMe?'border:2.5px solid #fff;box-shadow:0 0 0 3px rgba(255,255,255,0.4);':'border:none;');
     chip.textContent = p.name;
+    chip.onclick = (function(name){ return function(){ showPlayerHistory(name); }; })(p.name);
     queueDiv.appendChild(chip);
   });
   emptyDiv.style.display = (courts.length===0 && waiting.length===0) ? 'block' : 'none';
@@ -5136,7 +5191,7 @@ function renderPlayers(){
           </div>
         </div>
         <div class="p-item-bot">
-          <span style="font-size:1rem;font-weight:800;color:#6abf5a;flex-shrink:0">${cnt}場</span>
+          <span style="font-size:1rem;font-weight:800;color:#6abf5a;flex-shrink:0;cursor:pointer" onclick="event.stopPropagation();showPlayerHistory('${p.name}')" title="查對戰紀錄">${cnt}場</span>
           <div style="flex:1"></div>
           <button class="btn-rm" onclick="event.stopPropagation();removePlayer(${p.id})" style="font-size:0.7rem;align-self:flex-end">✕</button>
         </div>
