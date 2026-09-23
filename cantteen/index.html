@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>班級訂餐</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f4f8;min-height:100vh;padding:16px}
+.card{background:#fff;border-radius:14px;padding:20px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+h1{font-size:1.4rem;font-weight:700;color:#1a1a2e;margin-bottom:4px}
+.subtitle{font-size:.85rem;color:#6b7280;margin-bottom:0}
+.seat-row{display:flex;gap:10px;align-items:center;margin-top:14px}
+.seat-row input{flex:1;padding:10px 14px;font-size:1.1rem;border:2px solid #e5e7eb;border-radius:10px;outline:none;text-align:center;font-weight:700}
+.seat-row input:focus{border-color:#4f46e5}
+.btn{padding:10px 20px;border-radius:10px;border:none;font-size:1rem;font-weight:700;cursor:pointer;transition:.15s}
+.btn-primary{background:#4f46e5;color:#fff}
+.btn-primary:hover{background:#4338ca}
+.btn-primary:disabled{background:#a5b4fc;cursor:not-allowed}
+.btn-submit{width:100%;padding:14px;font-size:1.1rem;border-radius:12px;border:none;font-weight:700;cursor:pointer;background:#10b981;color:#fff;margin-top:6px;transition:.15s}
+.btn-submit:hover{background:#059669}
+.btn-submit:disabled{background:#a7f3d0;cursor:not-allowed}
+.week-title{font-size:1rem;font-weight:700;color:#374151}
+.deadline{font-size:.8rem;color:#9ca3af;margin-top:2px}
+.day-block{border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;margin-bottom:10px}
+.day-hdr{background:#f9fafb;padding:9px 14px;font-weight:700;font-size:.9rem;color:#374151;border-bottom:1px solid #e5e7eb}
+.meal-row{display:flex;align-items:center;padding:10px 14px;gap:10px}
+.meal-check{width:20px;height:20px;accent-color:#4f46e5;cursor:pointer;flex-shrink:0}
+.meal-label{flex:1;font-size:.95rem;color:#374151}
+.status-banner{padding:12px 16px;border-radius:10px;font-size:.9rem;font-weight:600;margin-bottom:14px}
+.status-ok{background:#d1fae5;color:#065f46}
+.status-err{background:#fee2e2;color:#991b1b}
+.status-warn{background:#fef3c7;color:#92400e}
+.already-submitted{background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:12px 14px;margin-bottom:12px;font-size:.85rem;color:#1e40af}
+.locked-notice{background:#fee2e2;border:1px solid #fca5a5;border-radius:10px;padding:12px 14px;margin-bottom:12px;font-size:.85rem;color:#991b1b;font-weight:600}
+.tab-bar{display:flex;gap:8px;margin-bottom:14px}
+.tab-btn{flex:1;padding:10px;border:2px solid #e5e7eb;border-radius:10px;background:#f9fafb;font-size:.95rem;font-weight:700;cursor:pointer;color:#6b7280;transition:.15s}
+.tab-btn.active{background:#4f46e5;color:#fff;border-color:#4f46e5}
+#main-form{display:none}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>🍱 班級訂餐</h1>
+  <p class="subtitle">輸入座號查詢或填寫這週訂餐</p>
+  <div class="seat-row">
+    <input type="number" id="seat-input" placeholder="座號" min="1" max="99">
+    <button class="btn btn-primary" id="btn-load" onclick="loadOrder()">查詢</button>
+  </div>
+</div>
+<div id="status-msg"></div>
+<div id="main-form"></div>
+<script>
+const API='https://script.google.com/macros/s/AKfycbxbhWetXnvyuxTmmqoNP76PiO-IY17K0-gkEiHYCm7gNJdGhqwP2kuxAkd8VwNrvi2N/exec';
+let weekData=null,currentSeat=null;
+function showMsg(html,type=''){
+  document.getElementById('status-msg').innerHTML=html?`<div class="status-banner status-${type}">${html}</div>`:'';
+}
+async function loadOrder(){
+  const v=parseInt(document.getElementById('seat-input').value);
+  if(!v||v<1){showMsg('請輸入有效座號','err');return;}
+  currentSeat=v;
+  document.getElementById('btn-load').disabled=true;
+  showMsg('載入中…','warn');
+  document.getElementById('main-form').innerHTML='';
+  document.getElementById('main-form').style.display='none';
+  try{
+    const resp=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'submitOrder',seatNo:v})});
+    weekData=await resp.json();
+    if(weekData.error){showMsg(weekData.error,'err');return;}
+    showMsg('');renderForm();
+  }catch(e){showMsg('載入失敗，請檢查網路','err');}
+  finally{document.getElementById('btn-load').disabled=false;}
+}
+function renderForm(){
+  const d=weekData,isLocked=d.locked;
+  const already=d.submittedSeats&&d.submittedSeats.includes(currentSeat);
+  const dl=d.deadlineTs?new Date(d.deadlineTs):null;
+  const dlStr=dl?`截止：${dl.getMonth()+1}/${dl.getDate()} ${dl.toTimeString().slice(0,5)}`:'';
+  const sel=d.mySelection||{};
+  const days=d.days||[];
+  const hasLunch=days.some(day=>day.lunchEnabled);
+  const hasDinner=days.some(day=>day.dinnerEnabled);
+
+  let html=`<div class="card"><div class="week-title">📅 ${d.weekLabel||''}</div><div class="deadline">${dlStr}${d.note?' ・ '+d.note:''}</div>`;
+  if(isLocked)html+=`<div class="locked-notice" style="margin-top:12px">🔒 本週已截止，無法修改</div>`;
+  else if(already)html+=`<div class="already-submitted" style="margin-top:12px">✅ 已送出（可重新填寫覆蓋）</div>`;
+  html+='</div><div class="card">';
+
+  if(hasLunch&&hasDinner){
+    html+=`<div class="tab-bar"><button class="tab-btn active" id="tab-btn-lunch" onclick="switchTab('lunch')">🌞 午餐</button><button class="tab-btn" id="tab-btn-dinner" onclick="switchTab('dinner')">🌙 晚餐</button></div>`;
+  }
+
+  if(hasLunch){
+    html+=`<div id="tab-lunch" class="tab-panel">`;
+    days.forEach(day=>{
+      if(!day.lunchEnabled)return;
+      const lc=sel[day.key]?.lunch!==false;
+      html+=`<div class="day-block"><div class="day-hdr">${day.dateLabel}</div><div class="meal-row"><input type="checkbox" class="meal-check" id="d${day.key}_lunch" ${lc&&!isLocked?'checked':''} ${isLocked?'disabled':''}><label class="meal-label" for="d${day.key}_lunch">🌞 訂午餐</label></div></div>`;
+    });
+    html+=`</div>`;
+  }
+
+  if(hasDinner){
+    html+=`<div id="tab-dinner" class="tab-panel" ${hasLunch?'style="display:none"':''}>`;
+    days.forEach(day=>{
+      if(!day.dinnerEnabled)return;
+      const dc=sel[day.key]?.dinner!==false;
+      html+=`<div class="day-block"><div class="day-hdr">${day.dateLabel}</div><div class="meal-row"><input type="checkbox" class="meal-check" id="d${day.key}_dinner" ${dc&&!isLocked?'checked':''} ${isLocked?'disabled':''}><label class="meal-label" for="d${day.key}_dinner">🌙 訂晚餐</label></div></div>`;
+    });
+    html+=`</div>`;
+  }
+
+  if(!isLocked)html+=`<button class="btn-submit" id="btn-submit" onclick="submitOrder()">✅ 送出訂餐</button>`;
+  html+='</div>';
+  document.getElementById('main-form').innerHTML=html;
+  document.getElementById('main-form').style.display='block';
+}
+function switchTab(tab){
+  document.querySelectorAll('.tab-panel').forEach(el=>el.style.display='none');
+  document.querySelectorAll('.tab-btn').forEach(el=>el.classList.remove('active'));
+  document.getElementById('tab-'+tab).style.display='block';
+  document.getElementById('tab-btn-'+tab).classList.add('active');
+}
+async function submitOrder(){
+  const btn=document.getElementById('btn-submit');
+  btn.disabled=true;btn.textContent='送出中…';
+  const choices={};
+  (weekData.days||[]).forEach(day=>{
+    choices[day.key]={};
+    if(day.lunchEnabled){const el=document.getElementById(`d${day.key}_lunch`);if(el)choices[day.key].lunch=el.checked;}
+    if(day.dinnerEnabled){const el=document.getElementById(`d${day.key}_dinner`);if(el)choices[day.key].dinner=el.checked;}
+  });
+  try{
+    const resp=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'submitOrder',seatNo:currentSeat,choices})});
+    const r=await resp.json();
+    if(r.error){showMsg(r.error,'err');btn.disabled=false;btn.textContent='✅ 送出訂餐';}
+    else{weekData=r;showMsg(`✅ 座號 ${currentSeat} 訂餐送出成功！`,'ok');renderForm();}
+  }catch(e){showMsg('送出失敗，請重試','err');btn.disabled=false;btn.textContent='✅ 送出訂餐';}
+}
+document.getElementById('seat-input').addEventListener('keydown',e=>{if(e.key==='Enter')loadOrder();});
+</script>
+</body>
+</html>
