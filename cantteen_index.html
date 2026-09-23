@@ -44,7 +44,7 @@ h1{font-size:1.4rem;font-weight:700;color:#1a1a2e;margin-bottom:4px}
   <h1>🍱 班級訂餐</h1>
   <p class="subtitle">輸入座號查詢或填寫這週訂餐</p>
   <div class="seat-row">
-    <input type="number" id="seat-input" placeholder="座號" min="1" max="40">
+    <input type="number" id="seat-input" placeholder="座號" min="1" max="99">
     <button class="btn btn-primary" id="btn-load" onclick="loadOrder()">查詢</button>
   </div>
 </div>
@@ -58,7 +58,7 @@ function showMsg(html,type=''){
 }
 async function loadOrder(){
   const v=parseInt(document.getElementById('seat-input').value);
-  if(!v||v<1||v>40){showMsg('請輸入有效座號（1–40）','err');return;}
+  if(!v||v<1){showMsg('請輸入有效座號','err');return;}
   currentSeat=v;
   document.getElementById('btn-load').disabled=true;
   showMsg('載入中…','warn');
