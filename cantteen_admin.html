@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>伙委管理</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f4f8;min-height:100vh;padding:16px}
+.card{background:#fff;border-radius:14px;padding:20px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+h1{font-size:1.4rem;font-weight:700;color:#1a1a2e;margin-bottom:4px}
+h2{font-size:1rem;font-weight:700;color:#374151;margin-bottom:12px}
+.subtitle{font-size:.85rem;color:#6b7280}
+.btn{padding:10px 20px;border-radius:10px;border:none;font-size:.95rem;font-weight:700;cursor:pointer;transition:.15s}
+.btn-primary{background:#4f46e5;color:#fff;width:100%;padding:12px;margin-top:8px}
+.btn-primary:hover{background:#4338ca}
+.btn-primary:disabled{background:#a5b4fc;cursor:not-allowed}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.stat-box{background:#f9fafb;border-radius:10px;padding:14px;text-align:center}
+.stat-num{font-size:1.8rem;font-weight:800;color:#4f46e5}
+.stat-label{font-size:.75rem;color:#6b7280;margin-top:2px}
+.seat-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.seat-tag{display:inline-block;padding:4px 10px;border-radius:8px;font-size:.8rem;font-weight:700}
+.seat-ok{background:#d1fae5;color:#065f46}
+.seat-missing{background:#fee2e2;color:#991b1b}
+.table-wrap{overflow-x:auto;margin-top:10px}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th,td{padding:8px 10px;text-align:center;border:1px solid #e5e7eb}
+th{background:#f3f4f6;font-weight:700;color:#374151}
+td{color:#4b5563}
+.form-row{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+label{font-size:.8rem;font-weight:600;color:#374151}
+input,select{padding:8px 12px;border:2px solid #e5e7eb;border-radius:8px;font-size:.9rem;outline:none}
+input:focus,select:focus{border-color:#4f46e5}
+.status-banner{padding:10px 14px;border-radius:10px;font-size:.85rem;font-weight:600;margin-bottom:12px}
+.status-ok{background:#d1fae5;color:#065f46}
+.status-err{background:#fee2e2;color:#991b1b}
+.status-warn{background:#fef3c7;color:#92400e}
+.section-title{font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:#9ca3af;font-weight:700;margin-bottom:10px}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>📋 伙委管理</h1>
+  <p class="subtitle">查看本週訂餐狀況</p>
+  <button class="btn btn-primary" id="btn-refresh" onclick="loadData()">🔄 載入本週資料</button>
+</div>
+<div id="status-msg"></div>
+<div id="summary" style="display:none">
+  <div class="card">
+    <p class="section-title">本週概覽</p>
+    <div class="stat-grid">
+      <div class="stat-box"><div class="stat-num" id="count-submitted">–</div><div class="stat-label">已填</div></div>
+      <div class="stat-box"><div class="stat-num" id="count-missing">–</div><div class="stat-label">未填</div></div>
+    </div>
+    <p style="font-size:.8rem;font-weight:700;color:#374151;margin-bottom:6px">✅ 已填</p>
+    <div class="seat-list" id="seats-ok"></div>
+    <p style="font-size:.8rem;font-weight:700;color:#374151;margin:12px 0 6px">❌ 未填</p>
+    <div class="seat-list" id="seats-missing"></div>
+  </div>
+  <div class="card">
+    <p class="section-title">各日統計（已訂人數）</p>
+    <div class="table-wrap"><table id="counts-table"></table></div>
+    <p style="font-size:.7rem;color:#9ca3af;margin-top:8px">※ 顯示選擇訂餐的人數</p>
+  </div>
+</div>
+<div class="card">
+  <h2>⚙️ 設定</h2>
+  <div id="settings-msg"></div>
+  <div class="form-row">
+    <label>班級人數</label>
+    <input type="number" id="s-classSize" placeholder="例：40" min="1" max="60">
+  </div>
+  <div class="form-row">
+    <label>伙委 Gmail（自動寄報表用）</label>
+    <input type="email" id="s-adminEmail" placeholder="xxxxx@gmail.com">
+  </div>
+  <div class="form-row">
+    <label>截止星期</label>
+    <select id="s-deadlineWeekday">
+      <option value="1">週一</option>
+      <option value="2">週二</option>
+      <option value="3">週三</option>
+      <option value="4">週四</option>
+      <option value="5">週五</option>
+    </select>
+  </div>
+  <div class="form-row">
+    <label>截止時間（24h）</label>
+    <input type="time" id="s-deadlineTime" value="23:59">
+  </div>
+  <div class="form-row">
+    <label>備註（顯示在學生頁面）</label>
+    <input type="text" id="s-note" placeholder="例：本週五不供餐">
+  </div>
+  <button class="btn btn-primary" id="btn-settings" onclick="saveSettings()">💾 儲存設定</button>
+</div>
+
+<script>
+const API='https://script.google.com/macros/s/AKfycbxbhWetXnvyuxTmmqoNP76PiO-IY17K0-gkEiHYCm7gNJdGhqwP2kuxAkd8VwNrvi2N/exec';
+let weekData=null;
+
+function showMsg(id,html,type=''){
+  document.getElementById(id).innerHTML=html?`<div class="status-banner status-${type}">${html}</div>`:'';
+}
+
+async function loadData(){
+  document.getElementById('btn-refresh').disabled=true;
+  showMsg('status-msg','載入中…','warn');
+  document.getElementById('summary').style.display='none';
+  try{
+    // Load with seatNo=1 to get week-level aggregate data
+    const resp=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'submitOrder',seatNo:1})});
+    weekData=await resp.json();
+    if(weekData.error){showMsg('status-msg',weekData.error,'err');return;}
+    showMsg('status-msg','');
+    renderSummary();
+    // Populate settings from returned data
+    if(weekData.classSize) document.getElementById('s-classSize').value=weekData.classSize;
+    if(weekData.deadlineWeekday) document.getElementById('s-deadlineWeekday').value=weekData.deadlineWeekday;
+    if(weekData.deadlineTime) document.getElementById('s-deadlineTime').value=weekData.deadlineTime;
+    if(weekData.note) document.getElementById('s-note').value=weekData.note;
+  }catch(e){showMsg('status-msg','載入失敗，請檢查網路','err');}
+  finally{document.getElementById('btn-refresh').disabled=false;}
+}
+
+function renderSummary(){
+  const d=weekData;
+  const submitted=d.submittedSeats||[];
+  const missing=d.notSubmitted||[];
+  document.getElementById('count-submitted').textContent=submitted.length;
+  document.getElementById('count-missing').textContent=missing.length;
+  document.getElementById('seats-ok').innerHTML=submitted.map(s=>`<span class="seat-tag seat-ok">${s}</span>`).join('')||'<span style="color:#9ca3af;font-size:.8rem">（無）</span>';
+  document.getElementById('seats-missing').innerHTML=missing.map(s=>`<span class="seat-tag seat-missing">${s}</span>`).join('')||'<span style="color:#9ca3af;font-size:.8rem">（全部已填）</span>';
+
+  // Counts table
+  const sc=d.slotCounts||{};
+  const days=d.days||[];
+  let tableHtml='<tr><th>日期</th><th>午餐</th><th>晚餐</th></tr>';
+  days.forEach(day=>{
+    const c=sc[day.key]||{};
+    // slotCounts might be opt-out counts; total - optout = ordering
+    // Show as "ordering" count: classSize - optoutCount (if available)
+    // For now display raw counts
+    const lunchCount=day.lunchEnabled?(c.lunch!==undefined?c.lunch:'–'):'—';
+    const dinnerCount=day.dinnerEnabled?(c.dinner!==undefined?c.dinner:'–'):'—';
+    tableHtml+=`<tr><td>${day.dateLabel}</td><td>${lunchCount}</td><td>${dinnerCount}</td></tr>`;
+  });
+  document.getElementById('counts-table').innerHTML=tableHtml;
+  document.getElementById('summary').style.display='block';
+}
+
+async function saveSettings(){
+  const btn=document.getElementById('btn-settings');
+  btn.disabled=true;btn.textContent='儲存中…';
+  const settings={
+    action:'updateSettings',
+    classSize:parseInt(document.getElementById('s-classSize').value)||40,
+    adminEmail:document.getElementById('s-adminEmail').value.trim(),
+    deadlineWeekday:parseInt(document.getElementById('s-deadlineWeekday').value),
+    deadlineTime:document.getElementById('s-deadlineTime').value,
+    note:document.getElementById('s-note').value.trim()
+  };
+  try{
+    const resp=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(settings)});
+    const r=await resp.json();
+    if(r.error)showMsg('settings-msg',r.error,'err');
+    else showMsg('settings-msg','✅ 設定已儲存','ok');
+  }catch(e){showMsg('settings-msg','儲存失敗','err');}
+  finally{btn.disabled=false;btn.textContent='💾 儲存設定';}
+}
+
+// Auto-load on open
+loadData();
+</script>
+</body>
+</html>
